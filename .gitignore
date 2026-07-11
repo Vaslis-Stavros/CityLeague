@@ -31,6 +31,9 @@ artifacts/
 # MAUI single-project folder name ends in .App (not an iOS bundle)
 !src/CityLeague.App/
 !src/CityLeague.App/**
+# Re-ignore build output (the exception above would otherwise track bin/obj)
+src/CityLeague.App/[Bb]in/
+src/CityLeague.App/[Oo]bj/
 
 # Local secrets / config
 appsettings.*.local.json
@@ -46,3 +49,4 @@ Thumbs.db
 *.db
 *.db-shm
 *.db-wal
+src/CityLeague.App/CityLeague.App.csproj.user
