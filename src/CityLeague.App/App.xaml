@@ -1,0 +1,22 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:CityLeague.App"
+             xmlns:conv="clr-namespace:CityLeague.App.Converters"
+             x:Class="CityLeague.App.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <conv:InvertedBoolConverter x:Key="InvertedBool" />
+            <conv:IsStringNotEmptyConverter x:Key="IsStringNotEmpty" />
+            <conv:IsNotNullConverter x:Key="IsNotNull" />
+            <conv:StringEqualsConverter x:Key="StringEquals" />
+            <conv:SportColorConverter x:Key="SportColor" />
+            <conv:SportChipMultiConverter x:Key="SportChip" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

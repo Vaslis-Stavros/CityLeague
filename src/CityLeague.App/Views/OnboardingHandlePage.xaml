@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.OnboardingHandlePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Choose your handle">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+            <Label Text="Pick a unique handle"
+                   FontSize="24" FontAttributes="Bold" />
+            <Label Text="This is how friends find and invite you. 3-20 characters, letters, numbers and underscores."
+                   TextColor="#666" />
+
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6" VerticalOptions="Center">
+                <Label Grid.Column="0" Text="@" FontSize="22" VerticalOptions="Center" TextColor="{StaticResource Brand}" />
+                <Entry Grid.Column="1" Placeholder="your_handle" Text="{Binding Handle}" />
+            </Grid>
+
+            <Label Text="{Binding Hint}"
+                   IsVisible="{Binding HasHint}"
+                   TextColor="{StaticResource BrandDark}" />
+
+            <Button Text="Check availability"
+                    Command="{Binding CheckCommand}"
+                    IsEnabled="{Binding IsNotBusy}"
+                    BackgroundColor="{StaticResource BrandDark}" TextColor="White" />
+
+            <Button Text="Save and continue"
+                    Command="{Binding SaveCommand}"
+                    IsEnabled="{Binding IsNotBusy}"
+                    BackgroundColor="{StaticResource Brand}" TextColor="White" />
+
+            <Label Text="{Binding ErrorMessage}" TextColor="#C0392B"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Brand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

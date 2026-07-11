@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.EventDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dtos="clr-namespace:CityLeague.Core.Dtos;assembly=CityLeague.Core"
+    xmlns:vm="clr-namespace:CityLeague.App.ViewModels"
+    xmlns:controls="clr-namespace:CityLeague.App.Controls"
+    x:Name="Page"
+    Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="14" Spacing="12">
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0" Text="{Binding Title}" FontSize="22" FontAttributes="Bold" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="{Binding StatusText}" TextColor="{StaticResource Brand}" FontAttributes="Bold" VerticalOptions="Center" />
+            </Grid>
+
+            <Label Text="{Binding ResultText, StringFormat='Result: {0}'}"
+                   IsVisible="{Binding ResultText, Converter={StaticResource IsStringNotEmpty}}"
+                   FontSize="16" />
+
+            <Label Text="Tap an open spot to claim it. Tap your own spot to leave."
+                   FontSize="12" TextColor="#666"
+                   IsVisible="{Binding IsReadOnly, Converter={StaticResource InvertedBool}}" />
+
+            <Label Text="Final lineup and result."
+                   FontSize="12" TextColor="#666"
+                   IsVisible="{Binding IsReadOnly}" />
+
+            <Border StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="0">
+                <controls:FootballFieldView x:Name="Field"
+                    HeightRequest="300"
+                    Positions="{Binding Positions}"
+                    CurrentUserId="{Binding CurrentUserId}"
+                    IsReadOnly="{Binding IsReadOnly}" />
+            </Border>
+
+            <Label Text="{Binding ErrorMessage}" TextColor="#C0392B"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10"
+                  IsVisible="{Binding IsReadOnly, Converter={StaticResource InvertedBool}}">
+                <Button Grid.Column="0" Text="Invite contacts"
+                        IsVisible="{Binding CanInvite}"
+                        Command="{Binding ToggleInvitePanelCommand}"
+                        BackgroundColor="{StaticResource BrandDark}" TextColor="White" />
+                <Button Grid.Column="1" Text="Submit result"
+                        IsVisible="{Binding CanSubmitResult}"
+                        Command="{Binding SubmitResultCommand}"
+                        BackgroundColor="{StaticResource Accent}" TextColor="Black" />
+            </Grid>
+
+            <Button Text="Delete match"
+                    IsVisible="{Binding CanDelete}"
+                    Command="{Binding DeleteCommand}"
+                    BackgroundColor="#C0392B" TextColor="White" />
+
+            <!-- Invite panel -->
+            <Border IsVisible="{Binding ShowInvitePanel}" StrokeThickness="0" Padding="12"
+                    BackgroundColor="#F4F4F4" StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Invite your contacts" FontAttributes="Bold" />
+                    <CollectionView ItemsSource="{Binding InviteCandidates}" HeightRequest="180">
+                        <CollectionView.EmptyView>
+                            <Label Text="All your contacts are already in." TextColor="#888" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SelectableContact">
+                                <Grid Padding="2,6" ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="{Binding User.DisplayName}" VerticalOptions="Center" />
+                                    <Switch Grid.Column="1" IsToggled="{Binding IsSelected}" OnColor="{StaticResource Brand}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    <Button Text="Send invites" Command="{Binding InviteSelectedCommand}"
+                            BackgroundColor="{StaticResource Brand}" TextColor="White" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="Players" FontAttributes="Bold" FontSize="16" Margin="0,6,0,0" />
+            <CollectionView ItemsSource="{Binding Participants}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dtos:ParticipantDto">
+                        <Grid Padding="2,6" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <controls:AvatarView Grid.Column="0" DisplayName="{Binding DisplayName}" ImageUrl="{Binding AvatarUrl}" Diameter="36" />
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="{Binding DisplayName}" />
+                                <Label Text="{Binding Handle, StringFormat='@{0}'}" FontSize="12" TextColor="#888" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="Organizer" FontSize="12" TextColor="{StaticResource Accent}"
+                                   IsVisible="{Binding IsOwner}" VerticalOptions="Center" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Brand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

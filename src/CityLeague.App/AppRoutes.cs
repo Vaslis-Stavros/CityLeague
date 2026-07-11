@@ -1,0 +1,19 @@
+namespace CityLeague.App;
+
+/// <summary>Central place for Shell route strings.</summary>
+public static class AppRoutes
+{
+    public const string Login = "//login";
+    public const string Onboarding = "//onboarding";
+    public const string Home = "//home";
+    public const string Contacts = "//contacts";
+    public const string Create = "//create";
+    public const string Profile = "//profile";
+    public const string Leagues = "//leagues";
+    public const string History = "//history";
+
+    // Detail routes (registered with Routing.RegisterRoute).
+    public const string EventDetail = "eventdetail";
+    public const string SubmitResult = "submitresult";
+    public const string LocationPicker = "locationpicker";
+}

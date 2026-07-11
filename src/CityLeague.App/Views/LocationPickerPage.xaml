@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.LocationPickerPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+    x:Name="Page"
+    Title="Pick location">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="12" RowSpacing="10">
+
+        <Label Grid.Row="0"
+               Text="Tap the map to choose a pitch location"
+               TextColor="#666" />
+
+        <Border Grid.Row="1"
+                IsVisible="{Binding MapKeyMissing}"
+                BackgroundColor="#FFF3CD"
+                Stroke="#FFE69C"
+                StrokeThickness="1"
+                Padding="10"
+                StrokeShape="RoundRectangle 8">
+            <Label TextColor="#856404" FontSize="12"
+                   Text="Map tiles need a Google Maps API key. Add your key to src/CityLeague.App/google-maps.key (see google-maps.key.example) and rebuild." />
+        </Border>
+
+        <Border Grid.Row="2" StrokeThickness="0" StrokeShape="RoundRectangle 12">
+            <maps:Map x:Name="MapView"
+                      IsShowingUser="True"
+                      MapClicked="OnMapClicked" />
+        </Border>
+
+        <VerticalStackLayout Grid.Row="3" Spacing="10">
+            <Label Text="{Binding AddressPreview}"
+                   FontAttributes="Bold"
+                   IsVisible="{Binding AddressPreview, Converter={StaticResource IsStringNotEmpty}}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Grid.Column="0"
+                        Text="My location"
+                        Command="{Binding UseMyLocationCommand}"
+                        BackgroundColor="{StaticResource BrandDark}"
+                        TextColor="White" />
+                <Button Grid.Column="1"
+                        Text="Use this place"
+                        Command="{Binding ConfirmCommand}"
+                        BackgroundColor="{StaticResource Brand}"
+                        TextColor="White" />
+            </Grid>
+
+            <Label Text="{Binding ErrorMessage}" TextColor="#C0392B"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

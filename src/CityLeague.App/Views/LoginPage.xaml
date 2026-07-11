@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="{StaticResource Brand}"
+    HideSoftInputOnTapped="True">
+
+    <ContentPage.Resources>
+        <Style x:Key="AuthField" TargetType="Entry">
+            <Setter Property="BackgroundColor" Value="#F5F5F5" />
+            <Setter Property="TextColor" Value="#111" />
+            <Setter Property="PlaceholderColor" Value="#888" />
+            <Setter Property="HeightRequest" Value="48" />
+        </Style>
+
+        <Style x:Key="SocialAuthButton" TargetType="Button">
+            <Setter Property="BackgroundColor" Value="White" />
+            <Setter Property="TextColor" Value="#222" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="HeightRequest" Value="48" />
+            <Setter Property="BorderColor" Value="#E0E0E0" />
+            <Setter Property="BorderWidth" Value="1" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="HorizontalOptions" Value="Fill" />
+            <Setter Property="ContentLayout" Value="Left,12" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid>
+        <ActivityIndicator
+            IsRunning="{Binding IsCheckingSession}"
+            IsVisible="{Binding IsCheckingSession}"
+            Color="White"
+            VerticalOptions="Center"
+            HorizontalOptions="Center" />
+
+        <ScrollView IsVisible="{Binding IsCheckingSession, Converter={StaticResource InvertedBool}}">
+            <VerticalStackLayout Padding="28" Spacing="16" VerticalOptions="Center">
+
+                <Image Source="logo.svg"
+                       WidthRequest="112" HeightRequest="112"
+                       HorizontalOptions="Center"
+                       Margin="0,0,0,4" />
+
+                <Label Text="CityLeague"
+                       FontSize="40" FontAttributes="Bold"
+                       TextColor="White" HorizontalOptions="Center" />
+                <Label Text="Organize your games. Fill the pitch."
+                       FontSize="16" TextColor="#DDEFDD"
+                       HorizontalOptions="Center" Margin="0,0,0,12" />
+
+                <Border BackgroundColor="White" StrokeThickness="0" Padding="20"
+                        StrokeShape="RoundRectangle 18">
+                    <VerticalStackLayout Spacing="14">
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Grid.Column="0"
+                                    x:Name="LoginTabButton"
+                                    Text="Log in"
+                                    FontAttributes="Bold"
+                                    CornerRadius="12"
+                                    HeightRequest="48"
+                                    Clicked="OnLoginTabClicked">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding IsSignUpMode}" Value="False">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Brand}" />
+                                        <Setter Property="TextColor" Value="White" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Button" Binding="{Binding IsSignUpMode}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="#F5F5F5" />
+                                        <Setter Property="TextColor" Value="#666" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                            <Button Grid.Column="1"
+                                    x:Name="SignUpTabButton"
+                                    Text="Sign up"
+                                    FontAttributes="Bold"
+                                    CornerRadius="12"
+                                    HeightRequest="48"
+                                    Clicked="OnSignUpTabClicked">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding IsSignUpMode}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{StaticResource Brand}" />
+                                        <Setter Property="TextColor" Value="White" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Button" Binding="{Binding IsSignUpMode}" Value="False">
+                                        <Setter Property="BackgroundColor" Value="#F5F5F5" />
+                                        <Setter Property="TextColor" Value="#666" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                        </Grid>
+
+                        <Label Text="{Binding ModeHint}"
+                               FontSize="12"
+                               TextColor="#888"
+                               HorizontalOptions="Center" />
+
+                        <Entry x:Name="UsernameEntry"
+                               Placeholder="Username"
+                               Text="{Binding Username, Mode=TwoWay}"
+                               Style="{StaticResource AuthField}" />
+                        <Entry x:Name="EmailEntry"
+                               Placeholder="Email"
+                               Text="{Binding Email, Mode=TwoWay}"
+                               Keyboard="Email"
+                               IsVisible="{Binding IsSignUpMode}"
+                               Style="{StaticResource AuthField}" />
+                        <Entry x:Name="PasswordEntry"
+                               Placeholder="Password"
+                               Text="{Binding Password, Mode=TwoWay}"
+                               IsPassword="True"
+                               Style="{StaticResource AuthField}" />
+
+                        <Border IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}"
+                                BackgroundColor="#FDEDEC"
+                                Stroke="#F5B7B1"
+                                StrokeThickness="1"
+                                Padding="12"
+                                StrokeShape="RoundRectangle 8">
+                            <Label Text="{Binding ErrorMessage}"
+                                   TextColor="#C0392B"
+                                   FontSize="14" />
+                        </Border>
+
+                        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Brand}" />
+
+                        <Grid ColumnDefinitions="*,Auto,*" Margin="0,4">
+                            <BoxView Grid.Column="0" HeightRequest="1" Color="#E0E0E0" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="or continue with" FontSize="12" TextColor="#888" Margin="10,0" />
+                            <BoxView Grid.Column="2" HeightRequest="1" Color="#E0E0E0" VerticalOptions="Center" />
+                        </Grid>
+
+                        <Button Text="Google"
+                                ImageSource="auth_google.svg"
+                                Style="{StaticResource SocialAuthButton}"
+                                Command="{Binding SignInSocialCommand}" CommandParameter="google"
+                                IsEnabled="{Binding IsNotBusy}" />
+                        <Button Text="Microsoft"
+                                ImageSource="auth_microsoft.svg"
+                                Style="{StaticResource SocialAuthButton}"
+                                Command="{Binding SignInSocialCommand}" CommandParameter="microsoft"
+                                IsEnabled="{Binding IsNotBusy}" />
+                        <Button Text="Apple"
+                                ImageSource="auth_apple.svg"
+                                Style="{StaticResource SocialAuthButton}"
+                                Command="{Binding SignInSocialCommand}" CommandParameter="apple"
+                                IsEnabled="{Binding IsNotBusy}" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

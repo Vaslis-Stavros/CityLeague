@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.ContactsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dtos="clr-namespace:CityLeague.Core.Dtos;assembly=CityLeague.Core"
+    xmlns:controls="clr-namespace:CityLeague.App.Controls"
+    x:Name="Page"
+    Title="Contacts">
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="0">
+
+        <SearchBar Grid.Row="0"
+                   Placeholder="Find people by handle"
+                   Text="{Binding SearchQuery}"
+                   SearchCommand="{Binding SearchCommand}" />
+
+        <!-- Search results -->
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding SearchResults}"
+                        HeightRequest="180"
+                        IsVisible="{Binding SearchResults.Count, Converter={StaticResource IsNotNull}}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="dtos:UserSearchResultDto">
+                    <Grid Padding="12,8" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <controls:AvatarView Grid.Column="0" DisplayName="{Binding DisplayName}" ImageUrl="{Binding AvatarUrl}" Diameter="40" />
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                            <Label Text="{Binding DisplayName}" FontAttributes="Bold" />
+                            <Label Text="{Binding Handle, StringFormat='@{0}'}" TextColor="#888" FontSize="12" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="2" Text="Add"
+                                Command="{Binding Source={x:Reference Page}, Path=BindingContext.AddCommand}"
+                                CommandParameter="{Binding .}"
+                                Padding="12,4" BackgroundColor="{StaticResource Brand}" TextColor="White" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Contacts / requests -->
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Contacts}">
+                <CollectionView.Header>
+                    <Label Text="Your contacts" FontAttributes="Bold" FontSize="16" Padding="12,10,12,4" />
+                </CollectionView.Header>
+                <CollectionView.EmptyView>
+                    <Label Text="No contacts yet. Search above to add people." Padding="24" TextColor="#666" HorizontalTextAlignment="Center" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dtos:ContactDto">
+                        <Grid Padding="12,8" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <controls:AvatarView Grid.Column="0" DisplayName="{Binding User.DisplayName}" ImageUrl="{Binding User.AvatarUrl}" Diameter="44" />
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="{Binding User.DisplayName}" FontAttributes="Bold" />
+                                <Label Text="{Binding User.Handle, StringFormat='@{0}'}" TextColor="#888" FontSize="12" />
+                                <Label Text="Wants to connect" TextColor="{StaticResource Accent}" FontSize="12"
+                                       IsVisible="{Binding IsIncomingRequest}" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="2" Text="Accept"
+                                    IsVisible="{Binding IsIncomingRequest}"
+                                    Command="{Binding Source={x:Reference Page}, Path=BindingContext.AcceptCommand}"
+                                    CommandParameter="{Binding .}"
+                                    Padding="12,4" BackgroundColor="{StaticResource Brand}" TextColor="White" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="456" height="456" viewBox="0 0 456 456" xmlns="http://www.w3.org/2000/svg">
+  <rect width="456" height="456" rx="96" fill="#0B6B2E"/>
+  <rect x="8" y="8" width="440" height="440" rx="88" fill="none" stroke="#FFFFFF" stroke-width="6" opacity="0.35"/>
+  <path fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linejoin="round"
+        d="M 128 330 L 128 178 L 328 178 L 328 330 Q 228 358 128 330 Z"/>
+  <g stroke="#FFFFFF" stroke-width="7" stroke-linecap="round">
+    <line x1="158" y1="184" x2="158" y2="324"/>
+    <line x1="188" y1="184" x2="188" y2="324"/>
+    <line x1="218" y1="184" x2="218" y2="324"/>
+    <line x1="248" y1="184" x2="248" y2="324"/>
+    <line x1="278" y1="184" x2="278" y2="324"/>
+    <line x1="308" y1="184" x2="308" y2="324"/>
+    <line x1="134" y1="204" x2="322" y2="204"/>
+    <line x1="134" y1="234" x2="322" y2="234"/>
+    <line x1="134" y1="264" x2="322" y2="264"/>
+    <line x1="134" y1="294" x2="322" y2="294"/>
+    <line x1="134" y1="324" x2="322" y2="324"/>
+  </g>
+</svg>

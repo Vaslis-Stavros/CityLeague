@@ -1,0 +1,48 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET
+project.lock.json
+project.fragment.lock.json
+artifacts/
+*.nupkg
+*.snupkg
+
+# MAUI / mobile
+*.binlog
+*.aab
+*.apk
+*.ipa
+*.app/
+*.dSYM/
+
+# MAUI single-project folder name ends in .App (not an iOS bundle)
+!src/CityLeague.App/
+!src/CityLeague.App/**
+
+# Local secrets / config
+appsettings.*.local.json
+*.Development.local.json
+secrets.json
+google-maps.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SQLite local dev db
+*.db
+*.db-shm
+*.db-wal

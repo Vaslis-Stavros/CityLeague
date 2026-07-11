@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CityLeague.Api/CityLeague.Api.csproj" />
+    <Project Path="src/CityLeague.App/CityLeague.App.csproj" />
+    <Project Path="src/CityLeague.Core/CityLeague.Core.csproj" />
+    <Project Path="src/CityLeague.Infrastructure/CityLeague.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CityLeague.Api.Tests/CityLeague.Api.Tests.csproj" />
+    <Project Path="tests/CityLeague.Core.Tests/CityLeague.Core.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.SubmitResultPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Submit result">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+            <Label Text="{Binding EventTitle}" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" />
+            <Label Text="Enter the final score" TextColor="#666" HorizontalOptions="Center" />
+
+            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10" Margin="0,10">
+                <!-- Home -->
+                <VerticalStackLayout Grid.Column="0" Spacing="6">
+                    <Label Text="Home" HorizontalOptions="Center" FontAttributes="Bold" />
+                    <Label Text="{Binding HomeScore}" FontSize="52" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource Brand}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                        <Button Grid.Column="0" Text="-" Command="{Binding DecrementHomeCommand}" />
+                        <Button Grid.Column="1" Text="+" Command="{Binding IncrementHomeCommand}" />
+                    </Grid>
+                </VerticalStackLayout>
+
+                <Label Grid.Column="1" Text=":" FontSize="46" VerticalOptions="Center" />
+
+                <!-- Away -->
+                <VerticalStackLayout Grid.Column="2" Spacing="6">
+                    <Label Text="Away" HorizontalOptions="Center" FontAttributes="Bold" />
+                    <Label Text="{Binding AwayScore}" FontSize="52" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource Brand}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                        <Button Grid.Column="0" Text="-" Command="{Binding DecrementAwayCommand}" />
+                        <Button Grid.Column="1" Text="+" Command="{Binding IncrementAwayCommand}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Grid>
+
+            <Label Text="{Binding ErrorMessage}" TextColor="#C0392B"
+                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" HorizontalOptions="Center" />
+
+            <Button Text="Submit result"
+                    Command="{Binding SubmitCommand}"
+                    IsEnabled="{Binding IsNotBusy}"
+                    BackgroundColor="{StaticResource Brand}" TextColor="White" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Brand}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

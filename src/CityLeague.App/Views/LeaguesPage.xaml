@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.LeaguesPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dtos="clr-namespace:CityLeague.Core.Dtos;assembly=CityLeague.Core"
+    x:Name="Page"
+    Title="Leagues">
+
+    <Grid RowDefinitions="Auto,*">
+        <Button Grid.Row="0"
+                Text="Create league"
+                Command="{Binding ToggleCreateCommand}"
+                Margin="12,8"
+                BackgroundColor="{StaticResource Brand}"
+                TextColor="White" />
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="12" Spacing="12">
+
+                <Border IsVisible="{Binding ShowCreatePanel}" StrokeThickness="0" Padding="14"
+                        BackgroundColor="#F4F4F4" StrokeShape="RoundRectangle 12">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Create a league" FontAttributes="Bold" FontSize="18" />
+                        <Entry Placeholder="League name" Text="{Binding NewLeagueName}" />
+                        <Picker ItemsSource="{Binding Sports}"
+                                ItemDisplayBinding="{Binding Name}"
+                                SelectedItem="{Binding SelectedSport}" />
+                        <Button Text="Create league"
+                                Command="{Binding CreateCommand}"
+                                BackgroundColor="{StaticResource BrandDark}"
+                                TextColor="White" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+                    <CollectionView ItemsSource="{Binding Leagues}">
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout Padding="24" Spacing="8">
+                                <Label Text="No leagues yet" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" />
+                                <Label Text="Tap the button above to create your first league."
+                                       HorizontalTextAlignment="Center" TextColor="#666" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:LeagueDto">
+                                <Border Margin="0,4" Padding="14" StrokeThickness="0"
+                                        BackgroundColor="White" StrokeShape="RoundRectangle 14">
+                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
+                                        <Label Grid.Row="0" Grid.Column="0"
+                                               Text="{Binding Name}" FontSize="18" FontAttributes="Bold" />
+                                        <Border Grid.Row="0" Grid.Column="1" Padding="8,4" StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="{Binding SportKey, Converter={StaticResource SportColor}, ConverterParameter=light}">
+                                            <Label Text="{Binding SportName}"
+                                                   FontSize="12" FontAttributes="Bold"
+                                                   TextColor="{Binding SportKey, Converter={StaticResource SportColor}}" />
+                                        </Border>
+                                        <Label Grid.Row="1" Grid.ColumnSpan="2" TextColor="#666">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding ParticipantCount}" FontAttributes="Bold" />
+                                                    <Span Text=" players  •  " />
+                                                    <Span Text="{Binding CompletedMatchCount}" FontAttributes="Bold" />
+                                                    <Span Text=" matches played" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <Label Grid.Row="2" Grid.ColumnSpan="2"
+                                               Text="Organizer" FontSize="12" TextColor="{StaticResource Accent}"
+                                               IsVisible="{Binding IsOwner}" />
+                                        <Grid Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,*" ColumnSpacing="8"
+                                              IsVisible="{Binding IsOwner}">
+                                            <Button Grid.Column="0" Text="Delete"
+                                                    IsVisible="{Binding CanDelete}"
+                                                    Command="{Binding Source={x:Reference Page}, Path=BindingContext.DeleteLeagueCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    BackgroundColor="#C0392B" TextColor="White" />
+                                            <Button Grid.Column="1" Text="End league"
+                                                    IsVisible="{Binding CanEnd}"
+                                                    Command="{Binding Source={x:Reference Page}, Path=BindingContext.EndLeagueCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    BackgroundColor="{StaticResource BrandDark}" TextColor="White" />
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </RefreshView>
+
+                <Label Text="{Binding ErrorMessage}" TextColor="#C0392B"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

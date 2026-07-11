@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.ProfilePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dtos="clr-namespace:CityLeague.Core.Dtos;assembly=CityLeague.Core"
+    xmlns:controls="clr-namespace:CityLeague.App.Controls"
+    Title="Profile">
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="16">
+
+                <controls:AvatarView DisplayName="{Binding DisplayName}" ImageUrl="{Binding AvatarUrl}"
+                                     Diameter="96" HorizontalOptions="Center" />
+
+                <Label Text="{Binding DisplayName}" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" />
+                <Label Text="{Binding HandleText}" TextColor="#888" HorizontalOptions="Center" />
+
+                <Button Text="Change photo" Command="{Binding ChangePhotoCommand}"
+                        HorizontalOptions="Center" BackgroundColor="{StaticResource BrandDark}" TextColor="White" />
+
+                <Label Text="Your stats" FontAttributes="Bold" FontSize="18" Margin="0,10,0,0" />
+                <CollectionView ItemsSource="{Binding Stats}">
+                    <CollectionView.EmptyView>
+                        <Label Text="No games played yet. Join a match to build your record!" TextColor="#666" />
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="dtos:PlayerStatsDto">
+                            <Border Margin="0,4" Padding="14" StrokeThickness="0" BackgroundColor="White" StrokeShape="RoundRectangle 12">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" Text="{Binding SportName}" FontAttributes="Bold" FontSize="16" VerticalOptions="Center" />
+                                    <Label Grid.Column="1" VerticalOptions="Center">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Played}" FontAttributes="Bold" />
+                                                <Span Text=" played  •  " TextColor="#666" />
+                                                <Span Text="{Binding Wins}" TextColor="{StaticResource Brand}" FontAttributes="Bold" />
+                                                <Span Text="W " TextColor="#666" />
+                                                <Span Text="{Binding Losses}" TextColor="#C0392B" FontAttributes="Bold" />
+                                                <Span Text="L " TextColor="#666" />
+                                                <Span Text="{Binding Draws}" FontAttributes="Bold" />
+                                                <Span Text="D" TextColor="#666" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Button Text="Log out" Command="{Binding LogoutCommand}"
+                        Margin="0,20,0,0" BackgroundColor="#C0392B" TextColor="White" />
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Brand}" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>

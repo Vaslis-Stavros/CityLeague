@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dtos="clr-namespace:CityLeague.Core.Dtos;assembly=CityLeague.Core"
+    x:Name="Page"
+    Title="CityLeague">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Sport selector -->
+        <ScrollView Grid.Row="0"
+                    Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never"
+                    Margin="8,10"
+                    HeightRequest="52">
+            <HorizontalStackLayout BindableLayout.ItemsSource="{Binding Sports}"
+                                   Spacing="8"
+                                   Padding="4"
+                                   VerticalOptions="Center">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="dtos:SportDto">
+                        <Border StrokeThickness="2" Padding="14,8"
+                                StrokeShape="RoundRectangle 20">
+                            <Border.BackgroundColor>
+                                <MultiBinding Converter="{StaticResource SportChip}" ConverterParameter="background">
+                                    <Binding />
+                                    <Binding Source="{x:Reference Page}" Path="BindingContext.SelectedSport" />
+                                </MultiBinding>
+                            </Border.BackgroundColor>
+                            <Border.Stroke>
+                                <MultiBinding Converter="{StaticResource SportChip}" ConverterParameter="stroke">
+                                    <Binding />
+                                    <Binding Source="{x:Reference Page}" Path="BindingContext.SelectedSport" />
+                                </MultiBinding>
+                            </Border.Stroke>
+                            <Label Text="{Binding Name}" FontAttributes="Bold" VerticalOptions="Center">
+                                <Label.TextColor>
+                                    <MultiBinding Converter="{StaticResource SportChip}" ConverterParameter="text">
+                                        <Binding />
+                                        <Binding Source="{x:Reference Page}" Path="BindingContext.SelectedSport" />
+                                    </MultiBinding>
+                                </Label.TextColor>
+                            </Label>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={x:Reference Page}, Path=BindingContext.SelectSportCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Coming soon -->
+        <VerticalStackLayout Grid.Row="1" IsVisible="{Binding IsComingSoon}"
+                             VerticalOptions="Center" HorizontalOptions="Center" Spacing="8" Padding="24">
+            <Label Text="Coming soon" FontSize="26" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource Brand}" />
+            <Label Text="This sport isn't available yet. Football is ready to play!"
+                   HorizontalTextAlignment="Center" TextColor="#666" />
+        </VerticalStackLayout>
+
+        <!-- Events -->
+        <Grid Grid.Row="1" RowDefinitions="Auto,*"
+              IsVisible="{Binding IsComingSoon, Converter={StaticResource InvertedBool}}">
+            <Button Grid.Row="0"
+                    Text="+ Create match"
+                    Command="{Binding CreateMatchCommand}"
+                    Margin="16,0,16,8"
+                    BackgroundColor="{StaticResource Brand}"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="12"
+                    HeightRequest="48" />
+            <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+                <CollectionView ItemsSource="{Binding Events}">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24" VerticalOptions="Center" Spacing="8">
+                        <Label Text="No events yet" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" />
+                        <Label Text="Use the Create tab to organize your first match." HorizontalOptions="Center" TextColor="#666" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dtos:EventSummaryDto">
+                        <Border Margin="12,6" Padding="14" StrokeThickness="0" StrokeShape="RoundRectangle 14" BackgroundColor="White">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={x:Reference Page}, Path=BindingContext.OpenEventCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+                                <Label Grid.Row="0" Text="{Binding Title}" FontSize="18" FontAttributes="Bold" />
+                                <Label Grid.Row="1" TextColor="#666">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding FormatName}" />
+                                            <Span Text="  •  " />
+                                            <Span Text="{Binding ScheduledAt, StringFormat='{0:ddd d MMM, HH:mm}'}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0" TextColor="{StaticResource Brand}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding ClaimedCount}" FontAttributes="Bold" />
+                                                <Span Text="/" />
+                                                <Span Text="{Binding TotalSlots}" />
+                                                <Span Text=" spots filled" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label Grid.Column="1" Text="{Binding Status}" TextColor="#888" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            </RefreshView>
+        </Grid>
+    </Grid>
+</ContentPage>
