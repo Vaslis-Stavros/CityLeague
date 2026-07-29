@@ -59,8 +59,17 @@ public partial class ProfileViewModel(ICityLeagueApi api, IAuthService auth) : B
             await RunAsync(async () =>
             {
                 await using var stream = await photo.OpenReadAsync();
-                var contentType = string.IsNullOrEmpty(photo.ContentType) ? "image/jpeg" : photo.ContentType;
-                var updated = await api.UploadAvatarAsync(stream, photo.FileName, contentType);
+                // Copy to memory so the multipart upload has a known length (some platform
+                // streams from the photo picker are non-seekable and trip the handler).
+                await using var buffer = new MemoryStream();
+                await stream.CopyToAsync(buffer);
+                buffer.Position = 0;
+
+                var fileName = string.IsNullOrWhiteSpace(photo.FileName) ? "avatar.jpg" : photo.FileName;
+                var contentType = string.IsNullOrWhiteSpace(photo.ContentType)
+                    ? GuessContentType(fileName)
+                    : photo.ContentType;
+                var updated = await api.UploadAvatarAsync(buffer, fileName, contentType);
                 User = updated;
                 auth.UpdateCurrentUser(updated);
                 NotifyUser();
@@ -69,12 +78,34 @@ public partial class ProfileViewModel(ICityLeagueApi api, IAuthService auth) : B
         catch (FeatureNotSupportedException)
         {
             ErrorMessage = "Photo picking isn't supported on this device.";
+            await ShowAlertAsync(ErrorMessage);
         }
         catch (PermissionException)
         {
             ErrorMessage = "Photo permission was denied.";
+            await ShowAlertAsync(ErrorMessage);
+        }
+        catch (ApiException ex)
+        {
+            ErrorMessage = ex.Message;
+            await ShowAlertAsync(ex.Message);
         }
     }
+
+    private static async Task ShowAlertAsync(string message)
+    {
+        var page = Shell.Current?.CurrentPage;
+        if (page is not null)
+            await page.DisplayAlertAsync("Photo", message, "OK");
+    }
+
+    private static string GuessContentType(string fileName) => Path.GetExtension(fileName).ToLowerInvariant() switch
+    {
+        ".png" => "image/png",
+        ".gif" => "image/gif",
+        ".webp" => "image/webp",
+        _ => "image/jpeg",
+    };
 
     [RelayCommand]
     private async Task LogoutAsync()

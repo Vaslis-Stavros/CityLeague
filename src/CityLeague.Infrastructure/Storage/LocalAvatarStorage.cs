@@ -43,7 +43,17 @@ public class LocalAvatarStorage : IAvatarStorage
     public string? ResolvePublicUrl(string? blobPath)
     {
         if (string.IsNullOrWhiteSpace(blobPath)) return null;
-        var relative = $"/uploads/{blobPath}";
+
+        if (blobPath.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || blobPath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            return blobPath;
+
+        var relative = blobPath.StartsWith("/uploads/", StringComparison.OrdinalIgnoreCase)
+            ? blobPath
+            : $"/uploads/{blobPath.TrimStart('/')}";
+
+        // Optional override for reverse proxies / CDNs. When empty, callers (ApiMapper) should
+        // absolutize against the incoming request host so mobile clients get a reachable URL.
         return string.IsNullOrWhiteSpace(_options.PublicBaseUrl)
             ? relative
             : $"{_options.PublicBaseUrl.TrimEnd('/')}{relative}";
