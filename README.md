@@ -54,6 +54,8 @@ dotnet run
 
 Auth defaults to **Dev mode**, so `POST /api/auth/exchange` accepts a simple payload (provider + email + display name) and returns an app JWT — no provider registration required for local development. Configure real Google / Microsoft / Apple sign-in when you want it; see [Authentication](#authentication).
 
+> **Android emulator:** `localhost` inside the emulator is not your PC. The DEBUG app rewrites it to `http://10.0.2.2:5066` automatically. On a physical device, set `ApiSettings.BaseUrl` to your PC's LAN IP (e.g. `http://192.168.1.20:5066`) and allow the port through the firewall.
+
 ### Quick smoke test (PowerShell)
 
 ```powershell

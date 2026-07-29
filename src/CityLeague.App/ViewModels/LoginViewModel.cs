@@ -200,7 +200,12 @@ public partial class LoginViewModel(IAuthService auth, ISocialSignInService soci
         }
         catch (HttpRequestException)
         {
-            ErrorMessage = "Can't reach the server. Check your connection and try again.";
+            ErrorMessage =
+#if ANDROID
+                "Can't reach the server. On the Android emulator use http://10.0.2.2:5066 (not localhost), and make sure the API is running.";
+#else
+                "Can't reach the server. Check your connection and try again.";
+#endif
             await ShowAlertAsync(alertTitle, ErrorMessage);
         }
         catch (Exception ex)
