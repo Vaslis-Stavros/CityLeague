@@ -4,7 +4,7 @@ using CityLeague.Core.Dtos;
 
 namespace CityLeague.App.Converters;
 
-/// <summary>Styles sport chips: neutral when unselected, sport color when selected.</summary>
+/// <summary>Styles sport chips for the glass home header.</summary>
 public class SportChipMultiConverter : IMultiValueConverter
 {
     public object Convert(object[]? values, Type targetType, object? parameter, CultureInfo culture)
@@ -20,9 +20,9 @@ public class SportChipMultiConverter : IMultiValueConverter
         {
             return part switch
             {
-                "background" => Colors.White,
-                "text" => Color.FromArgb("#555555"),
-                "stroke" => Color.FromArgb("#D8D8D8"),
+                "background" => Color.FromArgb("#28FFFFFF"),
+                "text" => Color.FromArgb("#EAF7EE"),
+                "stroke" => Color.FromArgb("#55FFFFFF"),
                 _ => Colors.Transparent,
             };
         }
@@ -30,9 +30,9 @@ public class SportChipMultiConverter : IMultiValueConverter
         var sportColor = SportColors.GetColor(sport!.Key);
         return part switch
         {
-            "background" => sportColor,
-            "text" => Colors.White,
-            "stroke" => sportColor,
+            "background" => Colors.White,
+            "text" => sportColor,
+            "stroke" => Colors.White,
             _ => sportColor,
         };
     }

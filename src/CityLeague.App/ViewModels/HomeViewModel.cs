@@ -6,29 +6,57 @@ using CityLeague.Core.Dtos;
 
 namespace CityLeague.App.ViewModels;
 
-public partial class HomeViewModel(ICityLeagueApi api) : BaseViewModel
+public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth) : BaseViewModel
 {
     private List<EventSummaryDto> _allEvents = [];
 
     public ObservableCollection<SportDto> Sports { get; } = [];
-    public ObservableCollection<EventSummaryDto> Events { get; } = [];
+    public ObservableCollection<HomeMatchItem> Matches { get; } = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsComingSoon))]
     [NotifyPropertyChangedFor(nameof(ShowEmptyState))]
+    [NotifyPropertyChangedFor(nameof(ScheduleSubtitle))]
     private SportDto? selectedSport;
 
     [ObservableProperty]
     private bool isRefreshing;
 
+    public string Greeting
+    {
+        get
+        {
+            var name = auth.CurrentUser?.DisplayName?.Trim();
+            var first = string.IsNullOrWhiteSpace(name) ? null : name.Split(' ', 2)[0];
+            var hour = DateTime.Now.Hour;
+            var hello = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+            return string.IsNullOrWhiteSpace(first) ? hello : $"{hello}, {first}";
+        }
+    }
+
+    public string ScheduleTitle => IsComingSoon ? "Coming soon" : "Upcoming";
+
+    public string ScheduleSubtitle
+    {
+        get
+        {
+            if (IsComingSoon)
+                return "This sport isn’t ready yet — football is live.";
+            if (Matches.Count == 0)
+                return "No matches on the board.";
+            return Matches.Count == 1 ? "1 match scheduled" : $"{Matches.Count} matches scheduled";
+        }
+    }
+
     public bool IsComingSoon => SelectedSport is not null &&
         !string.Equals(SelectedSport.Availability, "Enabled", StringComparison.OrdinalIgnoreCase);
 
-    public bool ShowEmptyState => !IsBusy && !IsComingSoon && Events.Count == 0;
+    public bool ShowEmptyState => !IsBusy && !IsComingSoon && Matches.Count == 0;
 
     [RelayCommand]
     private async Task AppearingAsync()
     {
+        OnPropertyChanged(nameof(Greeting));
         if (Sports.Count == 0)
             await LoadAsync();
         else
@@ -79,17 +107,25 @@ public partial class HomeViewModel(ICityLeagueApi api) : BaseViewModel
         ApplyFilter();
     }
 
-    partial void OnSelectedSportChanged(SportDto? value) => ApplyFilter();
+    partial void OnSelectedSportChanged(SportDto? value)
+    {
+        OnPropertyChanged(nameof(ScheduleTitle));
+        ApplyFilter();
+    }
 
     private void ApplyFilter()
     {
-        Events.Clear();
+        Matches.Clear();
         if (SelectedSport is not null && !IsComingSoon)
         {
-            foreach (var e in _allEvents.Where(e => string.Equals(e.SportKey, SelectedSport.Key, StringComparison.OrdinalIgnoreCase)))
-                Events.Add(e);
+            foreach (var e in _allEvents
+                         .Where(e => string.Equals(e.SportKey, SelectedSport.Key, StringComparison.OrdinalIgnoreCase))
+                         .OrderBy(e => e.ScheduledAt))
+                Matches.Add(new HomeMatchItem(e));
         }
+
         OnPropertyChanged(nameof(ShowEmptyState));
+        OnPropertyChanged(nameof(ScheduleSubtitle));
     }
 
     [RelayCommand]
@@ -107,10 +143,10 @@ public partial class HomeViewModel(ICityLeagueApi api) : BaseViewModel
     }
 
     [RelayCommand]
-    private async Task OpenEventAsync(EventSummaryDto summary)
+    private async Task OpenEventAsync(HomeMatchItem item)
     {
-        if (summary is null) return;
-        await Shell.Current.GoToAsync($"{AppRoutes.EventDetail}?eventId={summary.Id}");
+        if (item?.Summary is null) return;
+        await Shell.Current.GoToAsync($"{AppRoutes.EventDetail}?eventId={item.Summary.Id}");
     }
 
     [RelayCommand]
