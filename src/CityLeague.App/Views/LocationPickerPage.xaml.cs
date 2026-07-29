@@ -41,19 +41,20 @@ public partial class LocationPickerPage : ContentPage
         if (e.Url is null)
             return;
 
-        if (!e.Url.StartsWith("cityleague://", StringComparison.OrdinalIgnoreCase))
+        // Leaflet talks to the host through https://cityleague.app/bridge/... (never loaded for real).
+        if (!e.Url.Contains("cityleague.app/bridge/", StringComparison.OrdinalIgnoreCase))
             return;
 
         e.Cancel = true;
 
-        if (e.Url.StartsWith("cityleague://mapready", StringComparison.OrdinalIgnoreCase))
+        if (e.Url.Contains("/bridge/mapready", StringComparison.OrdinalIgnoreCase))
         {
             _mapReady = true;
             await SyncMarkerAsync(forceZoom: true);
             return;
         }
 
-        if (!e.Url.StartsWith("cityleague://maptap", StringComparison.OrdinalIgnoreCase))
+        if (!e.Url.Contains("/bridge/maptap", StringComparison.OrdinalIgnoreCase))
             return;
 
         if (!Uri.TryCreate(e.Url, UriKind.Absolute, out var uri))
