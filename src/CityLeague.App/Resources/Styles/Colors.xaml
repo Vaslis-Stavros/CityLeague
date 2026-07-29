@@ -31,6 +31,11 @@
     <Color x:Key="BrandDark">#075023</Color>
     <Color x:Key="Accent">#F2A900</Color>
 
+    <!-- Home glass schedule -->
+    <Color x:Key="GlassFill">#38FFFFFF</Color>
+    <Color x:Key="GlassStroke">#55FFFFFF</Color>
+    <Color x:Key="GlassFillStrong">#55FFFFFF</Color>
+
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
     <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>

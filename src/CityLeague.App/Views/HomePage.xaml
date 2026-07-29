@@ -4,122 +4,274 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:dtos="clr-namespace:CityLeague.Core.Dtos;assembly=CityLeague.Core"
+    xmlns:vm="clr-namespace:CityLeague.App.ViewModels"
     x:Name="Page"
+    Shell.NavBarIsVisible="False"
     Title="CityLeague">
 
-    <Grid RowDefinitions="Auto,*">
+    <ContentPage.Resources>
+        <Style x:Key="GlassPanel" TargetType="Border">
+            <Setter Property="Stroke" Value="{StaticResource GlassStroke}" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="BackgroundColor" Value="{StaticResource GlassFill}" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 22" />
+            <Setter Property="Padding" Value="18,16" />
+        </Style>
+    </ContentPage.Resources>
 
-        <!-- Sport selector -->
-        <ScrollView Grid.Row="0"
-                    Orientation="Horizontal"
-                    HorizontalScrollBarVisibility="Never"
-                    Margin="8,10"
-                    HeightRequest="52">
-            <HorizontalStackLayout BindableLayout.ItemsSource="{Binding Sports}"
-                                   Spacing="8"
-                                   Padding="4"
-                                   VerticalOptions="Center">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="dtos:SportDto">
-                        <Border StrokeThickness="2" Padding="14,8"
-                                StrokeShape="RoundRectangle 20">
-                            <Border.BackgroundColor>
-                                <MultiBinding Converter="{StaticResource SportChip}" ConverterParameter="background">
-                                    <Binding />
-                                    <Binding Source="{x:Reference Page}" Path="BindingContext.SelectedSport" />
-                                </MultiBinding>
-                            </Border.BackgroundColor>
-                            <Border.Stroke>
-                                <MultiBinding Converter="{StaticResource SportChip}" ConverterParameter="stroke">
-                                    <Binding />
-                                    <Binding Source="{x:Reference Page}" Path="BindingContext.SelectedSport" />
-                                </MultiBinding>
-                            </Border.Stroke>
-                            <Label Text="{Binding Name}" FontAttributes="Bold" VerticalOptions="Center">
-                                <Label.TextColor>
-                                    <MultiBinding Converter="{StaticResource SportChip}" ConverterParameter="text">
+    <Grid x:Name="Root">
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#06351A" Offset="0" />
+                    <GradientStop Color="#0B6B2E" Offset="0.45" />
+                    <GradientStop Color="#1FA85A" Offset="1" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+        <Ellipse x:Name="GlowOrb"
+                 Fill="#33F2A900"
+                 WidthRequest="180"
+                 HeightRequest="180"
+                 HorizontalOptions="End"
+                 VerticalOptions="Start"
+                 Margin="0,-20,-40,0" />
+        <Ellipse Fill="#22FFFFFF"
+                 WidthRequest="160"
+                 HeightRequest="160"
+                 HorizontalOptions="Start"
+                 VerticalOptions="End"
+                 Margin="-60,0,0,80" />
+
+        <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="0,8,0,0">
+
+            <VerticalStackLayout x:Name="HeaderBlock"
+                                 Grid.Row="0"
+                                 Padding="22,18,22,4"
+                                 Spacing="4"
+                                 Opacity="0">
+                <Label Text="CityLeague"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="15"
+                       TextColor="#DDEFDD"
+                       CharacterSpacing="1.2" />
+                <Label Text="{Binding Greeting}"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="30"
+                       TextColor="White"
+                       LineBreakMode="TailTruncation" />
+                <Label Text="{Binding ScheduleSubtitle}"
+                       FontFamily="OutfitRegular"
+                       FontSize="14"
+                       TextColor="#C8E6C8"
+                       Margin="0,2,0,8" />
+            </VerticalStackLayout>
+
+            <ScrollView Grid.Row="1"
+                        Orientation="Horizontal"
+                        HorizontalScrollBarVisibility="Never"
+                        HeightRequest="48"
+                        Margin="14,0,14,6">
+                <HorizontalStackLayout BindableLayout.ItemsSource="{Binding Sports}"
+                                       Spacing="8"
+                                       Padding="8,0"
+                                       VerticalOptions="Center">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="dtos:SportDto">
+                            <Border StrokeThickness="1"
+                                    Padding="14,8"
+                                    StrokeShape="RoundRectangle 18">
+                                <Border.BackgroundColor>
+                                    <MultiBinding Converter="{StaticResource SportChip}" ConverterParameter="background">
                                         <Binding />
                                         <Binding Source="{x:Reference Page}" Path="BindingContext.SelectedSport" />
                                     </MultiBinding>
-                                </Label.TextColor>
-                            </Label>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer
-                                    Command="{Binding Source={x:Reference Page}, Path=BindingContext.SelectSportCommand}"
-                                    CommandParameter="{Binding .}" />
-                            </Border.GestureRecognizers>
-                        </Border>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </HorizontalStackLayout>
-        </ScrollView>
-
-        <!-- Coming soon -->
-        <VerticalStackLayout Grid.Row="1" IsVisible="{Binding IsComingSoon}"
-                             VerticalOptions="Center" HorizontalOptions="Center" Spacing="8" Padding="24">
-            <Label Text="Coming soon" FontSize="26" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource Brand}" />
-            <Label Text="This sport isn't available yet. Football is ready to play!"
-                   HorizontalTextAlignment="Center" TextColor="#666" />
-        </VerticalStackLayout>
-
-        <!-- Events -->
-        <Grid Grid.Row="1" RowDefinitions="Auto,*"
-              IsVisible="{Binding IsComingSoon, Converter={StaticResource InvertedBool}}">
-            <Button Grid.Row="0"
-                    Text="+ Create match"
-                    Command="{Binding CreateMatchCommand}"
-                    Margin="16,0,16,8"
-                    BackgroundColor="{StaticResource Brand}"
-                    TextColor="White"
-                    FontAttributes="Bold"
-                    CornerRadius="12"
-                    HeightRequest="48" />
-            <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
-                <CollectionView ItemsSource="{Binding Events}">
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout Padding="24" VerticalOptions="Center" Spacing="8">
-                        <Label Text="No events yet" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" />
-                        <Label Text="Use the Create tab to organize your first match." HorizontalOptions="Center" TextColor="#666" />
-                    </VerticalStackLayout>
-                </CollectionView.EmptyView>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="dtos:EventSummaryDto">
-                        <Border Margin="12,6" Padding="14" StrokeThickness="0" StrokeShape="RoundRectangle 14" BackgroundColor="White">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer
-                                    Command="{Binding Source={x:Reference Page}, Path=BindingContext.OpenEventCommand}"
-                                    CommandParameter="{Binding .}" />
-                            </Border.GestureRecognizers>
-                            <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
-                                <Label Grid.Row="0" Text="{Binding Title}" FontSize="18" FontAttributes="Bold" />
-                                <Label Grid.Row="1" TextColor="#666">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="{Binding FormatName}" />
-                                            <Span Text="  •  " />
-                                            <Span Text="{Binding ScheduledAt, StringFormat='{0:ddd d MMM, HH:mm}'}" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
+                                </Border.BackgroundColor>
+                                <Border.Stroke>
+                                    <MultiBinding Converter="{StaticResource SportChip}" ConverterParameter="stroke">
+                                        <Binding />
+                                        <Binding Source="{x:Reference Page}" Path="BindingContext.SelectedSport" />
+                                    </MultiBinding>
+                                </Border.Stroke>
+                                <Label Text="{Binding Name}"
+                                       FontFamily="OutfitSemiBold"
+                                       FontSize="13"
+                                       VerticalOptions="Center">
+                                    <Label.TextColor>
+                                        <MultiBinding Converter="{StaticResource SportChip}" ConverterParameter="text">
+                                            <Binding />
+                                            <Binding Source="{x:Reference Page}" Path="BindingContext.SelectedSport" />
+                                        </MultiBinding>
+                                    </Label.TextColor>
                                 </Label>
-                                <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
-                                    <Label Grid.Column="0" TextColor="{StaticResource Brand}">
-                                        <Label.FormattedText>
-                                            <FormattedString>
-                                                <Span Text="{Binding ClaimedCount}" FontAttributes="Bold" />
-                                                <Span Text="/" />
-                                                <Span Text="{Binding TotalSlots}" />
-                                                <Span Text=" spots filled" />
-                                            </FormattedString>
-                                        </Label.FormattedText>
-                                    </Label>
-                                    <Label Grid.Column="1" Text="{Binding Status}" TextColor="#888" />
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-            </RefreshView>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding Source={x:Reference Page}, Path=BindingContext.SelectSportCommand}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </HorizontalStackLayout>
+            </ScrollView>
+
+            <Border Grid.Row="2"
+                    Style="{StaticResource GlassPanel}"
+                    Margin="18,12"
+                    VerticalOptions="Center"
+                    IsVisible="{Binding IsComingSoon}">
+                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                    <Label Text="{Binding ScheduleTitle}"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="24"
+                           TextColor="White"
+                           HorizontalOptions="Center" />
+                    <Label Text="{Binding ScheduleSubtitle}"
+                           FontFamily="OutfitRegular"
+                           FontSize="14"
+                           TextColor="#E6F4EA"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Grid Grid.Row="2"
+                  RowDefinitions="Auto,*"
+                  IsVisible="{Binding IsComingSoon, Converter={StaticResource InvertedBool}}">
+                <Label Grid.Row="0"
+                       Text="{Binding ScheduleTitle}"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="18"
+                       TextColor="White"
+                       Margin="22,8,22,8" />
+
+                <RefreshView Grid.Row="1"
+                             IsRefreshing="{Binding IsRefreshing}"
+                             Command="{Binding RefreshCommand}">
+                    <CollectionView ItemsSource="{Binding Matches}">
+                        <CollectionView.EmptyView>
+                            <Border Style="{StaticResource GlassPanel}"
+                                    Margin="18,20"
+                                    VerticalOptions="Start">
+                                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                                    <Label Text="Pitch is clear"
+                                           FontFamily="OutfitSemiBold"
+                                           FontSize="22"
+                                           TextColor="White"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="Schedule a match and invite your contacts."
+                                           FontFamily="OutfitRegular"
+                                           FontSize="14"
+                                           TextColor="#E6F4EA"
+                                           HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:HomeMatchItem">
+                                <Border Style="{StaticResource GlassPanel}"
+                                        Margin="18,0"
+                                        Padding="16,14">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={x:Reference Page}, Path=BindingContext.OpenEventCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,Auto"
+                                          ColumnSpacing="14"
+                                          RowDefinitions="Auto,Auto,Auto"
+                                          RowSpacing="6">
+                                        <Border Grid.Row="0" Grid.RowSpan="3"
+                                                BackgroundColor="#28FFFFFF"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 16"
+                                                Padding="8,12"
+                                                WidthRequest="68"
+                                                VerticalOptions="Fill">
+                                            <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                                                <Label Text="{Binding DayLabel}"
+                                                       FontFamily="OutfitSemiBold"
+                                                       FontSize="11"
+                                                       TextColor="#EAF7EE"
+                                                       HorizontalTextAlignment="Center"
+                                                       LineBreakMode="TailTruncation"
+                                                       MaxLines="1" />
+                                                <Label Text="{Binding TimeLabel}"
+                                                       FontFamily="OutfitSemiBold"
+                                                       FontSize="20"
+                                                       TextColor="White"
+                                                       HorizontalTextAlignment="Center" />
+                                            </VerticalStackLayout>
+                                        </Border>
+
+                                        <Label Grid.Row="0" Grid.Column="1"
+                                               Text="{Binding Title}"
+                                               FontFamily="OutfitSemiBold"
+                                               FontSize="17"
+                                               TextColor="White"
+                                               LineBreakMode="TailTruncation" />
+
+                                        <Label Grid.Row="1" Grid.Column="1"
+                                               Text="{Binding MetaLabel}"
+                                               FontFamily="OutfitRegular"
+                                               FontSize="13"
+                                               TextColor="#D5EBD8"
+                                               LineBreakMode="TailTruncation" />
+
+                                        <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="4">
+                                            <ProgressBar Progress="{Binding FillRatio}"
+                                                         ProgressColor="{Binding Accent}"
+                                                         BackgroundColor="#33FFFFFF"
+                                                         HeightRequest="6" />
+                                            <Label Text="{Binding SpotsLabel}"
+                                                   FontFamily="OutfitRegular"
+                                                   FontSize="12"
+                                                   TextColor="#E6F4EA" />
+                                        </VerticalStackLayout>
+
+                                        <Label Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"
+                                               Text="›"
+                                               FontSize="28"
+                                               TextColor="#AAFFFFFF"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </RefreshView>
+            </Grid>
+
+            <Border x:Name="CreateCta"
+                    Grid.Row="3"
+                    Margin="18,8,18,18"
+                    Padding="0"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 24"
+                    BackgroundColor="White"
+                    HeightRequest="54"
+                    IsVisible="{Binding IsComingSoon, Converter={StaticResource InvertedBool}}">
+                <Border.Shadow>
+                    <Shadow Brush="#40000000" Offset="0,8" Radius="18" Opacity="0.28" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CreateMatchCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="Create match"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="16"
+                       TextColor="{StaticResource Brand}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Border>
         </Grid>
+
+        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           Color="White"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center" />
     </Grid>
 </ContentPage>
