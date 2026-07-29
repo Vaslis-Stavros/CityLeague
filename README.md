@@ -124,6 +124,8 @@ Four ways in, and they can be combined:
 
 `GET /api/auth/providers` returns whatever is configured, and the app builds its login screen from it: buttons for providers the server knows nothing about are hidden.
 
+A filled-in example lives at `src/CityLeague.Api/appsettings.Social.example.json` — copy the values into user secrets or your host's app settings rather than committing them.
+
 ### How the social flow works
 
 1. The app asks the API which providers are configured and where to send the user.

@@ -91,7 +91,27 @@ await using (var scope = app.Services.CreateAsyncScope())
     if (DependencyInjection.UsesSqlServer(app.Configuration))
         await db.Database.MigrateAsync();
     else
+    {
+        // EnsureCreated is a no-op once the file exists, so also create any tables added later.
         await db.Database.EnsureCreatedAsync();
+        await db.Database.ExecuteSqlRawAsync(
+            """
+            CREATE TABLE IF NOT EXISTS "UserExternalLogins" (
+                "Id" TEXT NOT NULL CONSTRAINT "PK_UserExternalLogins" PRIMARY KEY,
+                "UserId" TEXT NOT NULL,
+                "Provider" TEXT NOT NULL,
+                "Subject" TEXT NOT NULL,
+                "Email" TEXT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "LastLoginAt" INTEGER NOT NULL,
+                CONSTRAINT "FK_UserExternalLogins_Users_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id") ON DELETE CASCADE
+            );
+            """);
+        await db.Database.ExecuteSqlRawAsync(
+            """CREATE UNIQUE INDEX IF NOT EXISTS "IX_UserExternalLogins_Provider_Subject" ON "UserExternalLogins" ("Provider", "Subject");""");
+        await db.Database.ExecuteSqlRawAsync(
+            """CREATE INDEX IF NOT EXISTS "IX_UserExternalLogins_UserId" ON "UserExternalLogins" ("UserId");""");
+    }
     await DbSeeder.EnsureSeededAsync(db);
 }
 
