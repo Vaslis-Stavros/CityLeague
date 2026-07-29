@@ -99,7 +99,9 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
 
     partial void OnDateChanged(DateTime value) => OnPropertyChanged(nameof(WhenSummary));
     partial void OnTimeChanged(TimeSpan value) => OnPropertyChanged(nameof(WhenSummary));
-    partial void OnIsBusyChanged(bool value) => OnPropertyChanged(nameof(CanCreate));
+
+    protected override void OnBusyStateChanged(bool isBusy)
+        => OnPropertyChanged(nameof(CanCreate));
 
     [RelayCommand]
     private void ToggleSeriesOptions() => ShowSeriesOptions = !ShowSeriesOptions;

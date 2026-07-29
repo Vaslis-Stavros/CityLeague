@@ -14,6 +14,14 @@ public partial class BaseViewModel : ObservableObject
 
     public bool IsNotBusy => !IsBusy;
 
+    /// <summary>
+    /// Called when <see cref="IsBusy"/> changes. Override in derived VMs — do not declare
+    /// <c>OnIsBusyChanged</c> there; that partial belongs to this base class.
+    /// </summary>
+    protected virtual void OnBusyStateChanged(bool isBusy) { }
+
+    partial void OnIsBusyChanged(bool value) => OnBusyStateChanged(value);
+
     /// <summary>Runs an operation with busy tracking and friendly error capture.</summary>
     protected async Task RunAsync(Func<Task> operation)
     {
