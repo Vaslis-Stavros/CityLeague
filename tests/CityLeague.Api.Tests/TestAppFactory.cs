@@ -4,6 +4,7 @@ using CityLeague.Core.Dtos;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace CityLeague.Api.Tests;
@@ -12,20 +13,33 @@ namespace CityLeague.Api.Tests;
 public class TestAppFactory : WebApplicationFactory<Program>
 {
     private readonly string _dbPath = Path.Combine(Path.GetTempPath(), $"cmi-test-{Guid.NewGuid():N}.db");
+    // Configured through initializers rather than constructor parameters: xUnit class fixtures
+    // require a single public parameterless constructor.
+    public IDictionary<string, string?> Settings { get; init; } = new Dictionary<string, string?>();
+
+    public Action<IServiceCollection>? ConfigureTestServices { get; init; }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
         builder.ConfigureAppConfiguration((_, config) =>
         {
-            config.AddInMemoryCollection(new Dictionary<string, string?>
+            var values = new Dictionary<string, string?>
             {
                 ["ConnectionStrings:SqlServer"] = "",
                 ["ConnectionStrings:Sqlite"] = $"Data Source={_dbPath}",
                 ["Auth:Mode"] = "Dev",
                 ["AvatarStorage:Provider"] = "Local",
-            });
+            };
+
+            foreach (var (key, value) in Settings)
+                values[key] = value;
+
+            config.AddInMemoryCollection(values);
         });
+
+        if (ConfigureTestServices is not null)
+            builder.ConfigureServices(ConfigureTestServices);
     }
 
     /// <summary>Registers (or restores) a user and returns an authenticated client.</summary>
