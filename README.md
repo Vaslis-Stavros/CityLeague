@@ -6,7 +6,7 @@ This repository contains the **Phase 1 MVP** focused on **football** (5v5 throug
 
 ## Features (MVP)
 
-- Sign in (Google / Microsoft via Azure AD B2C, or a dev sign-in for local testing)
+- Sign in with **Google**, **Microsoft**, **Apple**, a username + password, or a dev sign-in for local testing
 - Pick a globally **unique handle** (`@alex_k`)
 - Add **contacts** by handle search (request / accept)
 - Create a **football event** (5v5–11v11) with an optional recurring **series**
@@ -16,7 +16,7 @@ This repository contains the **Phase 1 MVP** focused on **football** (5v5 throug
 - Submit a score → **player stats** (played / won / lost / drawn) update
 - Profile with avatar (image upload or initials fallback) and per-sport stats
 
-Deferred to Phase 2 (schema stubs already exist): leagues, team logos, team standings, multi-sport field UIs, push notifications, Apple Sign-In.
+Deferred to Phase 2 (schema stubs already exist): leagues, team logos, team standings, multi-sport field UIs, push notifications.
 
 ## Solution layout
 
@@ -52,7 +52,7 @@ dotnet run
 - Swagger UI (Development): `http://localhost:5066/swagger`
 - SignalR hub: `http://localhost:5066/hubs/events`
 
-Auth defaults to **Dev mode**, so `POST /api/auth/exchange` accepts a simple payload (provider + email + display name) and returns an app JWT — no B2C tenant required for local development.
+Auth defaults to **Dev mode**, so `POST /api/auth/exchange` accepts a simple payload (provider + email + display name) and returns an app JWT — no provider registration required for local development. Configure real Google / Microsoft / Apple sign-in when you want it; see [Authentication](#authentication).
 
 ### Quick smoke test (PowerShell)
 
@@ -103,34 +103,106 @@ The key is injected at build time via `AndroidManifestPlaceholders` and is gitig
 | `ConnectionStrings:Sqlite` | Used when `SqlServer` is empty (local dev); schema created via `EnsureCreated`. |
 | `Jwt:SigningKey` | Symmetric key for signing app JWTs. **Override in production** (min 32 bytes). |
 | `Jwt:Issuer` / `Jwt:Audience` | JWT issuer/audience. |
-| `Auth:Mode` | `Dev` (trusts the exchange payload) or `B2C` (validates a real id_token). |
+| `Auth:Mode` | `Dev` also accepts the unverified exchange payload (local only). Anything else (`Production`) requires a real provider token. |
+| `Auth:PublicBaseUrl` | Public https base URL of the API. Required for Apple (and Google web clients), which can only redirect to https. |
+| `Auth:MobileRedirectUri` | Custom scheme the app listens on. Defaults to `cityleague://auth/callback`. |
+| `Auth:Google:*` / `Auth:Microsoft:*` / `Auth:Apple:*` | Social sign-in providers — see below. A provider with no `ClientId` is simply disabled. |
 | `Auth:B2C:Authority` | B2C metadata authority (e.g. `https://{tenant}.b2clogin.com/{tenant}.onmicrosoft.com/{policy}/v2.0`). |
 | `Auth:B2C:ClientId` | B2C application (client) id, validated as the token audience. |
 | `AvatarStorage:Provider` | `Local` (disk, served from `/uploads`) or `Azure` (Blob Storage). |
 | `AvatarStorage:ConnectionString` | Azure Storage connection string (when Provider = `Azure`). |
 | `AvatarStorage:PublicBaseUrl` | Absolute base URL used to build avatar URLs for the `Local` provider. |
 
-## Authentication: Dev vs Azure AD B2C
+## Authentication
 
-### Dev mode (default, local only)
-`POST /api/auth/exchange` with `{ provider, email, displayName }` provisions/restores a user and returns app tokens. This is **not secure** and must never be enabled in production.
+Four ways in, and they can be combined:
 
-### Azure AD B2C (production)
+- **Username + password** (`/api/auth/register`, `/api/auth/login`) — always available.
+- **Google / Microsoft / Apple** — real OpenID Connect, enabled per provider by configuration.
+- **Azure AD B2C** — if you prefer to federate through a B2C tenant.
+- **Dev sign-in** — `Auth:Mode=Dev` only, trusts `{ provider, email, displayName }` without a token. Never enable in production.
+
+`GET /api/auth/providers` returns whatever is configured, and the app builds its login screen from it: buttons for providers the server knows nothing about are hidden.
+
+### How the social flow works
+
+1. The app asks the API which providers are configured and where to send the user.
+2. It opens the provider's authorize page (`WebAuthenticator`, or the native Sign in with Apple sheet on iOS) with PKCE, `state` and `nonce`.
+3. The provider redirects back with an authorization code. Providers that only accept https redirects come back through `/api/auth/callback/{provider}`, which forwards to the app's custom scheme.
+4. The app posts the code to `POST /api/auth/exchange`. The API redeems it at the provider's token endpoint, verifies the `id_token` against the provider's published signing keys, provisions or links the user, and returns app JWTs.
+
+Client secrets stay on the server; the app only ever holds the client id it was told to use.
+
+### Google
+
+1. In [Google Cloud Console](https://console.cloud.google.com/) → **APIs & Services → Credentials**, create an **OAuth client ID** of type *Web application*.
+2. Add `https://<your-api>/api/auth/callback/google` as an authorized redirect URI.
+3. Configure the API:
+   ```json
+   "Auth": {
+     "PublicBaseUrl": "https://<your-api>",
+     "Google": { "ClientId": "<id>.apps.googleusercontent.com", "ClientSecret": "<secret>" }
+   }
+   ```
+
+Using platform-specific Android/iOS clients instead? Set `Auth:Google:RedirectUri` to that client's reverse-DNS scheme, drop the secret, and list every platform client id in `Auth:Google:AdditionalAudiences`.
+
+### Microsoft
+
+1. In the [Entra portal](https://entra.microsoft.com/) → **App registrations**, register an app.
+2. Under **Authentication**, add a **Mobile and desktop applications** platform with the redirect URI `cityleague://auth/callback`.
+3. Set `Auth:Microsoft:ClientId`. No secret is needed — it is a public client using PKCE.
+
+Multi-tenant sign-in is allowed by default (`Auth:Microsoft:Authority` defaults to the `common` endpoint). Emails are only trusted for account linking when Entra marks the domain as verified (`xms_edov`) or the account is a consumer Microsoft account; set `Auth:Microsoft:Authority` to your single tenant if you want to avoid that nuance entirely.
+
+### Apple
+
+1. In the [Apple Developer portal](https://developer.apple.com/account/resources/identifiers/list), enable **Sign in with Apple** on the app's App ID (`com.CityLeague.app`).
+2. Create a **Services ID** (e.g. `com.cityleague.service`), enable Sign in with Apple on it, and register the return URL `https://<your-api>/api/auth/callback/apple`. Apple rejects http and custom schemes.
+3. Create a **Sign in with Apple key** and download the `.p8` file.
+4. Configure the API:
+   ```json
+   "Auth": {
+     "PublicBaseUrl": "https://<your-api>",
+     "Apple": {
+       "ClientId": "com.cityleague.service",
+       "TeamId": "<team-id>",
+       "KeyId": "<key-id>",
+       "PrivateKeyPath": "/secrets/AuthKey_<key-id>.p8",
+       "BundleId": "com.CityLeague.app"
+     }
+   }
+   ```
+
+The API mints Apple's short-lived ES256 client secret from the key itself. `BundleId` matters because the native iOS sheet issues tokens for the bundle id rather than the services id — without it, iOS sign-ins are rejected while Android ones succeed.
+
+### Azure AD B2C (alternative)
+
 1. Create a **B2C tenant** and register an application (SPA/native) with the mobile redirect URIs.
 2. Add **Google** and **Microsoft** as identity providers and create a **sign-up/sign-in user flow** (or custom policy).
 3. Configure the API:
    ```json
    "Auth": {
-     "Mode": "B2C",
      "B2C": {
        "Authority": "https://<tenant>.b2clogin.com/<tenant>.onmicrosoft.com/<policy>/v2.0",
        "ClientId": "<app-client-id>"
      }
    }
    ```
-4. The mobile app acquires a B2C `id_token` (via MSAL) and calls `POST /api/auth/exchange` with `{ idToken }`. The API validates it against the tenant's published keys, upserts the user, and returns app JWTs.
+4. Acquire a B2C `id_token` in the client (MSAL ships with the app) and post it to `/api/auth/exchange` as `{ idToken }`.
 
-> The MAUI client ships with a pluggable auth flow. Wire MSAL (`Microsoft.Identity.Client`) into `AuthService` for B2C and configure platform redirect URIs (Android intent filter, iOS URL scheme + entitlements) before shipping.
+### Account linking
+
+External identities are stored in `UserExternalLogins`, so one person can sign in with several providers and keep one account. A second provider links to an existing account **only** when the provider asserts a verified email that matches; otherwise the sign-in is refused with `409` rather than silently merging accounts.
+
+### Mobile platform setup
+
+Already wired up, but worth knowing if you change the scheme:
+
+- **Android**: `WebAuthenticatorCallbackActivity` declares the `cityleague://auth` intent filter, and the manifest queries for a Custom Tabs browser (required on Android 11+).
+- **iOS**: `Info.plist` registers the `cityleague` URL scheme and `Platforms/iOS/Entitlements.plist` carries `com.apple.developer.applesignin`. The same capability must be enabled on the App ID or signing fails.
+
+Change `Auth:MobileRedirectUri` and you must update both platforms to match.
 
 ## Azure deployment
 
@@ -139,13 +211,13 @@ The key is injected at build time via `AndroidManifestPlaceholders` and is gitig
 | Azure SQL | Primary database (set `ConnectionStrings:SqlServer`) |
 | Azure Blob Storage | Avatars (`AvatarStorage:Provider = Azure`) |
 | Azure SignalR Service | Scale-out for real-time position updates |
-| Azure AD B2C | Identity (Google / Microsoft) |
+| Azure AD B2C | Optional, if you federate identity through B2C instead of the providers directly |
 | App Service / Container Apps | Host the API |
 | Application Insights | Logging + telemetry |
 
 Steps:
 1. Provision the resources above.
-2. Set app settings: `ConnectionStrings:SqlServer`, `Jwt:SigningKey`, `Auth:Mode=B2C` (+ B2C settings), `AvatarStorage:Provider=Azure` (+ connection string).
+2. Set app settings: `ConnectionStrings:SqlServer`, `Jwt:SigningKey`, `Auth:Mode=Production`, `Auth:PublicBaseUrl`, the provider settings from [Authentication](#authentication), and `AvatarStorage:Provider=Azure` (+ connection string).
 3. (Optional) Bind Azure SignalR by adding `builder.Services.AddSignalR().AddAzureSignalR(<connStr>)` in `Program.cs`.
 4. Deploy the API (e.g. `az webapp up` or container image). On startup with a SQL Server connection string, **EF migrations are applied automatically**.
 
@@ -166,7 +238,10 @@ Local SQLite dev does not use migrations; the schema is created from the model v
 
 | Method | Route | Description |
 |--------|-------|-------------|
-| POST | `/api/auth/exchange` | Identity token → app JWT |
+| GET | `/api/auth/providers` | Sign-in options this deployment is configured for |
+| POST | `/api/auth/register` / `/api/auth/login` | Username + password |
+| POST | `/api/auth/exchange` | Provider code or id_token → app JWT |
+| GET/POST | `/api/auth/callback/{provider}` | Forwards an https-only provider redirect to the app |
 | POST | `/api/auth/refresh` | Refresh tokens |
 | GET/PATCH | `/api/me` | Profile |
 | POST | `/api/me/handle` | Set unique handle (once) |
@@ -196,6 +271,7 @@ dotnet test tests/CityLeague.Api.Tests/CityLeague.Api.Tests.csproj
 
 - **Core**: formation templates (slot counts, uniqueness, mirroring), handle validation.
 - **API** (in-memory host + isolated SQLite): result gating returns `409`, claiming an occupied slot returns `409` (single winner), and submitting a result updates player stats.
+- **Social sign-in**: provider `id_token`s are validated through the real code path against a stubbed JWKS, covering code redemption, wrong audience/issuer/nonce/expiry, verified-email linking, account-takeover protection and Apple's generated client secret.
 
 ## Key technical decisions
 
