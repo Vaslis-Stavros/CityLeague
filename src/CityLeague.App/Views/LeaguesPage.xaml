@@ -76,21 +76,22 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding ToggleCreateCommand}" />
                 </Border.GestureRecognizers>
-                <Label Text="{Binding ShowCreatePanel, StringFormat='{0}'}">
-                    <Label.Triggers>
-                        <DataTrigger TargetType="Label" Binding="{Binding ShowCreatePanel}" Value="True">
-                            <Setter Property="Text" Value="Close" />
-                        </DataTrigger>
-                        <DataTrigger TargetType="Label" Binding="{Binding ShowCreatePanel}" Value="False">
-                            <Setter Property="Text" Value="Create league" />
-                        </DataTrigger>
-                    </Label.Triggers>
-                    <Label.FontFamily>OutfitSemiBold</Label.FontFamily>
-                    <Label.FontSize>15</Label.FontSize>
-                    <Label.TextColor>{StaticResource Brand}</Label.TextColor>
-                    <Label.HorizontalOptions>Center</Label.HorizontalOptions>
-                    <Label.VerticalOptions>Center</Label.VerticalOptions>
-                </Label>
+                <Grid>
+                    <Label Text="Create league"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="15"
+                           TextColor="{StaticResource Brand}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           IsVisible="{Binding ShowCreatePanel, Converter={StaticResource InvertedBool}}" />
+                    <Label Text="Close"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="15"
+                           TextColor="{StaticResource Brand}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           IsVisible="{Binding ShowCreatePanel}" />
+                </Grid>
             </Border>
 
             <RefreshView Grid.Row="2"
