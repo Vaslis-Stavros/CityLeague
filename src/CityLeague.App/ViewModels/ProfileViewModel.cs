@@ -21,6 +21,7 @@ public partial class ProfileViewModel(ICityLeagueApi api, IAuthService auth) : B
     public string DisplayName => User?.DisplayName ?? "";
     public string HandleText => User?.Handle is { } h ? $"@{h}" : "";
     public string? AvatarUrl => User?.AvatarUrl;
+    public bool ShowEmptyStats => Stats.Count == 0;
 
     [RelayCommand]
     private async Task AppearingAsync() => await LoadAsync();
@@ -37,6 +38,7 @@ public partial class ProfileViewModel(ICityLeagueApi api, IAuthService auth) : B
             foreach (var s in stats.Stats)
                 Stats.Add(s);
             NotifyUser();
+            OnPropertyChanged(nameof(ShowEmptyStats));
         });
     }
 

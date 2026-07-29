@@ -5,93 +5,260 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:dtos="clr-namespace:CityLeague.Core.Dtos;assembly=CityLeague.Core"
     x:Name="Page"
+    Shell.NavBarIsVisible="False"
     Title="Leagues">
 
-    <Grid RowDefinitions="Auto,*">
-        <Button Grid.Row="0"
-                Text="Create league"
-                Command="{Binding ToggleCreateCommand}"
-                Margin="12,8"
-                BackgroundColor="{StaticResource Brand}"
-                TextColor="White" />
+    <ContentPage.Resources>
+        <Style x:Key="GlassPanel" TargetType="Border">
+            <Setter Property="Stroke" Value="{StaticResource GlassStroke}" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="BackgroundColor" Value="{StaticResource GlassFill}" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 22" />
+            <Setter Property="Padding" Value="16,14" />
+        </Style>
+    </ContentPage.Resources>
 
-        <ScrollView Grid.Row="1">
-            <VerticalStackLayout Padding="12" Spacing="12">
+    <Grid x:Name="Root">
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#06351A" Offset="0" />
+                    <GradientStop Color="#0B6B2E" Offset="0.45" />
+                    <GradientStop Color="#1FA85A" Offset="1" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+        <Ellipse x:Name="GlowOrb"
+                 Fill="#33F2A900"
+                 WidthRequest="170"
+                 HeightRequest="170"
+                 HorizontalOptions="End"
+                 VerticalOptions="Start"
+                 Margin="0,-24,-40,0" />
+        <Ellipse Fill="#22FFFFFF"
+                 WidthRequest="140"
+                 HeightRequest="140"
+                 HorizontalOptions="Start"
+                 VerticalOptions="End"
+                 Margin="-50,0,0,60" />
 
-                <Border IsVisible="{Binding ShowCreatePanel}" StrokeThickness="0" Padding="14"
-                        BackgroundColor="#F4F4F4" StrokeShape="RoundRectangle 12">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="Create a league" FontAttributes="Bold" FontSize="18" />
-                        <Entry Placeholder="League name" Text="{Binding NewLeagueName}" />
-                        <Picker ItemsSource="{Binding Sports}"
-                                ItemDisplayBinding="{Binding Name}"
-                                SelectedItem="{Binding SelectedSport}" />
-                        <Button Text="Create league"
-                                Command="{Binding CreateCommand}"
-                                BackgroundColor="{StaticResource BrandDark}"
-                                TextColor="White" />
-                    </VerticalStackLayout>
-                </Border>
+        <Grid RowDefinitions="Auto,Auto,*" Padding="0,8,0,0">
 
-                <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
-                    <CollectionView ItemsSource="{Binding Leagues}">
-                        <CollectionView.EmptyView>
-                            <VerticalStackLayout Padding="24" Spacing="8">
-                                <Label Text="No leagues yet" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" />
-                                <Label Text="Tap the button above to create your first league."
-                                       HorizontalTextAlignment="Center" TextColor="#666" />
-                            </VerticalStackLayout>
-                        </CollectionView.EmptyView>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="dtos:LeagueDto">
-                                <Border Margin="0,4" Padding="14" StrokeThickness="0"
-                                        BackgroundColor="White" StrokeShape="RoundRectangle 14">
-                                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="4">
-                                        <Label Grid.Row="0" Grid.Column="0"
-                                               Text="{Binding Name}" FontSize="18" FontAttributes="Bold" />
-                                        <Border Grid.Row="0" Grid.Column="1" Padding="8,4" StrokeThickness="0"
-                                                StrokeShape="RoundRectangle 8"
-                                                BackgroundColor="{Binding SportKey, Converter={StaticResource SportColor}, ConverterParameter=light}">
-                                            <Label Text="{Binding SportName}"
-                                                   FontSize="12" FontAttributes="Bold"
-                                                   TextColor="{Binding SportKey, Converter={StaticResource SportColor}}" />
-                                        </Border>
-                                        <Label Grid.Row="1" Grid.ColumnSpan="2" TextColor="#666">
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                    <Span Text="{Binding ParticipantCount}" FontAttributes="Bold" />
-                                                    <Span Text=" players  •  " />
-                                                    <Span Text="{Binding CompletedMatchCount}" FontAttributes="Bold" />
-                                                    <Span Text=" matches played" />
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                        </Label>
-                                        <Label Grid.Row="2" Grid.ColumnSpan="2"
-                                               Text="Organizer" FontSize="12" TextColor="{StaticResource Accent}"
-                                               IsVisible="{Binding IsOwner}" />
-                                        <Grid Grid.Row="3" Grid.ColumnSpan="2" ColumnDefinitions="*,*" ColumnSpacing="8"
-                                              IsVisible="{Binding IsOwner}">
-                                            <Button Grid.Column="0" Text="Delete"
-                                                    IsVisible="{Binding CanDelete}"
-                                                    Command="{Binding Source={x:Reference Page}, Path=BindingContext.DeleteLeagueCommand}"
-                                                    CommandParameter="{Binding .}"
-                                                    BackgroundColor="#C0392B" TextColor="White" />
-                                            <Button Grid.Column="1" Text="End league"
-                                                    IsVisible="{Binding CanEnd}"
-                                                    Command="{Binding Source={x:Reference Page}, Path=BindingContext.EndLeagueCommand}"
-                                                    CommandParameter="{Binding .}"
-                                                    BackgroundColor="{StaticResource BrandDark}" TextColor="White" />
-                                        </Grid>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </RefreshView>
-
-                <Label Text="{Binding ErrorMessage}" TextColor="#C0392B"
-                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
+            <VerticalStackLayout x:Name="HeaderBlock"
+                                 Grid.Row="0"
+                                 Padding="22,18,22,8"
+                                 Spacing="4"
+                                 Opacity="0">
+                <Label Text="CityLeague"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="13"
+                       TextColor="#DDEFDD"
+                       CharacterSpacing="1.2" />
+                <Label Text="Leagues"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="28"
+                       TextColor="White" />
+                <Label Text="{Binding LeaguesSubtitle}"
+                       FontFamily="OutfitRegular"
+                       FontSize="14"
+                       TextColor="#C8E6C8" />
             </VerticalStackLayout>
-        </ScrollView>
+
+            <Border x:Name="CreateCta"
+                    Grid.Row="1"
+                    Margin="18,0,18,10"
+                    Padding="0"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 22"
+                    BackgroundColor="White"
+                    HeightRequest="50"
+                    TranslationY="16">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleCreateCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="{Binding ShowCreatePanel, StringFormat='{0}'}">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding ShowCreatePanel}" Value="True">
+                            <Setter Property="Text" Value="Close" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label" Binding="{Binding ShowCreatePanel}" Value="False">
+                            <Setter Property="Text" Value="Create league" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                    <Label.FontFamily>OutfitSemiBold</Label.FontFamily>
+                    <Label.FontSize>15</Label.FontSize>
+                    <Label.TextColor>{StaticResource Brand}</Label.TextColor>
+                    <Label.HorizontalOptions>Center</Label.HorizontalOptions>
+                    <Label.VerticalOptions>Center</Label.VerticalOptions>
+                </Label>
+            </Border>
+
+            <RefreshView Grid.Row="2"
+                         IsRefreshing="{Binding IsRefreshing}"
+                         Command="{Binding RefreshCommand}">
+                <ScrollView VerticalScrollBarVisibility="Never">
+                    <VerticalStackLayout x:Name="ListBlock"
+                                         Padding="18,0,18,20"
+                                         Spacing="12"
+                                         Opacity="0">
+
+                        <Border Style="{StaticResource GlassPanel}"
+                                IsVisible="{Binding ShowCreatePanel}">
+                            <VerticalStackLayout Spacing="10">
+                                <Label Text="NEW LEAGUE"
+                                       FontFamily="OutfitRegular"
+                                       FontSize="12"
+                                       TextColor="#C8E6C8"
+                                       CharacterSpacing="1.2" />
+                                <Entry Placeholder="League name"
+                                       Text="{Binding NewLeagueName}"
+                                       BackgroundColor="Transparent"
+                                       TextColor="White"
+                                       PlaceholderColor="#A8D5B5"
+                                       FontFamily="OutfitRegular"
+                                       FontSize="16" />
+                                <Picker ItemsSource="{Binding Sports}"
+                                        ItemDisplayBinding="{Binding Name}"
+                                        SelectedItem="{Binding SelectedSport}"
+                                        Title="Sport"
+                                        TextColor="White"
+                                        BackgroundColor="Transparent" />
+                                <Border BackgroundColor="White"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 18"
+                                        Padding="14,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding CreateCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="Create"
+                                           FontFamily="OutfitSemiBold"
+                                           FontSize="14"
+                                           TextColor="{StaticResource Brand}"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Leagues}" Spacing="10">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="dtos:LeagueDto">
+                                    <Border Style="{StaticResource GlassPanel}">
+                                        <VerticalStackLayout Spacing="8">
+                                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                                <Label Grid.Column="0"
+                                                       Text="{Binding Name}"
+                                                       FontFamily="OutfitSemiBold"
+                                                       FontSize="18"
+                                                       TextColor="White"
+                                                       LineBreakMode="TailTruncation" />
+                                                <Border Grid.Column="1"
+                                                        BackgroundColor="#28FFFFFF"
+                                                        Stroke="{StaticResource GlassStroke}"
+                                                        StrokeThickness="1"
+                                                        StrokeShape="RoundRectangle 12"
+                                                        Padding="10,5"
+                                                        VerticalOptions="Center">
+                                                    <Label Text="{Binding SportName}"
+                                                           FontFamily="OutfitSemiBold"
+                                                           FontSize="12"
+                                                           TextColor="White" />
+                                                </Border>
+                                            </Grid>
+
+                                            <Label FontFamily="OutfitRegular" FontSize="13" TextColor="#C8E6C8">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding ParticipantCount}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                        <Span Text=" players  ·  " />
+                                                        <Span Text="{Binding CompletedMatchCount}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                        <Span Text=" matches" />
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+
+                                            <Label Text="Organizer"
+                                                   FontFamily="OutfitSemiBold"
+                                                   FontSize="12"
+                                                   TextColor="#F2A900"
+                                                   IsVisible="{Binding IsOwner}" />
+
+                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8"
+                                                  IsVisible="{Binding IsOwner}">
+                                                <Border Grid.Column="0"
+                                                        BackgroundColor="#33C0392B"
+                                                        Stroke="#88FF8A80"
+                                                        StrokeThickness="1"
+                                                        StrokeShape="RoundRectangle 16"
+                                                        Padding="12,10"
+                                                        IsVisible="{Binding CanDelete}">
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding Source={x:Reference Page}, Path=BindingContext.DeleteLeagueCommand}"
+                                                            CommandParameter="{Binding .}" />
+                                                    </Border.GestureRecognizers>
+                                                    <Label Text="Delete"
+                                                           FontFamily="OutfitSemiBold"
+                                                           FontSize="13"
+                                                           TextColor="#FFCDD2"
+                                                           HorizontalOptions="Center"
+                                                           VerticalOptions="Center" />
+                                                </Border>
+                                                <Border Grid.Column="1"
+                                                        BackgroundColor="White"
+                                                        StrokeThickness="0"
+                                                        StrokeShape="RoundRectangle 16"
+                                                        Padding="12,10"
+                                                        IsVisible="{Binding CanEnd}">
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding Source={x:Reference Page}, Path=BindingContext.EndLeagueCommand}"
+                                                            CommandParameter="{Binding .}" />
+                                                    </Border.GestureRecognizers>
+                                                    <Label Text="End league"
+                                                           FontFamily="OutfitSemiBold"
+                                                           FontSize="13"
+                                                           TextColor="{StaticResource Brand}"
+                                                           HorizontalOptions="Center"
+                                                           VerticalOptions="Center" />
+                                                </Border>
+                                            </Grid>
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+
+                        <Border Style="{StaticResource GlassPanel}"
+                                Padding="22,32"
+                                IsVisible="{Binding ShowEmptyLeagues}">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="No leagues yet"
+                                       FontFamily="OutfitSemiBold"
+                                       FontSize="16"
+                                       TextColor="White"
+                                       HorizontalTextAlignment="Center" />
+                                <Label Text="Create one to keep a season of matches together."
+                                       FontFamily="OutfitRegular"
+                                       FontSize="13"
+                                       TextColor="#C8E6C8"
+                                       HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Label Text="{Binding ErrorMessage}"
+                               TextColor="#FFCDD2"
+                               FontFamily="OutfitRegular"
+                               FontSize="13"
+                               IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
+
+                        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                           IsVisible="{Binding IsBusy}"
+                                           Color="White"
+                                           HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </ScrollView>
+            </RefreshView>
+        </Grid>
     </Grid>
 </ContentPage>

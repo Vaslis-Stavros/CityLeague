@@ -23,6 +23,15 @@ public partial class LeaguesViewModel(ICityLeagueApi api) : BaseViewModel
     [ObservableProperty]
     private bool isRefreshing;
 
+    public bool ShowEmptyLeagues => Leagues.Count == 0;
+
+    public string LeaguesSubtitle => Leagues.Count switch
+    {
+        0 => "Start a league for your crew",
+        1 => "1 league",
+        _ => $"{Leagues.Count} leagues",
+    };
+
     [RelayCommand]
     private async Task AppearingAsync()
     {
@@ -50,6 +59,8 @@ public partial class LeaguesViewModel(ICityLeagueApi api) : BaseViewModel
             Leagues.Clear();
             foreach (var l in leagues)
                 Leagues.Add(l);
+            OnPropertyChanged(nameof(ShowEmptyLeagues));
+            OnPropertyChanged(nameof(LeaguesSubtitle));
         });
     }
 
@@ -84,6 +95,8 @@ public partial class LeaguesViewModel(ICityLeagueApi api) : BaseViewModel
             Leagues.Insert(0, created);
             NewLeagueName = string.Empty;
             ShowCreatePanel = false;
+            OnPropertyChanged(nameof(ShowEmptyLeagues));
+            OnPropertyChanged(nameof(LeaguesSubtitle));
         });
     }
 
@@ -102,6 +115,8 @@ public partial class LeaguesViewModel(ICityLeagueApi api) : BaseViewModel
         {
             await api.DeleteLeagueAsync(league.Id);
             Leagues.Remove(league);
+            OnPropertyChanged(nameof(ShowEmptyLeagues));
+            OnPropertyChanged(nameof(LeaguesSubtitle));
         });
     }
 
@@ -120,6 +135,8 @@ public partial class LeaguesViewModel(ICityLeagueApi api) : BaseViewModel
         {
             await api.EndLeagueAsync(league.Id);
             Leagues.Remove(league);
+            OnPropertyChanged(nameof(ShowEmptyLeagues));
+            OnPropertyChanged(nameof(LeaguesSubtitle));
         });
     }
 }

@@ -5,56 +5,178 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:dtos="clr-namespace:CityLeague.Core.Dtos;assembly=CityLeague.Core"
     xmlns:controls="clr-namespace:CityLeague.App.Controls"
+    Shell.NavBarIsVisible="False"
     Title="Profile">
 
-    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
-        <ScrollView>
-            <VerticalStackLayout Padding="20" Spacing="16">
+    <ContentPage.Resources>
+        <Style x:Key="GlassPanel" TargetType="Border">
+            <Setter Property="Stroke" Value="#55FFFFFF" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="BackgroundColor" Value="#38FFFFFF" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 22" />
+            <Setter Property="Padding" Value="16,14" />
+        </Style>
+    </ContentPage.Resources>
 
-                <controls:AvatarView DisplayName="{Binding DisplayName}" ImageUrl="{Binding AvatarUrl}"
-                                     Diameter="96" HorizontalOptions="Center" />
+    <Grid x:Name="Root">
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#0E1525" Offset="0" />
+                    <GradientStop Color="#1A2740" Offset="0.5" />
+                    <GradientStop Color="#2A3F5F" Offset="1" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+        <Ellipse x:Name="GlowOrb"
+                 Fill="#33E8B86D"
+                 WidthRequest="170"
+                 HeightRequest="170"
+                 HorizontalOptions="End"
+                 VerticalOptions="Start"
+                 Margin="0,-30,-45,0" />
+        <Ellipse Fill="#18FFFFFF"
+                 WidthRequest="150"
+                 HeightRequest="150"
+                 HorizontalOptions="Start"
+                 VerticalOptions="End"
+                 Margin="-50,0,0,60" />
 
-                <Label Text="{Binding DisplayName}" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center" />
-                <Label Text="{Binding HandleText}" TextColor="#888" HorizontalOptions="Center" />
+        <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <ScrollView VerticalScrollBarVisibility="Never">
+                <VerticalStackLayout x:Name="ContentBlock"
+                                     Padding="18,16,18,24"
+                                     Spacing="14"
+                                     Opacity="0">
 
-                <Button Text="Change photo" Command="{Binding ChangePhotoCommand}"
-                        HorizontalOptions="Center" BackgroundColor="{StaticResource BrandDark}" TextColor="White" />
+                    <VerticalStackLayout x:Name="HeaderBlock" Spacing="4">
+                        <Label Text="CityLeague"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="13"
+                               TextColor="#C5D0E0"
+                               CharacterSpacing="1.2" />
+                        <Label Text="Profile"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="28"
+                               TextColor="White" />
+                    </VerticalStackLayout>
 
-                <Label Text="Your stats" FontAttributes="Bold" FontSize="18" Margin="0,10,0,0" />
-                <CollectionView ItemsSource="{Binding Stats}">
-                    <CollectionView.EmptyView>
-                        <Label Text="No games played yet. Join a match to build your record!" TextColor="#666" />
-                    </CollectionView.EmptyView>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="dtos:PlayerStatsDto">
-                            <Border Margin="0,4" Padding="14" StrokeThickness="0" BackgroundColor="White" StrokeShape="RoundRectangle 12">
-                                <Grid ColumnDefinitions="*,Auto">
-                                    <Label Grid.Column="0" Text="{Binding SportName}" FontAttributes="Bold" FontSize="16" VerticalOptions="Center" />
-                                    <Label Grid.Column="1" VerticalOptions="Center">
-                                        <Label.FormattedText>
-                                            <FormattedString>
-                                                <Span Text="{Binding Played}" FontAttributes="Bold" />
-                                                <Span Text=" played  •  " TextColor="#666" />
-                                                <Span Text="{Binding Wins}" TextColor="{StaticResource Brand}" FontAttributes="Bold" />
-                                                <Span Text="W " TextColor="#666" />
-                                                <Span Text="{Binding Losses}" TextColor="#C0392B" FontAttributes="Bold" />
-                                                <Span Text="L " TextColor="#666" />
-                                                <Span Text="{Binding Draws}" FontAttributes="Bold" />
-                                                <Span Text="D" TextColor="#666" />
-                                            </FormattedString>
-                                        </Label.FormattedText>
-                                    </Label>
-                                </Grid>
+                    <Border Style="{StaticResource GlassPanel}" Padding="20,22">
+                        <VerticalStackLayout Spacing="12">
+                            <controls:AvatarView DisplayName="{Binding DisplayName}"
+                                                 ImageUrl="{Binding AvatarUrl}"
+                                                 Diameter="96"
+                                                 HorizontalOptions="Center" />
+                            <Label Text="{Binding DisplayName}"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="22"
+                                   TextColor="White"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="TailTruncation" />
+                            <Label Text="{Binding HandleText}"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="14"
+                                   TextColor="#A8B8CC"
+                                   HorizontalTextAlignment="Center" />
+                            <Border BackgroundColor="White"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 18"
+                                    Padding="14,12"
+                                    HorizontalOptions="Center"
+                                    Margin="0,4,0,0">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ChangePhotoCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="Change photo"
+                                       FontFamily="OutfitSemiBold"
+                                       FontSize="14"
+                                       TextColor="#1A2740"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
                             </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
 
-                <Button Text="Log out" Command="{Binding LogoutCommand}"
-                        Margin="0,20,0,0" BackgroundColor="#C0392B" TextColor="White" />
+                    <Label Text="YOUR STATS"
+                           FontFamily="OutfitRegular"
+                           FontSize="12"
+                           TextColor="#A8B8CC"
+                           CharacterSpacing="1.2"
+                           Margin="4,4,0,0" />
 
-                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Brand}" />
-            </VerticalStackLayout>
-        </ScrollView>
-    </RefreshView>
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Stats}" Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:PlayerStatsDto">
+                                <Border Style="{StaticResource GlassPanel}" Padding="14,12">
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                        <Label Grid.Column="0"
+                                               Text="{Binding SportName}"
+                                               FontFamily="OutfitSemiBold"
+                                               FontSize="16"
+                                               TextColor="White"
+                                               VerticalOptions="Center" />
+                                        <Label Grid.Column="1"
+                                               FontFamily="OutfitRegular"
+                                               FontSize="13"
+                                               VerticalOptions="Center">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Played}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                    <Span Text=" played  ·  " TextColor="#A8B8CC" />
+                                                    <Span Text="{Binding Wins}" FontFamily="OutfitSemiBold" TextColor="#7DDEA0" />
+                                                    <Span Text="W " TextColor="#A8B8CC" />
+                                                    <Span Text="{Binding Losses}" FontFamily="OutfitSemiBold" TextColor="#FF8A80" />
+                                                    <Span Text="L " TextColor="#A8B8CC" />
+                                                    <Span Text="{Binding Draws}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                    <Span Text="D" TextColor="#A8B8CC" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <Border Style="{StaticResource GlassPanel}"
+                            Padding="18,22"
+                            IsVisible="{Binding ShowEmptyStats}">
+                        <Label Text="No games played yet. Join a match to build your record."
+                               FontFamily="OutfitRegular"
+                               FontSize="13"
+                               TextColor="#A8B8CC"
+                               HorizontalTextAlignment="Center" />
+                    </Border>
+
+                    <Border BackgroundColor="#33C0392B"
+                            Stroke="#88FF8A80"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 18"
+                            Padding="14,12"
+                            Margin="0,8,0,0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding LogoutCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Log out"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="14"
+                               TextColor="#FFCDD2"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="#FFCDD2"
+                           FontFamily="OutfitRegular"
+                           FontSize="13"
+                           IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
+
+                    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                       IsVisible="{Binding IsBusy}"
+                                       Color="White"
+                                       HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+    </Grid>
 </ContentPage>
