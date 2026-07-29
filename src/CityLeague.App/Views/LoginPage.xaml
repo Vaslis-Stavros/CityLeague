@@ -137,16 +137,19 @@
                                 ImageSource="auth_google.svg"
                                 Style="{StaticResource SocialAuthButton}"
                                 Command="{Binding SignInSocialCommand}" CommandParameter="google"
+                                IsVisible="{Binding IsGoogleAvailable}"
                                 IsEnabled="{Binding IsNotBusy}" />
                         <Button Text="Microsoft"
                                 ImageSource="auth_microsoft.svg"
                                 Style="{StaticResource SocialAuthButton}"
                                 Command="{Binding SignInSocialCommand}" CommandParameter="microsoft"
+                                IsVisible="{Binding IsMicrosoftAvailable}"
                                 IsEnabled="{Binding IsNotBusy}" />
                         <Button Text="Apple"
                                 ImageSource="auth_apple.svg"
                                 Style="{StaticResource SocialAuthButton}"
                                 Command="{Binding SignInSocialCommand}" CommandParameter="apple"
+                                IsVisible="{Binding IsAppleAvailable}"
                                 IsEnabled="{Binding IsNotBusy}" />
                     </VerticalStackLayout>
                 </Border>

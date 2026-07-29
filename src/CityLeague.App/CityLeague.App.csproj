@@ -48,6 +48,9 @@
 		<GoogleMapsApiKey Condition="'$(GoogleMapsApiKey)' == '' and Exists('$(MSBuildProjectDirectory)\google-maps.key')">$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\google-maps.key').Trim())</GoogleMapsApiKey>
 		<GoogleMapsApiKey Condition="'$(GoogleMapsApiKey)' == ''">YOUR_GOOGLE_MAPS_API_KEY</GoogleMapsApiKey>
 		<AndroidManifestPlaceholders Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">googleMapsKey=$(GoogleMapsApiKey)</AndroidManifestPlaceholders>
+
+		<!-- Sign in with Apple needs the entitlement even for debug builds on device. -->
+		<CodesignEntitlements Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">Platforms\iOS\Entitlements.plist</CodesignEntitlements>
 	</PropertyGroup>
 
 	<ItemGroup>

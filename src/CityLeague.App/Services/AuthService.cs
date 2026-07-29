@@ -22,7 +22,11 @@ public interface IAuthService
     void UpdateCurrentUser(UserDto user);
 }
 
-public class AuthService(IHttpClientFactory httpFactory, ApiSettings settings, ITokenStore tokens) : IAuthService
+public class AuthService(
+    IHttpClientFactory httpFactory,
+    ApiSettings settings,
+    ITokenStore tokens,
+    ISocialSignInService social) : IAuthService
 {
     public const string AuthClientName = "CityLeagueAuth";
 
@@ -66,16 +70,40 @@ public class AuthService(IHttpClientFactory httpFactory, ApiSettings settings, I
     public Task RegisterLocalAsync(string username, string password, string email)
         => ExchangeAsync("/api/auth/register", new LocalRegisterRequest(username, password, email));
 
-    public Task LoginSocialAsync(string provider)
+    public async Task LoginSocialAsync(string provider)
     {
+        var credential = await social.SignInAsync(provider);
+        if (credential is null)
+        {
+            // Nothing configured for this provider: the dev shim is the only way through.
+            var options = await social.GetOptionsAsync();
+            if (!options.DevSignInEnabled)
+                throw new ApiException(501, $"{DisplayName(provider)} sign-in isn't set up on the server yet.");
+
+            await ExchangeAsync("/api/auth/exchange", new AuthExchangeRequest(IdToken: null, Provider: provider));
+            return;
+        }
+
         var request = new AuthExchangeRequest(
-            IdToken: null,
-            Provider: provider,
-            ProviderUserId: null,
-            Email: null,
-            DisplayName: null);
-        return ExchangeAsync("/api/auth/exchange", request);
+            IdToken: credential.IdToken,
+            Provider: credential.Provider,
+            Email: credential.Email,
+            DisplayName: credential.DisplayName,
+            Code: credential.Code,
+            CodeVerifier: credential.CodeVerifier,
+            RedirectUri: credential.RedirectUri,
+            Nonce: credential.Nonce);
+
+        await ExchangeAsync("/api/auth/exchange", request);
     }
+
+    private static string DisplayName(string provider) => provider.ToLowerInvariant() switch
+    {
+        "google" => "Google",
+        "microsoft" => "Microsoft",
+        "apple" => "Apple",
+        _ => provider,
+    };
 
     public async Task<bool> TryRefreshAsync()
     {

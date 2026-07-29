@@ -37,5 +37,19 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<!-- OAuth redirect scheme; must match the API's Auth:MobileRedirectUri. -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.CityLeague.app</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>cityleague</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

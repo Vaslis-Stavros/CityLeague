@@ -5,7 +5,7 @@ using CityLeague.Core.Validation;
 
 namespace CityLeague.App.ViewModels;
 
-public partial class LoginViewModel(IAuthService auth) : BaseViewModel
+public partial class LoginViewModel(IAuthService auth, ISocialSignInService social) : BaseViewModel
 {
     [ObservableProperty]
     private string username = string.Empty;
@@ -21,6 +21,15 @@ public partial class LoginViewModel(IAuthService auth) : BaseViewModel
 
     [ObservableProperty]
     private bool isSignUpMode;
+
+    [ObservableProperty]
+    private bool isGoogleAvailable = true;
+
+    [ObservableProperty]
+    private bool isMicrosoftAvailable = true;
+
+    [ObservableProperty]
+    private bool isAppleAvailable = true;
 
     public string ModeHint => IsSignUpMode
         ? "Pick a unique username (3-20 chars, letters, numbers, _). Tap Sign up again to create your account."
@@ -44,6 +53,26 @@ public partial class LoginViewModel(IAuthService auth) : BaseViewModel
         finally
         {
             IsCheckingSession = false;
+        }
+
+        await LoadSocialProvidersAsync();
+    }
+
+    private async Task LoadSocialProvidersAsync()
+    {
+        try
+        {
+            var options = await social.GetOptionsAsync();
+            bool IsUsable(string provider) => options.DevSignInEnabled
+                || options.Providers.Any(p => string.Equals(p.Provider, provider, StringComparison.OrdinalIgnoreCase));
+
+            IsGoogleAvailable = IsUsable("google");
+            IsMicrosoftAvailable = IsUsable("microsoft");
+            IsAppleAvailable = IsUsable("apple");
+        }
+        catch
+        {
+            // Server unreachable: keep the buttons and let the attempt surface the error.
         }
     }
 
@@ -159,6 +188,10 @@ public partial class LoginViewModel(IAuthService auth) : BaseViewModel
         try
         {
             await operation();
+        }
+        catch (OperationCanceledException)
+        {
+            ErrorMessage = null;
         }
         catch (ApiException ex)
         {
