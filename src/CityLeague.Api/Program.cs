@@ -4,6 +4,7 @@ using CityLeague.Api.Auth;
 using CityLeague.Api.Common;
 using CityLeague.Api.Hubs;
 using CityLeague.Api.Services;
+using CityLeague.Core.Abstractions;
 using CityLeague.Infrastructure;
 using CityLeague.Infrastructure.Auth;
 using CityLeague.Infrastructure.Data;
@@ -123,7 +124,7 @@ await using (var scope = app.Services.CreateAsyncScope())
         await db.Database.ExecuteSqlRawAsync(
             """CREATE INDEX IF NOT EXISTS "IX_UserExternalLogins_UserId" ON "UserExternalLogins" ("UserId");""");
     }
-    await DbSeeder.EnsureSeededAsync(db);
+    await DbSeeder.EnsureSeededAsync(db, app.Services.GetRequiredService<IPasswordHasher>());
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();

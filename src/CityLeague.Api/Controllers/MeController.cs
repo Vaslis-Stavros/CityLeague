@@ -43,6 +43,19 @@ public class MeController(
         return mapper.ToUserDto(user);
     }
 
+    [HttpPost("password")]
+    public async Task<ActionResult<UserDto>> ChangePassword(
+        [FromBody] ChangePasswordRequest request,
+        [FromServices] LocalAuthService localAuth,
+        CancellationToken ct)
+    {
+        var (user, error, status) = await localAuth.ChangePasswordAsync(
+            currentUser.UserId, request.CurrentPassword, request.NewPassword, ct);
+        if (user is null)
+            return StatusCode(status, new { error });
+        return mapper.ToUserDto(user);
+    }
+
     [HttpGet("handle/available")]
     public async Task<ActionResult<HandleAvailabilityDto>> CheckHandle([FromQuery] string handle, CancellationToken ct)
     {

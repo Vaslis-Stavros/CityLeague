@@ -16,6 +16,13 @@
             <Setter Property="StrokeShape" Value="RoundRectangle 22" />
             <Setter Property="Padding" Value="16,14" />
         </Style>
+        <Style x:Key="GlassField" TargetType="Entry">
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="PlaceholderColor" Value="#8FA0B5" />
+            <Setter Property="FontFamily" Value="OutfitRegular" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
     </ContentPage.Resources>
 
     <Grid x:Name="Root">
@@ -94,6 +101,127 @@
                                        HorizontalOptions="Center"
                                        VerticalOptions="Center" />
                             </Border>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Account settings -->
+                    <Label Text="ACCOUNT"
+                           FontFamily="OutfitRegular"
+                           FontSize="12"
+                           TextColor="#A8B8CC"
+                           CharacterSpacing="1.2"
+                           Margin="4,4,0,0" />
+
+                    <Border Style="{StaticResource GlassPanel}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="Display name"
+                                           FontFamily="OutfitSemiBold"
+                                           FontSize="15"
+                                           TextColor="White" />
+                                    <Label Text="{Binding DisplayName}"
+                                           FontFamily="OutfitRegular"
+                                           FontSize="13"
+                                           TextColor="#A8B8CC"
+                                           LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+                                <Border Grid.Column="1"
+                                        BackgroundColor="#28FFFFFF"
+                                        Stroke="#55FFFFFF"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 14"
+                                        Padding="12,8"
+                                        VerticalOptions="Center">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ToggleEditNameCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="Edit"
+                                           FontFamily="OutfitSemiBold"
+                                           FontSize="12"
+                                           TextColor="White" />
+                                </Border>
+                            </Grid>
+
+                            <VerticalStackLayout IsVisible="{Binding ShowEditName}" Spacing="8">
+                                <Entry Placeholder="Your name"
+                                       Text="{Binding EditDisplayName}"
+                                       Style="{StaticResource GlassField}" />
+                                <Border BackgroundColor="White"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 16"
+                                        Padding="14,11">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SaveNameCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="Save name"
+                                           FontFamily="OutfitSemiBold"
+                                           FontSize="14"
+                                           TextColor="#1A2740"
+                                           HorizontalOptions="Center" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Style="{StaticResource GlassPanel}">
+                        <VerticalStackLayout Spacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label Text="{Binding PasswordSectionTitle}"
+                                           FontFamily="OutfitSemiBold"
+                                           FontSize="15"
+                                           TextColor="White" />
+                                    <Label Text="Keep your account secure"
+                                           FontFamily="OutfitRegular"
+                                           FontSize="13"
+                                           TextColor="#A8B8CC" />
+                                </VerticalStackLayout>
+                                <Border Grid.Column="1"
+                                        BackgroundColor="#28FFFFFF"
+                                        Stroke="#55FFFFFF"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 14"
+                                        Padding="12,8"
+                                        VerticalOptions="Center">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ToggleChangePasswordCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="Edit"
+                                           FontFamily="OutfitSemiBold"
+                                           FontSize="12"
+                                           TextColor="White" />
+                                </Border>
+                            </Grid>
+
+                            <VerticalStackLayout IsVisible="{Binding ShowChangePassword}" Spacing="8">
+                                <Entry Placeholder="Current password"
+                                       IsPassword="True"
+                                       Text="{Binding CurrentPassword}"
+                                       Style="{StaticResource GlassField}"
+                                       IsVisible="{Binding HasPassword}" />
+                                <Entry Placeholder="New password"
+                                       IsPassword="True"
+                                       Text="{Binding NewPassword}"
+                                       Style="{StaticResource GlassField}" />
+                                <Entry Placeholder="Confirm new password"
+                                       IsPassword="True"
+                                       Text="{Binding ConfirmPassword}"
+                                       Style="{StaticResource GlassField}" />
+                                <Border BackgroundColor="White"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 16"
+                                        Padding="14,11">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding SavePasswordCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="Save password"
+                                           FontFamily="OutfitSemiBold"
+                                           FontSize="14"
+                                           TextColor="#1A2740"
+                                           HorizontalOptions="Center" />
+                                </Border>
+                            </VerticalStackLayout>
                         </VerticalStackLayout>
                     </Border>
 

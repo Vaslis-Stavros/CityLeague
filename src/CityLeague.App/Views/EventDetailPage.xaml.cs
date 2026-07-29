@@ -22,9 +22,6 @@ public partial class EventDetailPage : ContentPage
             _vm.SlotTappedCommand.Execute(slotId);
     }
 
-    private async void OnBackTapped(object? sender, TappedEventArgs e)
-        => await Shell.Current.GoToAsync("..");
-
     protected override async void OnAppearing()
     {
         base.OnAppearing();

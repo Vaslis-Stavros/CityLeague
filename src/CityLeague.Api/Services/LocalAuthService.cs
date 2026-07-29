@@ -60,6 +60,28 @@ public class LocalAuthService(CityLeagueDbContext db, IPasswordHasher passwords)
         return (user, null, StatusCodes.Status200OK);
     }
 
+    public async Task<(User? User, string? Error, int StatusCode)> ChangePasswordAsync(
+        Guid userId, string? currentPassword, string newPassword, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
+            return (null, "Password must be at least 6 characters.", StatusCodes.Status400BadRequest);
+
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId, ct);
+        if (user is null)
+            return (null, "User not found.", StatusCodes.Status404NotFound);
+
+        if (!string.IsNullOrEmpty(user.PasswordHash))
+        {
+            if (string.IsNullOrWhiteSpace(currentPassword)
+                || !passwords.VerifyPassword(currentPassword, user.PasswordHash))
+                return (null, "Current password is incorrect.", StatusCodes.Status400BadRequest);
+        }
+
+        user.PasswordHash = passwords.HashPassword(newPassword);
+        await db.SaveChangesAsync(ct);
+        return (user, null, StatusCodes.Status200OK);
+    }
+
     private static string NormalizeEmail(string email) => email.Trim().ToLowerInvariant();
 
     private static bool IsValidEmail(string email)

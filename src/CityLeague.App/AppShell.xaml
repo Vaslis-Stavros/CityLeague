@@ -5,7 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:CityLeague.App.Views"
     Title="CityLeague"
-    FlyoutBehavior="Disabled">
+    FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="False">
 
     <ShellContent
         Route="login"
@@ -14,26 +15,26 @@
 
     <ShellContent
         Route="onboarding"
-        Title="Choose your handle"
+        Shell.NavBarIsVisible="False"
         ContentTemplate="{DataTemplate views:OnboardingHandlePage}" />
 
     <TabBar Route="tabs">
-        <Tab Title="Home" Route="home">
+        <Tab Title="Home" Route="home" Icon="tab_home.png">
             <ShellContent ContentTemplate="{DataTemplate views:HomePage}" />
         </Tab>
-        <Tab Title="Contacts" Route="contacts">
+        <Tab Title="People" Route="contacts" Icon="tab_contacts.png">
             <ShellContent ContentTemplate="{DataTemplate views:ContactsPage}" />
         </Tab>
-        <Tab Title="Create" Route="create">
+        <Tab Title="Create" Route="create" Icon="tab_create.png">
             <ShellContent ContentTemplate="{DataTemplate views:CreateEventPage}" />
         </Tab>
-        <Tab Title="Leagues" Route="leagues">
+        <Tab Title="Leagues" Route="leagues" Icon="tab_leagues.png">
             <ShellContent ContentTemplate="{DataTemplate views:LeaguesPage}" />
         </Tab>
-        <Tab Title="History" Route="history">
+        <Tab Title="History" Route="history" Icon="tab_history.png">
             <ShellContent ContentTemplate="{DataTemplate views:HistoryPage}" />
         </Tab>
-        <Tab Title="Profile" Route="profile">
+        <Tab Title="Profile" Route="profile" Icon="tab_profile.png">
             <ShellContent ContentTemplate="{DataTemplate views:ProfilePage}" />
         </Tab>
     </TabBar>

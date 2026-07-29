@@ -3,6 +3,7 @@
     x:Class="CityLeague.App.Views.SubmitResultPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Shell.NavBarIsVisible="False"
     Title="Submit result">
 
     <ScrollView>

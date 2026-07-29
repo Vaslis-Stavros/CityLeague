@@ -16,7 +16,8 @@ public class ApiMapper(IAvatarStorage avatarStorage, IHttpContextAccessor httpCo
         user.UniqueHandle,
         user.DisplayName,
         user.Email,
-        ToPublicAvatarUrl(user.AvatarBlobUrl));
+        ToPublicAvatarUrl(user.AvatarBlobUrl),
+        HasPassword: !string.IsNullOrEmpty(user.PasswordHash));
 
     public SportDto ToSportDto(Sport sport) => new(
         sport.Id,

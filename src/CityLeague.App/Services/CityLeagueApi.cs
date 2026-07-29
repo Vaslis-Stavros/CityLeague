@@ -13,6 +13,7 @@ public interface ICityLeagueApi
 {
     Task<UserDto> GetMeAsync(CancellationToken ct = default);
     Task<UserDto> UpdateProfileAsync(UpdateProfileRequest request, CancellationToken ct = default);
+    Task<UserDto> ChangePasswordAsync(ChangePasswordRequest request, CancellationToken ct = default);
     Task<HandleAvailabilityDto> CheckHandleAsync(string handle, CancellationToken ct = default);
     Task<UserDto> SetHandleAsync(string handle, CancellationToken ct = default);
     Task<UserDto> UploadAvatarAsync(Stream content, string fileName, string contentType, CancellationToken ct = default);
@@ -54,6 +55,9 @@ public class CityLeagueApi(HttpClient http) : ICityLeagueApi
 
     public Task<UserDto> UpdateProfileAsync(UpdateProfileRequest request, CancellationToken ct = default)
         => SendJsonAsync<UserDto>(HttpMethod.Patch, "/api/me", request, ct);
+
+    public Task<UserDto> ChangePasswordAsync(ChangePasswordRequest request, CancellationToken ct = default)
+        => SendJsonAsync<UserDto>(HttpMethod.Post, "/api/me/password", request, ct);
 
     public Task<HandleAvailabilityDto> CheckHandleAsync(string handle, CancellationToken ct = default)
         => GetAsync<HandleAvailabilityDto>($"/api/me/handle/available?handle={Uri.EscapeDataString(handle)}", ct);

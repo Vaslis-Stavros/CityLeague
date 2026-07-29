@@ -18,10 +18,30 @@ public partial class ProfileViewModel(ICityLeagueApi api, IAuthService auth) : B
     [ObservableProperty]
     private bool isRefreshing;
 
+    [ObservableProperty]
+    private bool showEditName;
+
+    [ObservableProperty]
+    private bool showChangePassword;
+
+    [ObservableProperty]
+    private string editDisplayName = string.Empty;
+
+    [ObservableProperty]
+    private string currentPassword = string.Empty;
+
+    [ObservableProperty]
+    private string newPassword = string.Empty;
+
+    [ObservableProperty]
+    private string confirmPassword = string.Empty;
+
     public string DisplayName => User?.DisplayName ?? "";
     public string HandleText => User?.Handle is { } h ? $"@{h}" : "";
     public string? AvatarUrl => User?.AvatarUrl;
     public bool ShowEmptyStats => Stats.Count == 0;
+    public bool HasPassword => User?.HasPassword ?? false;
+    public string PasswordSectionTitle => HasPassword ? "Change password" : "Set a password";
 
     [RelayCommand]
     private async Task AppearingAsync() => await LoadAsync();
@@ -51,6 +71,80 @@ public partial class ProfileViewModel(ICityLeagueApi api, IAuthService auth) : B
     }
 
     [RelayCommand]
+    private void ToggleEditName()
+    {
+        ShowEditName = !ShowEditName;
+        if (ShowEditName)
+            EditDisplayName = DisplayName;
+        ErrorMessage = null;
+    }
+
+    [RelayCommand]
+    private void ToggleChangePassword()
+    {
+        ShowChangePassword = !ShowChangePassword;
+        CurrentPassword = string.Empty;
+        NewPassword = string.Empty;
+        ConfirmPassword = string.Empty;
+        ErrorMessage = null;
+    }
+
+    [RelayCommand]
+    private async Task SaveNameAsync()
+    {
+        var name = EditDisplayName?.Trim() ?? string.Empty;
+        if (name.Length < 2)
+        {
+            ErrorMessage = "Name needs at least 2 characters.";
+            return;
+        }
+
+        await RunAsync(async () =>
+        {
+            var updated = await api.UpdateProfileAsync(new UpdateProfileRequest(name, null));
+            User = updated;
+            auth.UpdateCurrentUser(updated);
+            NotifyUser();
+            ShowEditName = false;
+        });
+    }
+
+    [RelayCommand]
+    private async Task SavePasswordAsync()
+    {
+        if (string.IsNullOrWhiteSpace(NewPassword) || NewPassword.Length < 6)
+        {
+            ErrorMessage = "New password must be at least 6 characters.";
+            return;
+        }
+
+        if (!string.Equals(NewPassword, ConfirmPassword, StringComparison.Ordinal))
+        {
+            ErrorMessage = "New passwords don’t match.";
+            return;
+        }
+
+        if (HasPassword && string.IsNullOrWhiteSpace(CurrentPassword))
+        {
+            ErrorMessage = "Enter your current password.";
+            return;
+        }
+
+        await RunAsync(async () =>
+        {
+            var updated = await api.ChangePasswordAsync(
+                new ChangePasswordRequest(HasPassword ? CurrentPassword : null, NewPassword));
+            User = updated;
+            auth.UpdateCurrentUser(updated);
+            NotifyUser();
+            ShowChangePassword = false;
+            CurrentPassword = string.Empty;
+            NewPassword = string.Empty;
+            ConfirmPassword = string.Empty;
+        });
+    }
+
+    [RelayCommand]
     private async Task ChangePhotoAsync()
     {
         try
@@ -61,8 +155,6 @@ public partial class ProfileViewModel(ICityLeagueApi api, IAuthService auth) : B
             await RunAsync(async () =>
             {
                 await using var stream = await photo.OpenReadAsync();
-                // Copy to memory so the multipart upload has a known length (some platform
-                // streams from the photo picker are non-seekable and trip the handler).
                 await using var buffer = new MemoryStream();
                 await stream.CopyToAsync(buffer);
                 buffer.Position = 0;
@@ -79,7 +171,7 @@ public partial class ProfileViewModel(ICityLeagueApi api, IAuthService auth) : B
         }
         catch (FeatureNotSupportedException)
         {
-            ErrorMessage = "Photo picking isn't supported on this device.";
+            ErrorMessage = "Photo picking isn’t supported on this device.";
             await ShowAlertAsync(ErrorMessage);
         }
         catch (PermissionException)
@@ -121,5 +213,7 @@ public partial class ProfileViewModel(ICityLeagueApi api, IAuthService auth) : B
         OnPropertyChanged(nameof(DisplayName));
         OnPropertyChanged(nameof(HandleText));
         OnPropertyChanged(nameof(AvatarUrl));
+        OnPropertyChanged(nameof(HasPassword));
+        OnPropertyChanged(nameof(PasswordSectionTitle));
     }
 }
