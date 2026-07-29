@@ -113,6 +113,9 @@ public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth) : Base
         ApplyFilter();
     }
 
+    protected override void OnBusyStateChanged(bool isBusy)
+        => OnPropertyChanged(nameof(ShowEmptyState));
+
     private void ApplyFilter()
     {
         Matches.Clear();
