@@ -35,7 +35,10 @@ public class DevIdentityValidator : IExternalIdentityValidator
                 ?? $"{char.ToUpperInvariant(provider[0])}{provider[1..]} player")
             : request.DisplayName!.Trim();
 
-        return Task.FromResult<ExternalIdentity?>(new ExternalIdentity(subject, request.Email, displayName, provider));
+        // Local-only, so treat the email as verified and let repeat sign-ins across the fake
+        // providers land on the same account.
+        return Task.FromResult<ExternalIdentity?>(
+            new ExternalIdentity(subject, request.Email, displayName, provider, EmailVerified: true));
     }
 
     private static string StableHash(string value)

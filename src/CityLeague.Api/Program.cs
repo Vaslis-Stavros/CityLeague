@@ -17,11 +17,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.Configure<AuthOptions>(builder.Configuration.GetSection(AuthOptions.SectionName));
-var authMode = builder.Configuration.GetSection(AuthOptions.SectionName)["Mode"] ?? "Dev";
-if (string.Equals(authMode, "B2C", StringComparison.OrdinalIgnoreCase))
-    builder.Services.AddSingleton<IExternalIdentityValidator, B2CIdentityValidator>();
-else
-    builder.Services.AddSingleton<IExternalIdentityValidator, DevIdentityValidator>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddHttpClient(SocialIdentityValidator.HttpClientName);
+builder.Services.AddSingleton<IOpenIdMetadataProvider, OpenIdMetadataProvider>();
+builder.Services.AddSingleton<SocialProviderCatalog>();
+builder.Services.AddSingleton<SocialProviderDirectory>();
+builder.Services.AddSingleton<IAppleClientSecretFactory, AppleClientSecretFactory>();
+builder.Services.AddSingleton<ISocialIdentityValidator, SocialIdentityValidator>();
+builder.Services.AddSingleton<B2CIdentityValidator>();
+builder.Services.AddSingleton<DevIdentityValidator>();
+builder.Services.AddSingleton<IExternalIdentityValidator, CompositeIdentityValidator>();
 
 // Ensure local avatars are written under the served web root.
 builder.Services.PostConfigure<AvatarStorageOptions>(o =>

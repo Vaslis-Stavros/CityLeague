@@ -1,33 +1,21 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using CityLeague.Core.Dtos;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Protocols;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace CityLeague.Api.Auth;
 
 /// <summary>Validates a real Azure AD B2C id_token against the tenant's published metadata.</summary>
-public class B2CIdentityValidator : IExternalIdentityValidator
+public class B2CIdentityValidator(IOptions<AuthOptions> options, IOpenIdMetadataProvider metadata)
 {
-    private readonly B2COptions _options;
-    private readonly ConfigurationManager<OpenIdConnectConfiguration> _configManager;
-
-    public B2CIdentityValidator(IOptions<AuthOptions> options)
-    {
-        _options = options.Value.B2C;
-        var metadataAddress = $"{_options.Authority?.TrimEnd('/')}/.well-known/openid-configuration";
-        _configManager = new ConfigurationManager<OpenIdConnectConfiguration>(
-            metadataAddress, new OpenIdConnectConfigurationRetriever(), new HttpDocumentRetriever());
-    }
+    private readonly B2COptions _options = options.Value.B2C;
 
     public async Task<ExternalIdentity?> ValidateAsync(AuthExchangeRequest request, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(request.IdToken))
+        if (string.IsNullOrWhiteSpace(request.IdToken) || !_options.Enabled)
             return null;
 
-        var config = await _configManager.GetConfigurationAsync(ct);
+        var config = await metadata.GetAsync(_options.Authority!, ct);
         var parameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -37,34 +25,33 @@ public class B2CIdentityValidator : IExternalIdentityValidator
             ValidateIssuerSigningKey = true,
             IssuerSigningKeys = config.SigningKeys,
             ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1),
         };
 
-        try
-        {
-            var handler = new JwtSecurityTokenHandler();
-            var principal = handler.ValidateToken(request.IdToken, parameters, out _);
-
-            var subject = principal.FindFirst("oid")?.Value
-                ?? principal.FindFirst("sub")?.Value
-                ?? principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrWhiteSpace(subject))
-                return null;
-
-            var email = principal.FindFirst("emails")?.Value
-                ?? principal.FindFirst("email")?.Value
-                ?? principal.FindFirst(ClaimTypes.Email)?.Value;
-
-            var name = principal.FindFirst("name")?.Value
-                ?? principal.FindFirst(ClaimTypes.Name)?.Value
-                ?? email?.Split('@').FirstOrDefault();
-
-            var provider = principal.FindFirst("idp")?.Value ?? "b2c";
-
-            return new ExternalIdentity(subject, email, name, provider);
-        }
-        catch
-        {
+        var handler = new JsonWebTokenHandler { MapInboundClaims = false };
+        var result = await handler.ValidateTokenAsync(request.IdToken, parameters);
+        if (!result.IsValid || result.SecurityToken is not JsonWebToken token)
             return null;
-        }
+
+        var subject = Read(token, "oid") ?? Read(token, "sub");
+        if (string.IsNullOrWhiteSpace(subject))
+            return null;
+
+        var email = ReadFirstEmail(token) ?? Read(token, "email");
+        var name = Read(token, "name") ?? email?.Split('@').FirstOrDefault();
+        var provider = Read(token, "idp") ?? "b2c";
+
+        // B2C only surfaces emails it has already verified through the user flow.
+        return new ExternalIdentity(subject, email, name, provider, EmailVerified: email is not null);
     }
+
+    private static string? ReadFirstEmail(JsonWebToken token)
+    {
+        if (token.TryGetPayloadValue<string[]>("emails", out var emails) && emails.Length > 0)
+            return emails[0];
+        return token.TryGetPayloadValue<string>("emails", out var single) ? single : null;
+    }
+
+    private static string? Read(JsonWebToken token, string claim) =>
+        token.TryGetPayloadValue<string>(claim, out var value) && !string.IsNullOrWhiteSpace(value) ? value : null;
 }

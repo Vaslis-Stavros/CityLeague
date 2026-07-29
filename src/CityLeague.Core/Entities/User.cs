@@ -5,7 +5,11 @@ public class User
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    /// <summary>Stable object id from Azure AD B2C (the "sub"/"oid" claim). Null only in seed/test data.</summary>
+    /// <summary>
+    /// Subject of the identity that created the account, prefixed by provider
+    /// (e.g. "google:1039...", "local:alex_k"). Additional providers are recorded in
+    /// <see cref="ExternalLogins"/>. Null only in seed/test data.
+    /// </summary>
     public string? B2CObjectId { get; set; }
 
     public string? Email { get; set; }
@@ -25,4 +29,5 @@ public class User
 
     public ICollection<Contact> ContactsOwned { get; set; } = new List<Contact>();
     public ICollection<PlayerSportStats> Stats { get; set; } = new List<PlayerSportStats>();
+    public ICollection<UserExternalLogin> ExternalLogins { get; set; } = new List<UserExternalLogin>();
 }

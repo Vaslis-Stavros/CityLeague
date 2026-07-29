@@ -7,6 +7,7 @@ namespace CityLeague.Infrastructure.Data;
 public class CityLeagueDbContext(DbContextOptions<CityLeagueDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<UserExternalLogin> UserExternalLogins => Set<UserExternalLogin>();
     public DbSet<Contact> Contacts => Set<Contact>();
     public DbSet<Sport> Sports => Set<Sport>();
     public DbSet<EventFormat> EventFormats => Set<EventFormat>();
@@ -49,6 +50,16 @@ public class CityLeagueDbContext(DbContextOptions<CityLeagueDbContext> options) 
                 b2cIx.HasFilter("[B2CObjectId] IS NOT NULL");
                 emailIx.HasFilter("[Email] IS NOT NULL");
             }
+        });
+
+        b.Entity<UserExternalLogin>(e =>
+        {
+            e.Property(l => l.Provider).HasMaxLength(32).IsRequired();
+            e.Property(l => l.Subject).HasMaxLength(256).IsRequired();
+            e.Property(l => l.Email).HasMaxLength(256);
+            e.HasIndex(l => new { l.Provider, l.Subject }).IsUnique();
+            e.HasOne(l => l.User).WithMany(u => u.ExternalLogins)
+                .HasForeignKey(l => l.UserId).OnDelete(DeleteBehavior.Cascade);
         });
 
         b.Entity<Contact>(e =>
