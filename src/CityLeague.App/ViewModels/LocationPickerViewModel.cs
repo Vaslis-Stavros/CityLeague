@@ -44,6 +44,7 @@ public partial class LocationPickerViewModel(IOsmFootballFieldService fields) : 
                     SelectedLocation = current;
                     await UpdateAddressAsync(current);
                     await LoadFieldsAsync(current);
+                    await UpdateAddressAsync(current);
                     return;
                 }
             }
@@ -58,6 +59,7 @@ public partial class LocationPickerViewModel(IOsmFootballFieldService fields) : 
 
         await UpdateAddressAsync(SelectedLocation);
         await LoadFieldsAsync(SelectedLocation);
+        await UpdateAddressAsync(SelectedLocation);
     }
 
     [RelayCommand]
