@@ -45,6 +45,8 @@ public static class MauiProgram
         }).AddHttpMessageHandler<AuthMessageHandler>();
 
         services.AddTransient<IEventHubService, EventHubService>();
+        services.AddHttpClient(OsmFootballFieldService.HttpClientName, OsmFootballFieldService.ConfigureHttpClient);
+        services.AddSingleton<IOsmFootballFieldService, OsmFootballFieldService>();
 
         // View models.
         services.AddTransient<LoginViewModel>();

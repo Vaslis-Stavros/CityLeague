@@ -88,7 +88,11 @@ On first launch, use the dev sign-in (any email). You'll be asked to pick a hand
 
 ### Location picker (OpenStreetMap)
 
-**Create → Map** uses a Leaflet map over **OpenStreetMap** tiles inside a WebView. No Google (or other) API key is required. Addresses are reverse-geocoded with Nominatim when online; otherwise coordinates are shown.
+**Create → Map** uses a Leaflet map over **OpenStreetMap** tiles inside a WebView — no Google API key.
+
+Football pitches tagged in OSM (`leisure=pitch|stadium|sports_centre` + `sport=soccer|football`) are highlighted as green markers when the map opens. Coverage in Greece is solid in cities (Athens, Thessaloniki, etc.) but incomplete in smaller towns — unnamed pitches show as “Football pitch”.
+
+Typing in **Where** on Create Match filters those nearby city pitches into a dropdown. Data comes from the public Overpass + Nominatim APIs.
 
 ## Configuration reference (`appsettings.json`)
 

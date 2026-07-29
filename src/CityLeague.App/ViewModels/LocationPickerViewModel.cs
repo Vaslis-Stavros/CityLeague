@@ -1,6 +1,8 @@
+using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
+using CityLeague.App.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.ApplicationModel;
@@ -8,15 +10,20 @@ using Microsoft.Maui.Devices.Sensors;
 
 namespace CityLeague.App.ViewModels;
 
-public partial class LocationPickerViewModel : BaseViewModel
+public partial class LocationPickerViewModel(IOsmFootballFieldService fields) : BaseViewModel
 {
-    private static readonly HttpClient Nominatim = CreateNominatimClient();
-
     [ObservableProperty]
     private Location? selectedLocation;
 
     [ObservableProperty]
     private string? addressPreview;
+
+    [ObservableProperty]
+    private string fieldsSubtitle = "Loading football pitches from OpenStreetMap…";
+
+    public ObservableCollection<FootballField> NearbyFields { get; } = [];
+
+    public event EventHandler? FieldsChanged;
 
     [RelayCommand]
     private async Task AppearingAsync()
@@ -36,6 +43,7 @@ public partial class LocationPickerViewModel : BaseViewModel
                 {
                     SelectedLocation = current;
                     await UpdateAddressAsync(current);
+                    await LoadFieldsAsync(current);
                     return;
                 }
             }
@@ -46,10 +54,10 @@ public partial class LocationPickerViewModel : BaseViewModel
         }
 
         if (SelectedLocation is null)
-        {
             SelectedLocation = new Location(37.9838, 23.7275); // Athens default
-            await UpdateAddressAsync(SelectedLocation);
-        }
+
+        await UpdateAddressAsync(SelectedLocation);
+        await LoadFieldsAsync(SelectedLocation);
     }
 
     [RelayCommand]
@@ -74,6 +82,7 @@ public partial class LocationPickerViewModel : BaseViewModel
 
             SelectedLocation = location;
             await UpdateAddressAsync(location);
+            await LoadFieldsAsync(location);
         });
     }
 
@@ -82,6 +91,14 @@ public partial class LocationPickerViewModel : BaseViewModel
         var location = new Location(latitude, longitude);
         SelectedLocation = location;
         await UpdateAddressAsync(location);
+    }
+
+    public Task SelectFieldAsync(double latitude, double longitude, string name)
+    {
+        SelectedLocation = new Location(latitude, longitude);
+        var city = fields.CachedCityName;
+        AddressPreview = string.IsNullOrWhiteSpace(city) ? name : $"{name}, {city}";
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -93,81 +110,81 @@ public partial class LocationPickerViewModel : BaseViewModel
             return;
         }
 
-        await UpdateAddressAsync(SelectedLocation);
+        if (string.IsNullOrWhiteSpace(AddressPreview))
+            await UpdateAddressAsync(SelectedLocation);
+
         var address = AddressPreview ?? FormatCoordinates(SelectedLocation);
         await Shell.Current.GoToAsync("..", new Dictionary<string, object> { ["location"] = address });
     }
 
+    private async Task LoadFieldsAsync(Location location)
+    {
+        try
+        {
+            FieldsSubtitle = "Finding football pitches nearby…";
+            var list = await fields.FindNearAsync(location.Latitude, location.Longitude);
+            NearbyFields.Clear();
+            foreach (var f in list)
+                NearbyFields.Add(f);
+
+            var city = fields.CachedCityName ?? "your area";
+            FieldsSubtitle = NearbyFields.Count == 0
+                ? $"No mapped pitches found near {city} yet"
+                : $"{NearbyFields.Count} football pitches near {city}";
+            FieldsChanged?.Invoke(this, EventArgs.Empty);
+        }
+        catch
+        {
+            FieldsSubtitle = "Couldn’t load pitches — you can still tap the map";
+        }
+    }
+
     private async Task UpdateAddressAsync(Location location)
     {
-        var fromOsm = await ReverseGeocodeNominatimAsync(location);
-        if (!string.IsNullOrWhiteSpace(fromOsm))
+        var city = await fields.ResolveCityAsync(location.Latitude, location.Longitude);
+        // Prefer a nearby named pitch if the tap is very close to one.
+        var nearest = NearbyFields
+            .Select(f => (Field: f, Dist: HaversineKm(location.Latitude, location.Longitude, f.Latitude, f.Longitude)))
+            .Where(x => x.Dist < 0.08)
+            .OrderBy(x => x.Dist)
+            .Select(x => x.Field)
+            .FirstOrDefault();
+
+        if (nearest is not null)
         {
-            AddressPreview = fromOsm;
+            AddressPreview = string.IsNullOrWhiteSpace(city) ? nearest.Name : $"{nearest.Name}, {city}";
             return;
         }
 
-        // Platform geocoder as a secondary option (may require vendor keys on some devices).
-        try
-        {
-            var placemarks = await Geocoding.Default.GetPlacemarksAsync(location);
-            var place = placemarks?.FirstOrDefault();
-            if (place is not null)
-            {
-                var parts = new[] { place.FeatureName, place.Thoroughfare, place.Locality, place.AdminArea }
-                    .Where(p => !string.IsNullOrWhiteSpace(p))
-                    .Distinct();
-                AddressPreview = string.Join(", ", parts);
-                if (!string.IsNullOrWhiteSpace(AddressPreview))
-                    return;
-            }
-        }
-        catch
-        {
-            // Coordinates fallback below.
-        }
-
-        AddressPreview = FormatCoordinates(location);
+        AddressPreview = city is null
+            ? FormatCoordinates(location)
+            : $"{FormatCoordinates(location)}, {city}";
     }
 
-    private static async Task<string?> ReverseGeocodeNominatimAsync(Location location)
+    public string BuildFieldsPayloadBase64()
     {
-        try
+        var payload = NearbyFields.Select(f => new
         {
-            var lat = location.Latitude.ToString(CultureInfo.InvariantCulture);
-            var lon = location.Longitude.ToString(CultureInfo.InvariantCulture);
-            var url = $"https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat={lat}&lon={lon}";
-            using var response = await Nominatim.GetAsync(url);
-            if (!response.IsSuccessStatusCode)
-                return null;
-
-            await using var stream = await response.Content.ReadAsStreamAsync();
-            using var doc = await JsonDocument.ParseAsync(stream);
-            if (doc.RootElement.TryGetProperty("display_name", out var display)
-                && display.GetString() is { Length: > 0 } name)
-            {
-                // Keep the preview short for the glass panel.
-                var parts = name.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-                return string.Join(", ", parts.Take(4));
-            }
-        }
-        catch
-        {
-            // Offline / rate-limit — fall through.
-        }
-
-        return null;
+            lat = f.Latitude,
+            lng = f.Longitude,
+            name = f.Name,
+        });
+        var json = JsonSerializer.Serialize(payload);
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(json));
     }
 
     private static string FormatCoordinates(Location location)
         => $"{location.Latitude:F5}, {location.Longitude:F5}";
 
-    private static HttpClient CreateNominatimClient()
+    private static double HaversineKm(double lat1, double lon1, double lat2, double lon2)
     {
-        var client = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
-        // Nominatim usage policy requires a identifying User-Agent.
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("CityLeague/1.0 (local football meetup app)");
-        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        return client;
+        const double r = 6371;
+        static double Rad(double d) => d * Math.PI / 180;
+        var dLat = Rad(lat2 - lat1);
+        var dLon = Rad(lon2 - lon1);
+        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2)
+                + Math.Cos(Rad(lat1)) * Math.Cos(Rad(lat2))
+                  * Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+        return 2 * r * Math.Asin(Math.Sqrt(a));
     }
 }

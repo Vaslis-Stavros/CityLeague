@@ -40,7 +40,7 @@
                        FontFamily="OutfitSemiBold"
                        FontSize="26"
                        TextColor="White" />
-                <Label Text="Tap the map · OpenStreetMap, no API key"
+                <Label Text="{Binding FieldsSubtitle}"
                        FontFamily="OutfitRegular"
                        FontSize="13"
                        TextColor="#C8E6C8" />

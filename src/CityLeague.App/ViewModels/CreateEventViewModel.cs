@@ -24,13 +24,17 @@ public partial class SelectableFormat(EventFormatDto format) : ObservableObject
     private bool isSelected;
 }
 
-public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, IQueryAttributable
+public partial class CreateEventViewModel(ICityLeagueApi api, IOsmFootballFieldService fields)
+    : BaseViewModel, IQueryAttributable
 {
     private string? _pendingSportKey;
+    private bool _suppressLocationSuggestions;
+    private CancellationTokenSource? _suggestCts;
 
     public ObservableCollection<SportDto> Sports { get; } = [];
     public ObservableCollection<SelectableFormat> FormatChoices { get; } = [];
     public ObservableCollection<SeriesDto> Series { get; } = [];
+    public ObservableCollection<FootballField> LocationSuggestions { get; } = [];
 
     [ObservableProperty]
     private SportDto? selectedSport;
@@ -50,6 +54,7 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
     private TimeSpan time = new(18, 0, 0);
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasLocationSuggestions))]
     private string? location;
 
     [ObservableProperty]
@@ -60,6 +65,11 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
 
     [ObservableProperty]
     private bool showSeriesOptions;
+
+    [ObservableProperty]
+    private string locationHint = "Type a pitch in your city";
+
+    public bool HasLocationSuggestions => LocationSuggestions.Count > 0;
 
     public bool CanCreate => SelectedSport is not null
         && SelectedFormat is not null
@@ -84,7 +94,13 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
         if (query.TryGetValue("location", out var value) && value is string loc && !string.IsNullOrWhiteSpace(loc))
+        {
+            _suppressLocationSuggestions = true;
             Location = loc;
+            LocationSuggestions.Clear();
+            OnPropertyChanged(nameof(HasLocationSuggestions));
+            _suppressLocationSuggestions = false;
+        }
 
         if (query.TryGetValue("sport", out var sport) && sport is string sportKey && !string.IsNullOrWhiteSpace(sportKey))
             _pendingSportKey = sportKey.Trim().ToLowerInvariant();
@@ -100,6 +116,13 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
     partial void OnDateChanged(DateTime value) => OnPropertyChanged(nameof(WhenSummary));
     partial void OnTimeChanged(TimeSpan value) => OnPropertyChanged(nameof(WhenSummary));
 
+    partial void OnLocationChanged(string? value)
+    {
+        if (_suppressLocationSuggestions)
+            return;
+        _ = RefreshLocationSuggestionsAsync(value);
+    }
+
     protected override void OnBusyStateChanged(bool isBusy)
         => OnPropertyChanged(nameof(CanCreate));
 
@@ -109,6 +132,17 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
     [RelayCommand]
     private async Task PickLocationAsync()
         => await Shell.Current.GoToAsync(AppRoutes.LocationPicker);
+
+    [RelayCommand]
+    private void SelectLocationSuggestion(FootballField field)
+    {
+        if (field is null) return;
+        _suppressLocationSuggestions = true;
+        Location = field.DisplayLabel;
+        LocationSuggestions.Clear();
+        OnPropertyChanged(nameof(HasLocationSuggestions));
+        _suppressLocationSuggestions = false;
+    }
 
     [RelayCommand]
     private Task SelectFormatAsync(SelectableFormat choice)
@@ -127,6 +161,7 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
     private async Task AppearingAsync()
     {
         OnPropertyChanged(nameof(WhenSummary));
+        _ = EnsureCityFieldsAsync();
 
         if (Sports.Count > 0)
         {
@@ -148,6 +183,71 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
             foreach (var s in await api.GetSeriesAsync())
                 Series.Add(s);
         });
+    }
+
+    private async Task EnsureCityFieldsAsync()
+    {
+        try
+        {
+            if (fields.CachedCityFields.Count == 0)
+                await fields.PrefetchForCurrentCityAsync();
+
+            var city = fields.CachedCityName;
+            LocationHint = string.IsNullOrWhiteSpace(city)
+                ? "Type a pitch in your city"
+                : $"Pitches in {city} · OpenStreetMap";
+
+            if (!string.IsNullOrWhiteSpace(Location))
+                await RefreshLocationSuggestionsAsync(Location);
+        }
+        catch
+        {
+            LocationHint = "Type a pitch name";
+        }
+    }
+
+    private async Task RefreshLocationSuggestionsAsync(string? query)
+    {
+        _suggestCts?.Cancel();
+        _suggestCts = new CancellationTokenSource();
+        var ct = _suggestCts.Token;
+
+        try
+        {
+            await Task.Delay(180, ct);
+        }
+        catch (TaskCanceledException)
+        {
+            return;
+        }
+
+        var q = query?.Trim() ?? string.Empty;
+        if (q.Length < 1)
+        {
+            LocationSuggestions.Clear();
+            OnPropertyChanged(nameof(HasLocationSuggestions));
+            return;
+        }
+
+        if (fields.CachedCityFields.Count == 0)
+        {
+            try { await fields.PrefetchForCurrentCityAsync(ct); }
+            catch { /* keep empty */ }
+        }
+
+        if (ct.IsCancellationRequested)
+            return;
+
+        var matches = fields.CachedCityFields
+            .Where(f => f.Name.Contains(q, StringComparison.OrdinalIgnoreCase)
+                        || f.DisplayLabel.Contains(q, StringComparison.OrdinalIgnoreCase))
+            .Take(8)
+            .ToList();
+
+        LocationSuggestions.Clear();
+        foreach (var m in matches)
+            LocationSuggestions.Add(m);
+        OnPropertyChanged(nameof(HasLocationSuggestions));
     }
 
     private void ApplyPendingSport()
@@ -232,6 +332,8 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
             NewSeriesName = null;
             SelectedSeries = null;
             ShowSeriesOptions = false;
+            LocationSuggestions.Clear();
+            OnPropertyChanged(nameof(HasLocationSuggestions));
 
             await Shell.Current.GoToAsync($"{AppRoutes.EventDetail}?eventId={createdEvent.Id}");
         });
