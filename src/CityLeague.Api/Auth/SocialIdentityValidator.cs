@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using CityLeague.Core.Dtos;
+using CityLeague.Core.Validation;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
@@ -142,15 +143,17 @@ public sealed class SocialIdentityValidator(
         if (email is not null && !email.Contains('@'))
             email = null;
 
-        var displayName = Read(token, "name")
+        var claimedName = Read(token, "name")
             ?? JoinNames(Read(token, "given_name"), Read(token, "family_name"))
             // Apple never includes the name in the id_token; it is only returned once, to the client.
-            ?? Trim(request.DisplayName)
-            ?? email?.Split('@').FirstOrDefault();
+            ?? Trim(request.DisplayName);
+
+        var normalizedEmail = email?.Trim().ToLowerInvariant();
+        var displayName = DisplayNameResolver.Resolve(claimedName, normalizedEmail);
 
         return new ExternalIdentity(
             Subject: $"{provider.Name}:{subject}",
-            Email: email?.Trim().ToLowerInvariant(),
+            Email: normalizedEmail,
             DisplayName: displayName,
             Provider: provider.Name,
             EmailVerified: email is not null && IsEmailVerified(provider, token));

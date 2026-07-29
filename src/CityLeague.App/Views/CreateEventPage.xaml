@@ -3,71 +3,291 @@
     x:Class="CityLeague.App.Views.CreateEventPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:CityLeague.App.ViewModels"
     x:Name="Page"
+    Shell.NavBarIsVisible="False"
     Title="New match">
 
-    <Grid RowDefinitions="*,Auto" Padding="18" RowSpacing="14">
+    <ContentPage.Resources>
+        <Style x:Key="GlassPanel" TargetType="Border">
+            <Setter Property="Stroke" Value="{StaticResource GlassStroke}" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="BackgroundColor" Value="{StaticResource GlassFill}" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 22" />
+            <Setter Property="Padding" Value="16,14" />
+        </Style>
+        <Style x:Key="GlassField" TargetType="Entry">
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="PlaceholderColor" Value="#A8D5B5" />
+            <Setter Property="FontFamily" Value="OutfitRegular" />
+            <Setter Property="FontSize" Value="16" />
+        </Style>
+        <Style x:Key="GlassLabel" TargetType="Label">
+            <Setter Property="TextColor" Value="#C8E6C8" />
+            <Setter Property="FontFamily" Value="OutfitRegular" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Margin" Value="2,0,0,4" />
+        </Style>
+    </ContentPage.Resources>
 
-        <ScrollView Grid.Row="0" VerticalScrollBarVisibility="Default">
-            <VerticalStackLayout Spacing="14" VerticalOptions="Start">
+    <Grid x:Name="Root">
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#06351A" Offset="0" />
+                    <GradientStop Color="#0B6B2E" Offset="0.45" />
+                    <GradientStop Color="#1FA85A" Offset="1" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+        <Ellipse x:Name="GlowOrb"
+                 Fill="#33F2A900"
+                 WidthRequest="160"
+                 HeightRequest="160"
+                 HorizontalOptions="End"
+                 VerticalOptions="Start"
+                 Margin="0,-30,-50,0" />
+        <Ellipse Fill="#22FFFFFF"
+                 WidthRequest="140"
+                 HeightRequest="140"
+                 HorizontalOptions="Start"
+                 VerticalOptions="End"
+                 Margin="-40,0,0,40" />
 
-                <Label Text="Sport" FontAttributes="Bold" />
-                <Picker ItemsSource="{Binding Sports}"
-                        ItemDisplayBinding="{Binding Name}"
-                        SelectedItem="{Binding SelectedSport}" />
+        <Grid RowDefinitions="Auto,*,Auto" Padding="0,8,0,0">
 
-                <Label Text="Format" FontAttributes="Bold" />
-                <Picker ItemsSource="{Binding Formats}"
-                        ItemDisplayBinding="{Binding Name}"
-                        SelectedItem="{Binding SelectedFormat}" />
-
-                <Label Text="Title" FontAttributes="Bold" />
-                <Entry Placeholder="e.g. Friday night 7s" Text="{Binding Title}" />
-
-                <Label Text="Date and time" FontAttributes="Bold" />
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                    <DatePicker Grid.Column="0" Date="{Binding Date}" />
-                    <TimePicker Grid.Column="1" Time="{Binding Time}" />
-                </Grid>
-
-                <Label Text="Location (optional)" FontAttributes="Bold" />
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                    <Entry Grid.Column="0"
-                           Placeholder="Where are you playing?"
-                           Text="{Binding Location}" />
-                    <Button Grid.Column="1"
-                            Text="📍"
-                            WidthRequest="52"
-                            Padding="0"
-                            Command="{Binding PickLocationCommand}"
-                            BackgroundColor="{StaticResource BrandDark}"
-                            TextColor="White"
-                            SemanticProperties.Description="Pick location from map" />
-                </Grid>
-
-                <Label Text="Series (optional)" FontAttributes="Bold" />
-                <Picker ItemsSource="{Binding Series}"
-                        ItemDisplayBinding="{Binding Name}"
-                        SelectedItem="{Binding SelectedSeries}"
-                        Title="No series" />
-                <Entry Placeholder="...or start a new series" Text="{Binding NewSeriesName}" />
-                <Label Text="A series enforces submitting the previous result before the next match."
-                       FontSize="11" TextColor="#888" />
-
-                <Label Text="{Binding ErrorMessage}" TextColor="#C0392B"
-                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
-
+            <VerticalStackLayout x:Name="HeaderBlock"
+                                 Grid.Row="0"
+                                 Padding="22,16,22,10"
+                                 Spacing="4"
+                                 Opacity="0">
+                <Label Text="CityLeague"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="13"
+                       TextColor="#DDEFDD"
+                       CharacterSpacing="1.2" />
+                <Label Text="Plan a match"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="28"
+                       TextColor="White" />
+                <Label Text="Title, format, time, pitch."
+                       FontFamily="OutfitRegular"
+                       FontSize="14"
+                       TextColor="#C8E6C8" />
             </VerticalStackLayout>
-        </ScrollView>
 
-        <VerticalStackLayout Grid.Row="1" Spacing="8">
-            <Button Text="Create match"
-                    Command="{Binding CreateCommand}"
-                    IsEnabled="{Binding IsNotBusy}"
-                    BackgroundColor="{StaticResource Brand}"
-                    TextColor="White" />
-            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Brand}" />
-        </VerticalStackLayout>
+            <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+                <VerticalStackLayout x:Name="FormBlock"
+                                     Padding="18,4,18,12"
+                                     Spacing="12"
+                                     Opacity="0">
 
+                    <!-- Format -->
+                    <Border Style="{StaticResource GlassPanel}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="FORMAT" Style="{StaticResource GlassLabel}" CharacterSpacing="1.2" />
+                            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                                <HorizontalStackLayout BindableLayout.ItemsSource="{Binding FormatChoices}" Spacing="8">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:SelectableFormat">
+                                            <Border StrokeThickness="1"
+                                                    Padding="14,10"
+                                                    StrokeShape="RoundRectangle 18">
+                                                <Border.Triggers>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="BackgroundColor" Value="White" />
+                                                        <Setter Property="Stroke" Value="White" />
+                                                    </DataTrigger>
+                                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="False">
+                                                        <Setter Property="BackgroundColor" Value="#28FFFFFF" />
+                                                        <Setter Property="Stroke" Value="#55FFFFFF" />
+                                                    </DataTrigger>
+                                                </Border.Triggers>
+                                                <VerticalStackLayout Spacing="0" HorizontalOptions="Center">
+                                                    <Label Text="{Binding ShortLabel}"
+                                                           FontFamily="OutfitSemiBold"
+                                                           FontSize="16"
+                                                           HorizontalTextAlignment="Center">
+                                                        <Label.Triggers>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                                <Setter Property="TextColor" Value="{StaticResource Brand}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="False">
+                                                                <Setter Property="TextColor" Value="White" />
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
+                                                    <Label Text="{Binding Name}"
+                                                           FontFamily="OutfitRegular"
+                                                           FontSize="11"
+                                                           HorizontalTextAlignment="Center"
+                                                           TextColor="#A8D5B5" />
+                                                </VerticalStackLayout>
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={x:Reference Page}, Path=BindingContext.SelectFormatCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </HorizontalStackLayout>
+                            </ScrollView>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Title -->
+                    <Border Style="{StaticResource GlassPanel}">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="TITLE" Style="{StaticResource GlassLabel}" CharacterSpacing="1.2" />
+                            <Entry Placeholder="Friday night kickabout"
+                                   Text="{Binding Title}"
+                                   Style="{StaticResource GlassField}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- When -->
+                    <Border Style="{StaticResource GlassPanel}">
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="WHEN" Style="{StaticResource GlassLabel}" CharacterSpacing="1.2" Margin="0" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding WhenSummary}"
+                                       FontFamily="OutfitSemiBold"
+                                       FontSize="13"
+                                       TextColor="White"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <DatePicker Grid.Column="0"
+                                            Date="{Binding Date}"
+                                            TextColor="White"
+                                            BackgroundColor="Transparent" />
+                                <TimePicker Grid.Column="1"
+                                            Time="{Binding Time}"
+                                            TextColor="White"
+                                            BackgroundColor="Transparent" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Location -->
+                    <Border Style="{StaticResource GlassPanel}">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="WHERE" Style="{StaticResource GlassLabel}" CharacterSpacing="1.2" />
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <Entry Grid.Column="0"
+                                       Placeholder="Pitch or park"
+                                       Text="{Binding Location}"
+                                       Style="{StaticResource GlassField}" />
+                                <Border Grid.Column="1"
+                                        BackgroundColor="#28FFFFFF"
+                                        Stroke="{StaticResource GlassStroke}"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 14"
+                                        WidthRequest="52"
+                                        HeightRequest="40"
+                                        Padding="0"
+                                        VerticalOptions="Center">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding PickLocationCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="Map"
+                                           FontFamily="OutfitSemiBold"
+                                           FontSize="12"
+                                           TextColor="White"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Series (collapsed) -->
+                    <Border Style="{StaticResource GlassPanel}" Padding="16,12">
+                        <VerticalStackLayout Spacing="8">
+                            <Border StrokeThickness="0" BackgroundColor="Transparent" Padding="0">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleSeriesOptionsCommand}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="0">
+                                        <Label Text="SERIES" Style="{StaticResource GlassLabel}" CharacterSpacing="1.2" Margin="0" />
+                                        <Label Text="Optional · same pitch each week"
+                                               FontFamily="OutfitRegular"
+                                               FontSize="12"
+                                               TextColor="#A8D5B5" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="1"
+                                           FontFamily="OutfitSemiBold"
+                                           FontSize="14"
+                                           TextColor="White"
+                                           VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding ShowSeriesOptions}" Value="True">
+                                                <Setter Property="Text" Value="Hide" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Label" Binding="{Binding ShowSeriesOptions}" Value="False">
+                                                <Setter Property="Text" Value="Add" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Grid>
+                            </Border>
+
+                            <VerticalStackLayout IsVisible="{Binding ShowSeriesOptions}" Spacing="8">
+                                <Picker ItemsSource="{Binding Series}"
+                                        ItemDisplayBinding="{Binding Name}"
+                                        SelectedItem="{Binding SelectedSeries}"
+                                        Title="Existing series"
+                                        TextColor="White"
+                                        BackgroundColor="Transparent" />
+                                <Entry Placeholder="Or name a new series"
+                                       Text="{Binding NewSeriesName}"
+                                       Style="{StaticResource GlassField}" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="#FFCDD2"
+                           FontFamily="OutfitRegular"
+                           FontSize="13"
+                           IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <Border x:Name="CreateCta"
+                    Grid.Row="2"
+                    Margin="18,8,18,18"
+                    Padding="0"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 24"
+                    BackgroundColor="White"
+                    HeightRequest="54"
+                    TranslationY="20">
+                <Border.Shadow>
+                    <Shadow Brush="#40000000" Offset="0,8" Radius="18" Opacity="0.28" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CreateCommand}" />
+                </Border.GestureRecognizers>
+                <Grid>
+                    <Label Text="Create match"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="16"
+                           TextColor="{StaticResource Brand}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBool}}" />
+                    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                       IsVisible="{Binding IsBusy}"
+                                       Color="{StaticResource Brand}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </ContentPage>

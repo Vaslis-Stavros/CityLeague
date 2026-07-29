@@ -71,6 +71,10 @@ public class MeController(
             throw ServiceException.Conflict("That handle is taken.");
 
         user.UniqueHandle = normalized;
+        // SSO accounts often land with "Google player" until the user picks @handle — use that.
+        if (DisplayNameResolver.IsPlaceholder(user.DisplayName))
+            user.DisplayName = normalized;
+
         try
         {
             await db.SaveChangesAsync(ct);

@@ -14,21 +14,33 @@ public partial class SelectableContact(UserDto user) : ObservableObject
     private bool isSelected;
 }
 
+public partial class SelectableFormat(EventFormatDto format) : ObservableObject
+{
+    public EventFormatDto Format { get; } = format;
+    public string Name => Format.Name;
+    public string ShortLabel => $"{Format.PlayersPerSide}v{Format.PlayersPerSide}";
+
+    [ObservableProperty]
+    private bool isSelected;
+}
+
 public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, IQueryAttributable
 {
     private string? _pendingSportKey;
 
     public ObservableCollection<SportDto> Sports { get; } = [];
-    public ObservableCollection<EventFormatDto> Formats { get; } = [];
+    public ObservableCollection<SelectableFormat> FormatChoices { get; } = [];
     public ObservableCollection<SeriesDto> Series { get; } = [];
 
     [ObservableProperty]
     private SportDto? selectedSport;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreate))]
     private EventFormatDto? selectedFormat;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreate))]
     private string title = string.Empty;
 
     [ObservableProperty]
@@ -46,6 +58,29 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
     [ObservableProperty]
     private string? newSeriesName;
 
+    [ObservableProperty]
+    private bool showSeriesOptions;
+
+    public bool CanCreate => SelectedSport is not null
+        && SelectedFormat is not null
+        && !string.IsNullOrWhiteSpace(Title)
+        && IsNotBusy;
+
+    public string WhenSummary
+    {
+        get
+        {
+            var local = Date.Date.Add(Time);
+            var today = DateTime.Today;
+            var day = local.Date == today
+                ? "Today"
+                : local.Date == today.AddDays(1)
+                    ? "Tomorrow"
+                    : local.ToString("ddd d MMM");
+            return $"{day} · {local:HH:mm}";
+        }
+    }
+
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
         if (query.TryGetValue("location", out var value) && value is string loc && !string.IsNullOrWhiteSpace(loc))
@@ -59,15 +94,38 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
     {
         if (value is null) return;
         LoadFormatsForSport(value);
+        OnPropertyChanged(nameof(CanCreate));
     }
+
+    partial void OnDateChanged(DateTime value) => OnPropertyChanged(nameof(WhenSummary));
+    partial void OnTimeChanged(TimeSpan value) => OnPropertyChanged(nameof(WhenSummary));
+    partial void OnIsBusyChanged(bool value) => OnPropertyChanged(nameof(CanCreate));
+
+    [RelayCommand]
+    private void ToggleSeriesOptions() => ShowSeriesOptions = !ShowSeriesOptions;
 
     [RelayCommand]
     private async Task PickLocationAsync()
         => await Shell.Current.GoToAsync(AppRoutes.LocationPicker);
 
     [RelayCommand]
+    private Task SelectFormatAsync(SelectableFormat choice)
+    {
+        foreach (var item in FormatChoices)
+            item.IsSelected = ReferenceEquals(item, choice);
+
+        SelectedFormat = choice.Format;
+        if (string.IsNullOrWhiteSpace(Title))
+            Title = $"{choice.ShortLabel} · {WhenSummary}";
+
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
     private async Task AppearingAsync()
     {
+        OnPropertyChanged(nameof(WhenSummary));
+
         if (Sports.Count > 0)
         {
             ApplyPendingSport();
@@ -107,11 +165,21 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
 
     private void LoadFormatsForSport(SportDto sport)
     {
-        Formats.Clear();
+        FormatChoices.Clear();
         foreach (var format in sport.Formats)
-            Formats.Add(format);
+            FormatChoices.Add(new SelectableFormat(format));
 
-        SelectedFormat = Formats.FirstOrDefault(f => f.PlayersPerSide == 7) ?? Formats.FirstOrDefault();
+        var preferred = FormatChoices.FirstOrDefault(f => f.Format.PlayersPerSide == 7)
+                        ?? FormatChoices.FirstOrDefault();
+        if (preferred is not null)
+        {
+            preferred.IsSelected = true;
+            SelectedFormat = preferred.Format;
+        }
+        else
+        {
+            SelectedFormat = null;
+        }
     }
 
     [RelayCommand]
@@ -161,6 +229,7 @@ public partial class CreateEventViewModel(ICityLeagueApi api) : BaseViewModel, I
             Location = null;
             NewSeriesName = null;
             SelectedSeries = null;
+            ShowSeriesOptions = false;
 
             await Shell.Current.GoToAsync($"{AppRoutes.EventDetail}?eventId={createdEvent.Id}");
         });

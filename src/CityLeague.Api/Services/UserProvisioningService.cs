@@ -1,5 +1,6 @@
 using CityLeague.Api.Auth;
 using CityLeague.Core.Entities;
+using CityLeague.Core.Validation;
 using CityLeague.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,7 @@ public class UserProvisioningService(CityLeagueDbContext db, TimeProvider time)
         var provider = SocialProviderCatalog.Normalize(identity.Provider) ?? "external";
         var subject = identity.Subject;
         var email = Normalize(identity.Email);
+        var displayName = DisplayNameResolver.Resolve(identity.DisplayName, email);
 
         var login = await _db.UserExternalLogins
             .Include(l => l.User)
@@ -29,7 +31,7 @@ public class UserProvisioningService(CityLeagueDbContext db, TimeProvider time)
         {
             login.LastLoginAt = time.GetUtcNow();
             login.Email = email ?? login.Email;
-            ApplyProfile(login.User, identity, email);
+            ApplyProfile(login.User, displayName, email);
             await _db.SaveChangesAsync(ct);
             return login.User;
         }
@@ -51,14 +53,14 @@ public class UserProvisioningService(CityLeagueDbContext db, TimeProvider time)
             {
                 B2CObjectId = subject,
                 Email = email,
-                DisplayName = string.IsNullOrWhiteSpace(identity.DisplayName) ? "Player" : identity.DisplayName!.Trim(),
+                DisplayName = displayName,
                 UniqueHandle = null,
             };
             _db.Users.Add(user);
         }
         else
         {
-            ApplyProfile(user, identity, email);
+            ApplyProfile(user, displayName, email);
         }
 
         _db.UserExternalLogins.Add(new UserExternalLogin
@@ -75,13 +77,15 @@ public class UserProvisioningService(CityLeagueDbContext db, TimeProvider time)
         return user;
     }
 
-    private static void ApplyProfile(User user, ExternalIdentity identity, string? email)
+    private static void ApplyProfile(User user, string displayName, string? email)
     {
         if (email is not null && string.IsNullOrWhiteSpace(user.Email))
             user.Email = email;
 
-        if (string.IsNullOrWhiteSpace(user.DisplayName) && !string.IsNullOrWhiteSpace(identity.DisplayName))
-            user.DisplayName = identity.DisplayName!.Trim();
+        // Replace placeholders like "Google player" with the email @-name when we learn it.
+        if (DisplayNameResolver.IsPlaceholder(user.DisplayName)
+            && !DisplayNameResolver.IsPlaceholder(displayName))
+            user.DisplayName = displayName;
     }
 
     private static string? Normalize(string? email) =>

@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using CityLeague.Core.Dtos;
+using CityLeague.Core.Validation;
 
 namespace CityLeague.Api.Auth;
 
@@ -30,10 +31,7 @@ public class DevIdentityValidator : IExternalIdentityValidator
             return Task.FromResult<ExternalIdentity?>(null);
 
         var subject = $"{provider}:{providerUserId}";
-        var displayName = string.IsNullOrWhiteSpace(request.DisplayName)
-            ? (request.Email?.Split('@').FirstOrDefault()
-                ?? $"{char.ToUpperInvariant(provider[0])}{provider[1..]} player")
-            : request.DisplayName!.Trim();
+        var displayName = DisplayNameResolver.Resolve(request.DisplayName, request.Email);
 
         // Local-only, so treat the email as verified and let repeat sign-ins across the fake
         // providers land on the same account.
