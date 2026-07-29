@@ -1,5 +1,5 @@
 using CityLeague.Api.Auth;
-using CityLeague.Core.Abstractions;
+using CityLeague.Api.Services;
 using CityLeague.Core.Dtos;
 using CityLeague.Core.Enums;
 using CityLeague.Core.Validation;
@@ -16,7 +16,7 @@ namespace CityLeague.Api.Controllers;
 public class UsersController(
     CityLeagueDbContext db,
     ICurrentUser currentUser,
-    IAvatarStorage avatarStorage) : ControllerBase
+    ApiMapper mapper) : ControllerBase
 {
     [HttpGet("search")]
     public async Task<ActionResult<IReadOnlyList<UserSearchResultDto>>> Search([FromQuery] string q, CancellationToken ct)
@@ -45,7 +45,7 @@ public class UsersController(
                 u.Id,
                 u.UniqueHandle!,
                 u.DisplayName,
-                avatarStorage.ResolvePublicUrl(u.AvatarBlobUrl),
+                mapper.ToPublicAvatarUrl(u.AvatarBlobUrl),
                 relationship);
         }).ToList();
 

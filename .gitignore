@@ -50,3 +50,7 @@ Thumbs.db
 *.db-shm
 *.db-wal
 src/CityLeague.App/CityLeague.App.csproj.user
+
+# Local avatar uploads (served as static files)
+src/CityLeague.Api/wwwroot/uploads/**
+!src/CityLeague.Api/wwwroot/uploads/.gitkeep

@@ -90,18 +90,51 @@ public class MeController(
         if (file is null || file.Length == 0)
             throw ServiceException.BadRequest("No file uploaded.");
 
+        var contentType = NormalizeContentType(file.ContentType, file.FileName);
+        if (contentType is null)
+            throw ServiceException.BadRequest("Please choose a JPEG, PNG, GIF or WebP image.");
+
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == currentUser.UserId, ct)
             ?? throw ServiceException.NotFound("User not found.");
 
-        var ext = Path.GetExtension(file.FileName);
+        var ext = ExtensionFor(contentType);
         var blobPath = avatarStorage.BuildAvatarBlobPath(user.Id, ext);
         await using (var stream = file.OpenReadStream())
-            await avatarStorage.SaveAsync(blobPath, stream, file.ContentType ?? "image/png", ct);
+            await avatarStorage.SaveAsync(blobPath, stream, contentType, ct);
 
         user.AvatarBlobUrl = blobPath;
         await db.SaveChangesAsync(ct);
         return mapper.ToUserDto(user);
     }
+
+    private static string? NormalizeContentType(string? contentType, string? fileName)
+    {
+        var type = contentType?.Split(';')[0].Trim().ToLowerInvariant();
+        if (type is "image/jpeg" or "image/jpg" or "image/png" or "image/gif" or "image/webp")
+            return type == "image/jpg" ? "image/jpeg" : type;
+
+        // Some pickers omit Content-Type and only send a file name.
+        var ext = Path.GetExtension(fileName ?? string.Empty).ToLowerInvariant();
+        return ext switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".webp" => "image/webp",
+            // iOS often hands us HEIC; we can't serve that to every client, so reject early.
+            ".heic" or ".heif" => null,
+            _ => null,
+        };
+    }
+
+    private static string ExtensionFor(string contentType) => contentType switch
+    {
+        "image/jpeg" => ".jpg",
+        "image/png" => ".png",
+        "image/gif" => ".gif",
+        "image/webp" => ".webp",
+        _ => ".jpg",
+    };
 
     [HttpGet("avatar-ticket")]
     public async Task<ActionResult<AvatarUploadTicket>> GetAvatarTicket([FromQuery] string contentType, CancellationToken ct)

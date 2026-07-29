@@ -113,7 +113,7 @@ The key is injected at build time via `AndroidManifestPlaceholders` and is gitig
 | `Auth:B2C:ClientId` | B2C application (client) id, validated as the token audience. |
 | `AvatarStorage:Provider` | `Local` (disk, served from `/uploads`) or `Azure` (Blob Storage). |
 | `AvatarStorage:ConnectionString` | Azure Storage connection string (when Provider = `Azure`). |
-| `AvatarStorage:PublicBaseUrl` | Absolute base URL used to build avatar URLs for the `Local` provider. |
+| `AvatarStorage:PublicBaseUrl` | Optional absolute base for avatar URLs. Leave empty to use the host the client called (recommended for emulators). |
 
 ## Authentication
 
