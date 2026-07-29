@@ -22,8 +22,11 @@ public class ApiSettings
 
     private static string DefaultBaseUrl()
     {
-#if DEBUG
-        return NormalizeLocalUrl("http://localhost:5066");
+#if DEBUG && ANDROID
+        // Emulator → host loopback. Never use localhost here.
+        return "http://10.0.2.2:5066";
+#elif DEBUG
+        return "http://localhost:5066";
 #else
         return "https://cityleagueapp.com";
 #endif

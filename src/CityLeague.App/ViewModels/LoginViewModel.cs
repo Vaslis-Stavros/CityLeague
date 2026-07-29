@@ -5,7 +5,7 @@ using CityLeague.Core.Validation;
 
 namespace CityLeague.App.ViewModels;
 
-public partial class LoginViewModel(IAuthService auth, ISocialSignInService social) : BaseViewModel
+public partial class LoginViewModel(IAuthService auth, ISocialSignInService social, ApiSettings apiSettings) : BaseViewModel
 {
     [ObservableProperty]
     private string username = string.Empty;
@@ -198,14 +198,20 @@ public partial class LoginViewModel(IAuthService auth, ISocialSignInService soci
             ErrorMessage = ex.Message;
             await ShowAlertAsync(alertTitle, ex.Message);
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException ex)
         {
             ErrorMessage =
+                $"Can't reach the API at {apiSettings.BaseUrl}. " +
+                "Start it with: dotnet run --project src/CityLeague.Api. " +
 #if ANDROID
-                "Can't reach the server. On the Android emulator use http://10.0.2.2:5066 (not localhost), and make sure the API is running.";
+                "On the emulator that must be http://10.0.2.2:5066 (localhost will not work). " +
+                "On a physical phone use your PC's LAN IP, e.g. http://192.168.1.20:5066.";
 #else
-                "Can't reach the server. Check your connection and try again.";
+                "On iOS Simulator localhost is fine; on a device use your PC's LAN IP.";
 #endif
+            if (!string.IsNullOrWhiteSpace(ex.Message))
+                ErrorMessage += $" ({ex.Message})";
+
             await ShowAlertAsync(alertTitle, ErrorMessage);
         }
         catch (Exception ex)
