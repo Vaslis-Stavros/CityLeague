@@ -12,10 +12,22 @@ public partial class ContactsViewModel(ICityLeagueApi api) : BaseViewModel
     public ObservableCollection<UserSearchResultDto> SearchResults { get; } = [];
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSearchResults))]
     private string searchQuery = string.Empty;
 
     [ObservableProperty]
     private bool isRefreshing;
+
+    public bool HasSearchResults => SearchResults.Count > 0;
+
+    public bool ShowEmptyContacts => Contacts.Count == 0 && !HasSearchResults;
+
+    public string ContactsSubtitle => Contacts.Count switch
+    {
+        0 => "Find people by @handle",
+        1 => "1 person",
+        _ => $"{Contacts.Count} people",
+    };
 
     [RelayCommand]
     private async Task AppearingAsync() => await LoadAsync();
@@ -29,6 +41,8 @@ public partial class ContactsViewModel(ICityLeagueApi api) : BaseViewModel
             Contacts.Clear();
             foreach (var c in contacts)
                 Contacts.Add(c);
+            OnPropertyChanged(nameof(ContactsSubtitle));
+            OnPropertyChanged(nameof(ShowEmptyContacts));
         });
     }
 
@@ -46,6 +60,8 @@ public partial class ContactsViewModel(ICityLeagueApi api) : BaseViewModel
         if (string.IsNullOrWhiteSpace(SearchQuery) || SearchQuery.Trim().Length < 2)
         {
             SearchResults.Clear();
+            OnPropertyChanged(nameof(HasSearchResults));
+            OnPropertyChanged(nameof(ShowEmptyContacts));
             return;
         }
 
@@ -55,6 +71,8 @@ public partial class ContactsViewModel(ICityLeagueApi api) : BaseViewModel
             SearchResults.Clear();
             foreach (var r in results)
                 SearchResults.Add(r);
+            OnPropertyChanged(nameof(HasSearchResults));
+            OnPropertyChanged(nameof(ShowEmptyContacts));
         });
     }
 
@@ -66,6 +84,8 @@ public partial class ContactsViewModel(ICityLeagueApi api) : BaseViewModel
         {
             await api.AddContactAsync(new CreateContactRequest(user.Id, null));
             SearchResults.Remove(user);
+            OnPropertyChanged(nameof(HasSearchResults));
+            OnPropertyChanged(nameof(ShowEmptyContacts));
             await LoadAsync();
         });
     }

@@ -7,97 +7,277 @@
     xmlns:vm="clr-namespace:CityLeague.App.ViewModels"
     xmlns:controls="clr-namespace:CityLeague.App.Controls"
     x:Name="Page"
+    Shell.NavBarIsVisible="False"
     Title="{Binding Title}">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="14" Spacing="12">
+    <ContentPage.Resources>
+        <Style x:Key="GlassPanel" TargetType="Border">
+            <Setter Property="Stroke" Value="{StaticResource GlassStroke}" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="BackgroundColor" Value="{StaticResource GlassFill}" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 22" />
+            <Setter Property="Padding" Value="16,14" />
+        </Style>
+        <Style x:Key="GlassAction" TargetType="Border">
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 18" />
+            <Setter Property="Padding" Value="14,12" />
+            <Setter Property="BackgroundColor" Value="White" />
+        </Style>
+    </ContentPage.Resources>
 
-            <Grid ColumnDefinitions="*,Auto">
-                <Label Grid.Column="0" Text="{Binding Title}" FontSize="22" FontAttributes="Bold" VerticalOptions="Center" />
-                <Label Grid.Column="1" Text="{Binding StatusText}" TextColor="{StaticResource Brand}" FontAttributes="Bold" VerticalOptions="Center" />
-            </Grid>
+    <Grid x:Name="Root">
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#06351A" Offset="0" />
+                    <GradientStop Color="#0B6B2E" Offset="0.45" />
+                    <GradientStop Color="#1FA85A" Offset="1" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+        <Ellipse x:Name="GlowOrb"
+                 Fill="#33F2A900"
+                 WidthRequest="170"
+                 HeightRequest="170"
+                 HorizontalOptions="End"
+                 VerticalOptions="Start"
+                 Margin="0,-24,-40,0" />
+        <Ellipse Fill="#22FFFFFF"
+                 WidthRequest="140"
+                 HeightRequest="140"
+                 HorizontalOptions="Start"
+                 VerticalOptions="End"
+                 Margin="-50,0,0,50" />
 
-            <Label Text="{Binding ResultText, StringFormat='Result: {0}'}"
-                   IsVisible="{Binding ResultText, Converter={StaticResource IsStringNotEmpty}}"
-                   FontSize="16" />
+        <ScrollView VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout x:Name="ContentBlock"
+                                 Padding="18,16,18,24"
+                                 Spacing="12"
+                                 Opacity="0">
 
-            <Label Text="Tap an open spot to claim it. Tap your own spot to leave."
-                   FontSize="12" TextColor="#666"
-                   IsVisible="{Binding IsReadOnly, Converter={StaticResource InvertedBool}}" />
+                <VerticalStackLayout x:Name="HeaderBlock" Spacing="4">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0"
+                               Text="CityLeague"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="13"
+                               TextColor="#DDEFDD"
+                               CharacterSpacing="1.2"
+                               VerticalOptions="Center" />
+                        <Border Grid.Column="1"
+                                BackgroundColor="#28FFFFFF"
+                                Stroke="{StaticResource GlassStroke}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 14"
+                                Padding="10,5">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnBackTapped" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Back"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="12"
+                                   TextColor="White" />
+                        </Border>
+                    </Grid>
 
-            <Label Text="Final lineup and result."
-                   FontSize="12" TextColor="#666"
-                   IsVisible="{Binding IsReadOnly}" />
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="0,6,0,0">
+                        <Label Grid.Column="0"
+                               Text="{Binding Title}"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="26"
+                               TextColor="White"
+                               LineBreakMode="TailTruncation" />
+                        <Border Grid.Column="1"
+                                BackgroundColor="#28FFFFFF"
+                                Stroke="{StaticResource GlassStroke}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 14"
+                                Padding="12,6"
+                                VerticalOptions="Center">
+                            <Label Text="{Binding StatusText}"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="12"
+                                   TextColor="White" />
+                        </Border>
+                    </Grid>
 
-            <Border StrokeThickness="0" StrokeShape="RoundRectangle 14" Padding="0">
-                <controls:FootballFieldView x:Name="Field"
-                    HeightRequest="300"
-                    Positions="{Binding Positions}"
-                    CurrentUserId="{Binding CurrentUserId}"
-                    IsReadOnly="{Binding IsReadOnly}" />
-            </Border>
+                    <Label Text="{Binding ResultText, StringFormat='Result · {0}'}"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="15"
+                           TextColor="#F2A900"
+                           IsVisible="{Binding ResultText, Converter={StaticResource IsStringNotEmpty}}" />
 
-            <Label Text="{Binding ErrorMessage}" TextColor="#C0392B"
-                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
-
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10"
-                  IsVisible="{Binding IsReadOnly, Converter={StaticResource InvertedBool}}">
-                <Button Grid.Column="0" Text="Invite contacts"
-                        IsVisible="{Binding CanInvite}"
-                        Command="{Binding ToggleInvitePanelCommand}"
-                        BackgroundColor="{StaticResource BrandDark}" TextColor="White" />
-                <Button Grid.Column="1" Text="Submit result"
-                        IsVisible="{Binding CanSubmitResult}"
-                        Command="{Binding SubmitResultCommand}"
-                        BackgroundColor="{StaticResource Accent}" TextColor="Black" />
-            </Grid>
-
-            <Button Text="Delete match"
-                    IsVisible="{Binding CanDelete}"
-                    Command="{Binding DeleteCommand}"
-                    BackgroundColor="#C0392B" TextColor="White" />
-
-            <!-- Invite panel -->
-            <Border IsVisible="{Binding ShowInvitePanel}" StrokeThickness="0" Padding="12"
-                    BackgroundColor="#F4F4F4" StrokeShape="RoundRectangle 12">
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Invite your contacts" FontAttributes="Bold" />
-                    <CollectionView ItemsSource="{Binding InviteCandidates}" HeightRequest="180">
-                        <CollectionView.EmptyView>
-                            <Label Text="All your contacts are already in." TextColor="#888" />
-                        </CollectionView.EmptyView>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="vm:SelectableContact">
-                                <Grid Padding="2,6" ColumnDefinitions="*,Auto">
-                                    <Label Grid.Column="0" Text="{Binding User.DisplayName}" VerticalOptions="Center" />
-                                    <Switch Grid.Column="1" IsToggled="{Binding IsSelected}" OnColor="{StaticResource Brand}" />
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                    <Button Text="Send invites" Command="{Binding InviteSelectedCommand}"
-                            BackgroundColor="{StaticResource Brand}" TextColor="White" />
+                    <Label Text="Tap an open spot to claim it — tap yours to leave."
+                           FontFamily="OutfitRegular"
+                           FontSize="13"
+                           TextColor="#C8E6C8"
+                           IsVisible="{Binding IsReadOnly, Converter={StaticResource InvertedBool}}" />
+                    <Label Text="Final lineup and result."
+                           FontFamily="OutfitRegular"
+                           FontSize="13"
+                           TextColor="#C8E6C8"
+                           IsVisible="{Binding IsReadOnly}" />
                 </VerticalStackLayout>
-            </Border>
 
-            <Label Text="Players" FontAttributes="Bold" FontSize="16" Margin="0,6,0,0" />
-            <CollectionView ItemsSource="{Binding Participants}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="dtos:ParticipantDto">
-                        <Grid Padding="2,6" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                            <controls:AvatarView Grid.Column="0" DisplayName="{Binding DisplayName}" ImageUrl="{Binding AvatarUrl}" Diameter="36" />
-                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                                <Label Text="{Binding DisplayName}" />
-                                <Label Text="{Binding Handle, StringFormat='@{0}'}" FontSize="12" TextColor="#888" />
-                            </VerticalStackLayout>
-                            <Label Grid.Column="2" Text="Organizer" FontSize="12" TextColor="{StaticResource Accent}"
-                                   IsVisible="{Binding IsOwner}" VerticalOptions="Center" />
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                <!-- Pitch -->
+                <Border Style="{StaticResource GlassPanel}" Padding="8">
+                    <controls:FootballFieldView x:Name="Field"
+                        HeightRequest="300"
+                        Positions="{Binding Positions}"
+                        CurrentUserId="{Binding CurrentUserId}"
+                        IsReadOnly="{Binding IsReadOnly}" />
+                </Border>
 
-            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Brand}" />
-        </VerticalStackLayout>
-    </ScrollView>
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="#FFCDD2"
+                       FontFamily="OutfitRegular"
+                       FontSize="13"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
+
+                <!-- Actions -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10"
+                      IsVisible="{Binding IsReadOnly, Converter={StaticResource InvertedBool}}">
+                    <Border Grid.Column="0"
+                            Style="{StaticResource GlassAction}"
+                            IsVisible="{Binding CanInvite}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleInvitePanelCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Invite"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="14"
+                               TextColor="{StaticResource Brand}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    <Border Grid.Column="1"
+                            BackgroundColor="#F2A900"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 18"
+                            Padding="14,12"
+                            IsVisible="{Binding CanSubmitResult}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SubmitResultCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Result"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="14"
+                               TextColor="#1A1520"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                </Grid>
+
+                <Border BackgroundColor="#33C0392B"
+                        Stroke="#88FF8A80"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18"
+                        Padding="14,12"
+                        IsVisible="{Binding CanDelete}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding DeleteCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Delete match"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="14"
+                           TextColor="#FFCDD2"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+
+                <!-- Invite panel -->
+                <Border Style="{StaticResource GlassPanel}"
+                        IsVisible="{Binding ShowInvitePanel}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="INVITE CONTACTS"
+                               FontFamily="OutfitRegular"
+                               FontSize="12"
+                               TextColor="#C8E6C8"
+                               CharacterSpacing="1.2" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding InviteCandidates}" Spacing="6">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SelectableContact">
+                                    <Grid ColumnDefinitions="*,Auto" Padding="2,4">
+                                        <Label Grid.Column="0"
+                                               Text="{Binding User.DisplayName}"
+                                               FontFamily="OutfitSemiBold"
+                                               FontSize="14"
+                                               TextColor="White"
+                                               VerticalOptions="Center" />
+                                        <Switch Grid.Column="1"
+                                                IsToggled="{Binding IsSelected}"
+                                                OnColor="{StaticResource Accent}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <Label Text="All your contacts are already in."
+                               FontFamily="OutfitRegular"
+                               FontSize="13"
+                               TextColor="#A8D5B5"
+                               IsVisible="{Binding HasInviteCandidates, Converter={StaticResource InvertedBool}}" />
+                        <Border Style="{StaticResource GlassAction}"
+                                Margin="0,4,0,0"
+                                IsVisible="{Binding HasInviteCandidates}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding InviteSelectedCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Send invites"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="14"
+                                   TextColor="{StaticResource Brand}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Players -->
+                <Label Text="PLAYERS"
+                       FontFamily="OutfitRegular"
+                       FontSize="12"
+                       TextColor="#C8E6C8"
+                       CharacterSpacing="1.2"
+                       Margin="4,4,0,0" />
+
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Participants}" Spacing="8">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="dtos:ParticipantDto">
+                            <Border Style="{StaticResource GlassPanel}" Padding="12,10">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                    <controls:AvatarView Grid.Column="0"
+                                                         DisplayName="{Binding DisplayName}"
+                                                         ImageUrl="{Binding AvatarUrl}"
+                                                         Diameter="40" />
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                                        <Label Text="{Binding DisplayName}"
+                                               FontFamily="OutfitSemiBold"
+                                               FontSize="15"
+                                               TextColor="White" />
+                                        <Label Text="{Binding Handle, StringFormat='@{0}'}"
+                                               FontFamily="OutfitRegular"
+                                               FontSize="12"
+                                               TextColor="#A8D5B5" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2"
+                                           Text="Organizer"
+                                           FontFamily="OutfitSemiBold"
+                                           FontSize="12"
+                                           TextColor="#F2A900"
+                                           IsVisible="{Binding IsOwner}"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="White"
+                                   HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

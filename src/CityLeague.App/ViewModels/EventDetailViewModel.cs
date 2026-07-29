@@ -102,6 +102,8 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
 
     public string? ResultText => Detail?.Result is { } r ? $"{r.HomeScore} - {r.AwayScore} ({r.WinningSide})" : null;
 
+    public bool HasInviteCandidates => InviteCandidates.Count > 0;
+
 
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -215,6 +217,8 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
                     InviteCandidates.Add(new SelectableContact(c.User));
 
             }
+
+            OnPropertyChanged(nameof(HasInviteCandidates));
 
         }
 
@@ -359,6 +363,7 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
             }
 
             ShowInvitePanel = false;
+            OnPropertyChanged(nameof(HasInviteCandidates));
 
         });
 

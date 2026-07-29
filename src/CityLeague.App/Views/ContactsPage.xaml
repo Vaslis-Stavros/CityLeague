@@ -6,65 +6,249 @@
     xmlns:dtos="clr-namespace:CityLeague.Core.Dtos;assembly=CityLeague.Core"
     xmlns:controls="clr-namespace:CityLeague.App.Controls"
     x:Name="Page"
+    Shell.NavBarIsVisible="False"
     Title="Contacts">
 
-    <Grid RowDefinitions="Auto,Auto,*" Padding="0">
+    <ContentPage.Resources>
+        <Style x:Key="GlassPanel" TargetType="Border">
+            <Setter Property="Stroke" Value="#55FFFFFF" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="BackgroundColor" Value="#38FFFFFF" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 22" />
+            <Setter Property="Padding" Value="14,12" />
+        </Style>
+    </ContentPage.Resources>
 
-        <SearchBar Grid.Row="0"
-                   Placeholder="Find people by handle"
-                   Text="{Binding SearchQuery}"
-                   SearchCommand="{Binding SearchCommand}" />
+    <Grid x:Name="Root">
+        <!-- Cool slate glass — social, not football green -->
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#0E1525" Offset="0" />
+                    <GradientStop Color="#1A2740" Offset="0.5" />
+                    <GradientStop Color="#2A3F5F" Offset="1" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+        <Ellipse x:Name="GlowOrb"
+                 Fill="#33E8B86D"
+                 WidthRequest="170"
+                 HeightRequest="170"
+                 HorizontalOptions="End"
+                 VerticalOptions="Start"
+                 Margin="0,-30,-45,0" />
+        <Ellipse Fill="#18FFFFFF"
+                 WidthRequest="150"
+                 HeightRequest="150"
+                 HorizontalOptions="Start"
+                 VerticalOptions="End"
+                 Margin="-50,0,0,60" />
 
-        <!-- Search results -->
-        <CollectionView Grid.Row="1"
-                        ItemsSource="{Binding SearchResults}"
-                        HeightRequest="180"
-                        IsVisible="{Binding SearchResults.Count, Converter={StaticResource IsNotNull}}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="dtos:UserSearchResultDto">
-                    <Grid Padding="12,8" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                        <controls:AvatarView Grid.Column="0" DisplayName="{Binding DisplayName}" ImageUrl="{Binding AvatarUrl}" Diameter="40" />
-                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                            <Label Text="{Binding DisplayName}" FontAttributes="Bold" />
-                            <Label Text="{Binding Handle, StringFormat='@{0}'}" TextColor="#888" FontSize="12" />
-                        </VerticalStackLayout>
-                        <Button Grid.Column="2" Text="Add"
-                                Command="{Binding Source={x:Reference Page}, Path=BindingContext.AddCommand}"
-                                CommandParameter="{Binding .}"
-                                Padding="12,4" BackgroundColor="{StaticResource Brand}" TextColor="White" />
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+        <Grid RowDefinitions="Auto,Auto,*" Padding="0,8,0,0">
 
-        <!-- Contacts / requests -->
-        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
-            <CollectionView ItemsSource="{Binding Contacts}">
-                <CollectionView.Header>
-                    <Label Text="Your contacts" FontAttributes="Bold" FontSize="16" Padding="12,10,12,4" />
-                </CollectionView.Header>
-                <CollectionView.EmptyView>
-                    <Label Text="No contacts yet. Search above to add people." Padding="24" TextColor="#666" HorizontalTextAlignment="Center" />
-                </CollectionView.EmptyView>
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="dtos:ContactDto">
-                        <Grid Padding="12,8" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                            <controls:AvatarView Grid.Column="0" DisplayName="{Binding User.DisplayName}" ImageUrl="{Binding User.AvatarUrl}" Diameter="44" />
-                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
-                                <Label Text="{Binding User.DisplayName}" FontAttributes="Bold" />
-                                <Label Text="{Binding User.Handle, StringFormat='@{0}'}" TextColor="#888" FontSize="12" />
-                                <Label Text="Wants to connect" TextColor="{StaticResource Accent}" FontSize="12"
-                                       IsVisible="{Binding IsIncomingRequest}" />
+            <VerticalStackLayout x:Name="HeaderBlock"
+                                 Grid.Row="0"
+                                 Padding="22,18,22,8"
+                                 Spacing="4"
+                                 Opacity="0">
+                <Label Text="CityLeague"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="13"
+                       TextColor="#C5D0E0"
+                       CharacterSpacing="1.2" />
+                <Label Text="Contacts"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="28"
+                       TextColor="White" />
+                <Label Text="{Binding ContactsSubtitle}"
+                       FontFamily="OutfitRegular"
+                       FontSize="14"
+                       TextColor="#A8B8CC" />
+            </VerticalStackLayout>
+
+            <Border x:Name="SearchBlock"
+                    Grid.Row="1"
+                    Style="{StaticResource GlassPanel}"
+                    Margin="18,0,18,10"
+                    Opacity="0">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <Entry Grid.Column="0"
+                           Placeholder="Search @handle"
+                           Text="{Binding SearchQuery}"
+                           ReturnCommand="{Binding SearchCommand}"
+                           BackgroundColor="Transparent"
+                           TextColor="White"
+                           PlaceholderColor="#8FA0B5"
+                           FontFamily="OutfitRegular"
+                           FontSize="16" />
+                    <Border Grid.Column="1"
+                            BackgroundColor="White"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16"
+                            VerticalOptions="Center"
+                            Padding="16,8">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SearchCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Find"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="13"
+                               TextColor="#1A2740"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                </Grid>
+            </Border>
+
+            <RefreshView Grid.Row="2"
+                         IsRefreshing="{Binding IsRefreshing}"
+                         Command="{Binding RefreshCommand}">
+                <ScrollView VerticalScrollBarVisibility="Never">
+                    <VerticalStackLayout x:Name="ListBlock"
+                                         Padding="18,0,18,20"
+                                         Spacing="12"
+                                         Opacity="0">
+
+                        <VerticalStackLayout Spacing="8" IsVisible="{Binding HasSearchResults}">
+                            <Label Text="RESULTS"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="12"
+                                   TextColor="#A8B8CC"
+                                   CharacterSpacing="1.2"
+                                   Margin="4,0,0,0" />
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding SearchResults}" Spacing="8">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="dtos:UserSearchResultDto">
+                                        <Border Style="{StaticResource GlassPanel}" Padding="12,10">
+                                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                                <controls:AvatarView Grid.Column="0"
+                                                                     DisplayName="{Binding DisplayName}"
+                                                                     ImageUrl="{Binding AvatarUrl}"
+                                                                     Diameter="42" />
+                                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                                                    <Label Text="{Binding DisplayName}"
+                                                           FontFamily="OutfitSemiBold"
+                                                           FontSize="15"
+                                                           TextColor="White"
+                                                           LineBreakMode="TailTruncation" />
+                                                    <Label Text="{Binding Handle, StringFormat='@{0}'}"
+                                                           FontFamily="OutfitRegular"
+                                                           FontSize="12"
+                                                           TextColor="#A8B8CC" />
+                                                </VerticalStackLayout>
+                                                <Border Grid.Column="2"
+                                                        BackgroundColor="White"
+                                                        StrokeThickness="0"
+                                                        StrokeShape="RoundRectangle 14"
+                                                        Padding="14,8"
+                                                        VerticalOptions="Center">
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding Source={x:Reference Page}, Path=BindingContext.AddCommand}"
+                                                            CommandParameter="{Binding .}" />
+                                                    </Border.GestureRecognizers>
+                                                    <Label Text="Add"
+                                                           FontFamily="OutfitSemiBold"
+                                                           FontSize="13"
+                                                           TextColor="#1A2740"
+                                                           HorizontalOptions="Center"
+                                                           VerticalOptions="Center" />
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
                             </VerticalStackLayout>
-                            <Button Grid.Column="2" Text="Accept"
-                                    IsVisible="{Binding IsIncomingRequest}"
-                                    Command="{Binding Source={x:Reference Page}, Path=BindingContext.AcceptCommand}"
-                                    CommandParameter="{Binding .}"
-                                    Padding="12,4" BackgroundColor="{StaticResource Brand}" TextColor="White" />
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </RefreshView>
+                        </VerticalStackLayout>
+
+                        <Label Text="YOUR PEOPLE"
+                               FontFamily="OutfitRegular"
+                               FontSize="12"
+                               TextColor="#A8B8CC"
+                               CharacterSpacing="1.2"
+                               Margin="4,4,0,0"
+                               IsVisible="{Binding ShowEmptyContacts, Converter={StaticResource InvertedBool}}" />
+
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Contacts}" Spacing="8">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="dtos:ContactDto">
+                                    <Border Style="{StaticResource GlassPanel}" Padding="12,10">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                            <controls:AvatarView Grid.Column="0"
+                                                                 DisplayName="{Binding User.DisplayName}"
+                                                                 ImageUrl="{Binding User.AvatarUrl}"
+                                                                 Diameter="44" />
+                                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                                                <Label Text="{Binding User.DisplayName}"
+                                                       FontFamily="OutfitSemiBold"
+                                                       FontSize="15"
+                                                       TextColor="White"
+                                                       LineBreakMode="TailTruncation" />
+                                                <Label Text="{Binding User.Handle, StringFormat='@{0}'}"
+                                                       FontFamily="OutfitRegular"
+                                                       FontSize="12"
+                                                       TextColor="#A8B8CC" />
+                                                <Label Text="Wants to connect"
+                                                       FontFamily="OutfitRegular"
+                                                       FontSize="12"
+                                                       TextColor="#E8B86D"
+                                                       IsVisible="{Binding IsIncomingRequest}" />
+                                            </VerticalStackLayout>
+                                            <Border Grid.Column="2"
+                                                    BackgroundColor="#E8B86D"
+                                                    StrokeThickness="0"
+                                                    StrokeShape="RoundRectangle 14"
+                                                    Padding="14,8"
+                                                    VerticalOptions="Center"
+                                                    IsVisible="{Binding IsIncomingRequest}">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={x:Reference Page}, Path=BindingContext.AcceptCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="Accept"
+                                                       FontFamily="OutfitSemiBold"
+                                                       FontSize="13"
+                                                       TextColor="#1A1520"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center" />
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+
+                        <Border Style="{StaticResource GlassPanel}"
+                                Padding="22,32"
+                                IsVisible="{Binding ShowEmptyContacts}">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="No contacts yet"
+                                       FontFamily="OutfitSemiBold"
+                                       FontSize="16"
+                                       TextColor="White"
+                                       HorizontalTextAlignment="Center" />
+                                <Label Text="Search an @handle above to add people."
+                                       FontFamily="OutfitRegular"
+                                       FontSize="13"
+                                       TextColor="#A8B8CC"
+                                       HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Label Text="{Binding ErrorMessage}"
+                               TextColor="#FFCDD2"
+                               FontFamily="OutfitRegular"
+                               FontSize="13"
+                               IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
+
+                        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                           IsVisible="{Binding IsBusy}"
+                                           Color="White"
+                                           HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </ScrollView>
+            </RefreshView>
+        </Grid>
     </Grid>
 </ContentPage>
