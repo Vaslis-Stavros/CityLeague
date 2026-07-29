@@ -44,11 +44,6 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 
-		<!-- Google Maps (Android): set GoogleMapsApiKey env var or create google-maps.key in this project folder -->
-		<GoogleMapsApiKey Condition="'$(GoogleMapsApiKey)' == '' and Exists('$(MSBuildProjectDirectory)\google-maps.key')">$([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)\google-maps.key').Trim())</GoogleMapsApiKey>
-		<GoogleMapsApiKey Condition="'$(GoogleMapsApiKey)' == ''">YOUR_GOOGLE_MAPS_API_KEY</GoogleMapsApiKey>
-		<AndroidManifestPlaceholders Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">googleMapsKey=$(GoogleMapsApiKey)</AndroidManifestPlaceholders>
-
 		<!-- Sign in with Apple needs the entitlement even for debug builds on device. -->
 		<CodesignEntitlements Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">Platforms\iOS\Entitlements.plist</CodesignEntitlements>
 	</PropertyGroup>
@@ -78,7 +73,6 @@
 		<PackageReference Include="Microsoft.Identity.Client" Version="4.86.0" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
-		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="10.0.80" />
 		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="4.150.0" />
 	</ItemGroup>
 

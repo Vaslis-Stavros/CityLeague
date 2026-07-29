@@ -3,54 +3,116 @@
     x:Class="CityLeague.App.Views.LocationPickerPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
     x:Name="Page"
     Shell.NavBarIsVisible="False"
     Title="Pick location">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="12" RowSpacing="10">
+    <ContentPage.Resources>
+        <Style x:Key="GlassPanel" TargetType="Border">
+            <Setter Property="Stroke" Value="{StaticResource GlassStroke}" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="BackgroundColor" Value="{StaticResource GlassFill}" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 22" />
+            <Setter Property="Padding" Value="16,14" />
+        </Style>
+    </ContentPage.Resources>
 
-        <Label Grid.Row="0"
-               Text="Tap the map to choose a pitch location"
-               TextColor="#666" />
+    <Grid>
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#06351A" Offset="0" />
+                    <GradientStop Color="#0B6B2E" Offset="0.45" />
+                    <GradientStop Color="#1FA85A" Offset="1" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
 
-        <Border Grid.Row="1"
-                IsVisible="{Binding MapKeyMissing}"
-                BackgroundColor="#FFF3CD"
-                Stroke="#FFE69C"
-                StrokeThickness="1"
-                Padding="10"
-                StrokeShape="RoundRectangle 8">
-            <Label TextColor="#856404" FontSize="12"
-                   Text="Map tiles need a Google Maps API key. Add your key to src/CityLeague.App/google-maps.key (see google-maps.key.example) and rebuild." />
-        </Border>
+        <Grid RowDefinitions="Auto,*,Auto" Padding="18,16,18,18" RowSpacing="12">
 
-        <Border Grid.Row="2" StrokeThickness="0" StrokeShape="RoundRectangle 12">
-            <maps:Map x:Name="MapView"
-                      IsShowingUser="True"
-                      MapClicked="OnMapClicked" />
-        </Border>
+            <VerticalStackLayout Grid.Row="0" Spacing="4">
+                <Label Text="CityLeague"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="13"
+                       TextColor="#DDEFDD"
+                       CharacterSpacing="1.2" />
+                <Label Text="Pick a pitch"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="26"
+                       TextColor="White" />
+                <Label Text="Tap the map · OpenStreetMap, no API key"
+                       FontFamily="OutfitRegular"
+                       FontSize="13"
+                       TextColor="#C8E6C8" />
+            </VerticalStackLayout>
 
-        <VerticalStackLayout Grid.Row="3" Spacing="10">
-            <Label Text="{Binding AddressPreview}"
-                   FontAttributes="Bold"
-                   IsVisible="{Binding AddressPreview, Converter={StaticResource IsStringNotEmpty}}" />
+            <Border Grid.Row="1"
+                    Stroke="{StaticResource GlassStroke}"
+                    StrokeThickness="1"
+                    BackgroundColor="#22FFFFFF"
+                    StrokeShape="RoundRectangle 22"
+                    Padding="0">
+                <WebView x:Name="MapWebView"
+                         BackgroundColor="Transparent"
+                         Navigating="OnMapNavigating" />
+            </Border>
 
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                <Button Grid.Column="0"
-                        Text="My location"
-                        Command="{Binding UseMyLocationCommand}"
-                        BackgroundColor="{StaticResource BrandDark}"
-                        TextColor="White" />
-                <Button Grid.Column="1"
-                        Text="Use this place"
-                        Command="{Binding ConfirmCommand}"
-                        BackgroundColor="{StaticResource Brand}"
-                        TextColor="White" />
-            </Grid>
+            <VerticalStackLayout Grid.Row="2" Spacing="10">
+                <Border Style="{StaticResource GlassPanel}"
+                        IsVisible="{Binding AddressPreview, Converter={StaticResource IsStringNotEmpty}}"
+                        Padding="14,12">
+                    <Label Text="{Binding AddressPreview}"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="14"
+                           TextColor="White"
+                           LineBreakMode="TailTruncation" />
+                </Border>
 
-            <Label Text="{Binding ErrorMessage}" TextColor="#C0392B"
-                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
-        </VerticalStackLayout>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Border Grid.Column="0"
+                            BackgroundColor="#28FFFFFF"
+                            Stroke="{StaticResource GlassStroke}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 18"
+                            Padding="14,12">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding UseMyLocationCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="My location"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="14"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    <Border Grid.Column="1"
+                            BackgroundColor="White"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 18"
+                            Padding="14,12">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ConfirmCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="Use this place"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="14"
+                               TextColor="{StaticResource Brand}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                </Grid>
+
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="#FFCDD2"
+                       FontFamily="OutfitRegular"
+                       FontSize="13"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="White"
+                                   HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Grid>
     </Grid>
 </ContentPage>

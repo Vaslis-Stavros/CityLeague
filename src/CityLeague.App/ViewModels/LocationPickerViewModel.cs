@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Net.Http.Headers;
+using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.ApplicationModel;
@@ -7,22 +10,17 @@ namespace CityLeague.App.ViewModels;
 
 public partial class LocationPickerViewModel : BaseViewModel
 {
+    private static readonly HttpClient Nominatim = CreateNominatimClient();
+
     [ObservableProperty]
     private Location? selectedLocation;
 
     [ObservableProperty]
     private string? addressPreview;
 
-    [ObservableProperty]
-    private bool mapKeyMissing;
-
     [RelayCommand]
     private async Task AppearingAsync()
     {
-#if ANDROID
-        MapKeyMissing = IsAndroidMapsApiKeyMissing();
-#endif
-
         try
         {
             var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
@@ -32,7 +30,8 @@ public partial class LocationPickerViewModel : BaseViewModel
             if (status == PermissionStatus.Granted)
             {
                 var current = await Geolocation.Default.GetLastKnownLocationAsync()
-                    ?? await Geolocation.Default.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10)));
+                    ?? await Geolocation.Default.GetLocationAsync(
+                        new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10)));
                 if (current is not null)
                 {
                     SelectedLocation = current;
@@ -48,7 +47,7 @@ public partial class LocationPickerViewModel : BaseViewModel
 
         if (SelectedLocation is null)
         {
-            SelectedLocation = new Location(37.9838, 23.7275);
+            SelectedLocation = new Location(37.9838, 23.7275); // Athens default
             await UpdateAddressAsync(SelectedLocation);
         }
     }
@@ -65,7 +64,8 @@ public partial class LocationPickerViewModel : BaseViewModel
                 return;
             }
 
-            var location = await Geolocation.Default.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(15)));
+            var location = await Geolocation.Default.GetLocationAsync(
+                new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(15)));
             if (location is null)
             {
                 ErrorMessage = "Could not get your location.";
@@ -94,12 +94,20 @@ public partial class LocationPickerViewModel : BaseViewModel
         }
 
         await UpdateAddressAsync(SelectedLocation);
-        var address = AddressPreview ?? $"{SelectedLocation.Latitude:F5}, {SelectedLocation.Longitude:F5}";
+        var address = AddressPreview ?? FormatCoordinates(SelectedLocation);
         await Shell.Current.GoToAsync("..", new Dictionary<string, object> { ["location"] = address });
     }
 
     private async Task UpdateAddressAsync(Location location)
     {
+        var fromOsm = await ReverseGeocodeNominatimAsync(location);
+        if (!string.IsNullOrWhiteSpace(fromOsm))
+        {
+            AddressPreview = fromOsm;
+            return;
+        }
+
+        // Platform geocoder as a secondary option (may require vendor keys on some devices).
         try
         {
             var placemarks = await Geocoding.Default.GetPlacemarksAsync(location);
@@ -110,38 +118,56 @@ public partial class LocationPickerViewModel : BaseViewModel
                     .Where(p => !string.IsNullOrWhiteSpace(p))
                     .Distinct();
                 AddressPreview = string.Join(", ", parts);
-            }
-            else
-            {
-                AddressPreview = FormatCoordinates(location);
+                if (!string.IsNullOrWhiteSpace(AddressPreview))
+                    return;
             }
         }
         catch
         {
-            AddressPreview = FormatCoordinates(location);
+            // Coordinates fallback below.
         }
+
+        AddressPreview = FormatCoordinates(location);
+    }
+
+    private static async Task<string?> ReverseGeocodeNominatimAsync(Location location)
+    {
+        try
+        {
+            var lat = location.Latitude.ToString(CultureInfo.InvariantCulture);
+            var lon = location.Longitude.ToString(CultureInfo.InvariantCulture);
+            var url = $"https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat={lat}&lon={lon}";
+            using var response = await Nominatim.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            await using var stream = await response.Content.ReadAsStreamAsync();
+            using var doc = await JsonDocument.ParseAsync(stream);
+            if (doc.RootElement.TryGetProperty("display_name", out var display)
+                && display.GetString() is { Length: > 0 } name)
+            {
+                // Keep the preview short for the glass panel.
+                var parts = name.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                return string.Join(", ", parts.Take(4));
+            }
+        }
+        catch
+        {
+            // Offline / rate-limit — fall through.
+        }
+
+        return null;
     }
 
     private static string FormatCoordinates(Location location)
         => $"{location.Latitude:F5}, {location.Longitude:F5}";
 
-#if ANDROID
-    private static bool IsAndroidMapsApiKeyMissing()
+    private static HttpClient CreateNominatimClient()
     {
-        try
-        {
-            var context = global::Android.App.Application.Context;
-            var appInfo = context.PackageManager?.GetApplicationInfo(
-                context.PackageName!,
-                global::Android.Content.PM.PackageInfoFlags.MetaData);
-            var key = appInfo?.MetaData?.GetString("com.google.android.geo.API_KEY");
-            return string.IsNullOrWhiteSpace(key)
-                   || key.Contains("YOUR_GOOGLE", StringComparison.OrdinalIgnoreCase);
-        }
-        catch
-        {
-            return true;
-        }
+        var client = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
+        // Nominatim usage policy requires a identifying User-Agent.
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("CityLeague/1.0 (local football meetup app)");
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        return client;
     }
-#endif
 }

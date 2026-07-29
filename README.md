@@ -86,16 +86,9 @@ dotnet build src/CityLeague.App/CityLeague.App.csproj -f net10.0-ios -t:Run
 
 On first launch, use the dev sign-in (any email). You'll be asked to pick a handle, then land on Home.
 
-### Google Maps (location picker)
+### Location picker (OpenStreetMap)
 
-The map on **Create → Pick location** uses the Google Maps SDK on Android. Without a valid API key you will see blank beige tiles and a yellow warning banner.
-
-1. In [Google Cloud Console](https://console.cloud.google.com/), enable **Maps SDK for Android**.
-2. Create an API key restricted to your app package `com.CityLeague.app` (and optionally your debug SHA-1).
-3. Copy `src/CityLeague.App/google-maps.key.example` to `google-maps.key` in the same folder and paste your key (one line, no quotes).
-4. Rebuild the app. Alternatively pass `-p:GoogleMapsApiKey=YOUR_KEY` or set a `GoogleMapsApiKey` environment variable.
-
-The key is injected at build time via `AndroidManifestPlaceholders` and is gitignored.
+**Create → Map** uses a Leaflet map over **OpenStreetMap** tiles inside a WebView. No Google (or other) API key is required. Addresses are reverse-geocoded with Nominatim when online; otherwise coordinates are shown.
 
 ## Configuration reference (`appsettings.json`)
 
