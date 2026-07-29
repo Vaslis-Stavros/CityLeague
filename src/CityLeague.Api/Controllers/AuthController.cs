@@ -98,8 +98,12 @@ public class AuthController(
             values.Where(v => !string.IsNullOrEmpty(v.Value))
                 .ToDictionary(v => v.Key, v => (string?)v.Value));
 
-        // Browsers can drop a 302 from a form post straight into a custom scheme, so hand the
-        // navigation to the page instead and keep a tappable fallback.
+        // GET (Google web client): 302 into the app scheme. POST (Apple form_post): Chrome often
+        // refuses a bare 302 into a custom scheme after a form post, so serve a page that also
+        // fires an Android intent:// deep link.
+        if (HttpMethods.IsGet(Request.Method) && !Request.HasFormContentType)
+            return Redirect(target);
+
         return Content(BuildCallbackBridgePage(target), "text/html; charset=utf-8");
     }
 
@@ -107,12 +111,16 @@ public class AuthController(
     {
         var href = HtmlEncoder.Default.Encode(target);
         var script = JsonSerializer.Serialize(target);
+        // intent://…#Intent;scheme=cityleague;package=…;end is what Custom Tabs will honor.
+        var intentUrl = BuildAndroidIntentUrl(target);
+        var intentScript = JsonSerializer.Serialize(intentUrl);
         return $$"""
             <!DOCTYPE html>
             <html lang="en">
             <head>
               <meta charset="utf-8" />
               <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <meta http-equiv="refresh" content="0;url={{href}}" />
               <title>Signing you in…</title>
               <style>
                 body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: #0B6B2E;
@@ -122,10 +130,32 @@ public class AuthController(
             </head>
             <body>
               <p>Signing you in… <a href="{{href}}">Return to CityLeague</a></p>
-              <script>window.location.replace({{script}});</script>
+              <script>
+                (function () {
+                  var target = {{script}};
+                  var intent = {{intentScript}};
+                  try { window.location.replace(target); } catch (e) {}
+                  setTimeout(function () {
+                    try { window.location.href = intent || target; } catch (e) {}
+                  }, 250);
+                })();
+              </script>
             </body>
             </html>
             """;
+    }
+
+    private static string BuildAndroidIntentUrl(string target)
+    {
+        if (!Uri.TryCreate(target, UriKind.Absolute, out var uri))
+            return target;
+
+        var query = uri.Query.TrimStart('?');
+        var path = string.IsNullOrEmpty(uri.AbsolutePath) || uri.AbsolutePath == "/"
+            ? (uri.Host ?? "auth")
+            : $"{uri.Host}{uri.AbsolutePath}";
+        var suffix = string.IsNullOrEmpty(query) ? string.Empty : $"?{query}";
+        return $"intent://{path}{suffix}#Intent;scheme={uri.Scheme};package=com.CityLeague.app;end";
     }
 
     [HttpPost("refresh")]

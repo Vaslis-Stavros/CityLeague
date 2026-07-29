@@ -40,11 +40,12 @@ public sealed class SocialProviderCatalog
         var auth = options.Value;
         _providers = new Dictionary<string, SocialProviderDescriptor>(StringComparer.OrdinalIgnoreCase);
 
-        // Google "Web application" clients reject custom-scheme redirects, so the API bridges the
-        // callback whenever it has a public https url. Platform-specific (Android/iOS) client ids
-        // can override Auth:Google:RedirectUri with their reverse-DNS scheme instead.
+        // Google: web clients (client secret set) use an https bridge page; public/native
+        // clients redirect straight to the app scheme. Chrome Custom Tabs block most
+        // https→custom-scheme hops, so prefer the direct scheme whenever we can.
         Add(Google, auth.Google, auth, "https://accounts.google.com", "openid email profile",
-            usePkce: true, responseMode: "query", supportsNativeIos: false, bridgeCallback: true);
+            usePkce: true, responseMode: "query", supportsNativeIos: false,
+            bridgeCallback: !string.IsNullOrWhiteSpace(auth.Google.ClientSecret));
 
         // Registered as a "Mobile and desktop" redirect, so the custom scheme works directly.
         Add(Microsoft, auth.Microsoft, auth, "https://login.microsoftonline.com/common/v2.0", "openid email profile",

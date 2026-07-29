@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using CityLeague.Api.Auth;
 using CityLeague.Core.Dtos;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CityLeague.Api.Tests;
@@ -31,7 +32,7 @@ public class SocialAuthTests
         Assert.Equal(GoogleClientId, google.ClientId);
         Assert.Equal($"{GoogleIssuer}/authorize", google.AuthorizeUrl);
         Assert.True(google.UsePkce);
-        // Google is a web client here, so the API bridges the callback to the app's scheme.
+        // Web client (secret configured) → https bridge; app still listens on the custom scheme.
         Assert.Equal("https://api.cityleague.test/api/auth/callback/google", google.RedirectUri);
         Assert.Equal("cityleague://auth/callback", google.CallbackUrl);
 
@@ -248,6 +249,21 @@ public class SocialAuthTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = await response.Content.ReadAsStringAsync();
         Assert.Contains("cityleague://auth/callback?code=apple-code&amp;state=app-state", body);
+        Assert.Contains("intent://auth/callback", body);
+        Assert.Contains("package=com.CityLeague.app", body);
+    }
+
+    [Fact]
+    public async Task Google_callback_get_redirects_into_the_app_scheme()
+    {
+        using var provider = new FakeOpenIdProvider();
+        await using var factory = CreateFactory(provider);
+        var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+
+        var response = await client.GetAsync("/api/auth/callback/google?code=g-code&state=s1");
+
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+        Assert.Equal("cityleague://auth/callback?code=g-code&state=s1", response.Headers.Location?.ToString());
     }
 
     [Fact]

@@ -137,17 +137,22 @@ Client secrets stay on the server; the app only ever holds the client id it was 
 
 ### Google
 
-1. In [Google Cloud Console](https://console.cloud.google.com/) → **APIs & Services → Credentials**, create an **OAuth client ID** of type *Web application*.
-2. Add `https://<your-api>/api/auth/callback/google` as an authorized redirect URI.
-3. Configure the API:
+Chrome Custom Tabs generally **cannot** hop from an https bridge page back into a custom scheme, so prefer a public client that redirects straight into the app:
+
+1. In [Google Cloud Console](https://console.cloud.google.com/) → **APIs & Services → Credentials**, create an OAuth client that allows the redirect URI `cityleague://auth/callback` (or set `Auth:Google:RedirectUri` to your reverse-DNS / `com.googleusercontent.apps.…` URI).
+2. Configure the API **without** a client secret (PKCE only):
    ```json
    "Auth": {
-     "PublicBaseUrl": "https://<your-api>",
-     "Google": { "ClientId": "<id>.apps.googleusercontent.com", "ClientSecret": "<secret>" }
+     "Google": {
+       "ClientId": "<id>.apps.googleusercontent.com",
+       "RedirectUri": "cityleague://auth/callback"
+     }
    }
    ```
 
-Using platform-specific Android/iOS clients instead? Set `Auth:Google:RedirectUri` to that client's reverse-DNS scheme, drop the secret, and list every platform client id in `Auth:Google:AdditionalAudiences`.
+If you must use a **Web application** client (has a client secret), also set `Auth:PublicBaseUrl` and register `https://<your-api>/api/auth/callback/google`. The API will 302/bridge back to the app — this only works when that https URL is reachable from the device.
+
+Using several platform client ids? List them in `Auth:Google:AdditionalAudiences` so every id_token audience is accepted.
 
 ### Microsoft
 
