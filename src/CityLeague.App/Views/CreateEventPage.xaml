@@ -112,7 +112,7 @@
                                                                 <Setter Property="TextColor" Value="{StaticResource Brand}" />
                                                             </DataTrigger>
                                                             <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="False">
-                                                                <Setter Property="TextColor" Value="White" />
+                                                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark=White}" />
                                                             </DataTrigger>
                                                         </Label.Triggers>
                                                     </Label>
