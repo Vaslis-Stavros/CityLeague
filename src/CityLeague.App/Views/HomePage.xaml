@@ -35,8 +35,9 @@
                             BackgroundColor="{DynamicResource ThemeDateChipFill}"
                             StrokeThickness="0"
                             StrokeShape="RoundRectangle 16"
-                            Padding="8,12"
-                            WidthRequest="68"
+                            Padding="10,12"
+                            WidthRequest="84"
+                            MinimumWidthRequest="84"
                             VerticalOptions="Fill">
                         <VerticalStackLayout VerticalOptions="Center" Spacing="2">
                             <Label Text="{Binding DayLabel}"
@@ -48,9 +49,11 @@
                                    MaxLines="1" />
                             <Label Text="{Binding TimeLabel}"
                                    FontFamily="OutfitSemiBold"
-                                   FontSize="20"
+                                   FontSize="18"
                                    TextColor="{DynamicResource PageTitle}"
-                                   HorizontalTextAlignment="Center" />
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="NoWrap"
+                                   MaxLines="1" />
                         </VerticalStackLayout>
                     </Border>
 
