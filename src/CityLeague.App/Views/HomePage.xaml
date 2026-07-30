@@ -20,12 +20,12 @@
     </ContentPage.Resources>
 
     <Grid x:Name="Root">
-        <BoxView>
+        <BoxView x:Name="Backdrop">
             <BoxView.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#06351A" Offset="0" />
-                    <GradientStop Color="#0B6B2E" Offset="0.45" />
-                    <GradientStop Color="#1FA85A" Offset="1" />
+                    <GradientStop x:Name="StopTop" Color="#06351A" Offset="0" />
+                    <GradientStop x:Name="StopMid" Color="#0B6B2E" Offset="0.45" />
+                    <GradientStop x:Name="StopBottom" Color="#1FA85A" Offset="1" />
                 </LinearGradientBrush>
             </BoxView.Background>
         </BoxView>
@@ -50,7 +50,8 @@
                                  Padding="22,18,22,4"
                                  Spacing="4"
                                  Opacity="0">
-                <Label Text="CityLeague"
+                <Label x:Name="BrandLabel"
+                       Text="CityLeague"
                        FontFamily="OutfitSemiBold"
                        FontSize="15"
                        TextColor="#DDEFDD"
@@ -60,7 +61,8 @@
                        FontSize="30"
                        TextColor="White"
                        LineBreakMode="TailTruncation" />
-                <Label Text="{Binding ScheduleSubtitle}"
+                <Label x:Name="SubtitleLabel"
+                       Text="{Binding ScheduleSubtitle}"
                        FontFamily="OutfitRegular"
                        FontSize="14"
                        TextColor="#C8E6C8"
@@ -262,7 +264,7 @@
                 <Label Text="Create match"
                        FontFamily="OutfitSemiBold"
                        FontSize="16"
-                       TextColor="{StaticResource Brand}"
+                       TextColor="{Binding AccentColor}"
                        HorizontalOptions="Center"
                        VerticalOptions="Center" />
             </Border>

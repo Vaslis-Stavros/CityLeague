@@ -17,10 +17,28 @@ public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth) : Base
     [NotifyPropertyChangedFor(nameof(IsComingSoon))]
     [NotifyPropertyChangedFor(nameof(ShowEmptyState))]
     [NotifyPropertyChangedFor(nameof(ScheduleSubtitle))]
+    [NotifyPropertyChangedFor(nameof(BackdropTop))]
+    [NotifyPropertyChangedFor(nameof(BackdropMid))]
+    [NotifyPropertyChangedFor(nameof(BackdropBottom))]
+    [NotifyPropertyChangedFor(nameof(GlowColor))]
+    [NotifyPropertyChangedFor(nameof(SoftTextColor))]
+    [NotifyPropertyChangedFor(nameof(SoftMutedColor))]
+    [NotifyPropertyChangedFor(nameof(AccentColor))]
     private SportDto? selectedSport;
 
     [ObservableProperty]
     private bool isRefreshing;
+
+    public Color BackdropTop => Theme.Top;
+    public Color BackdropMid => Theme.Mid;
+    public Color BackdropBottom => Theme.Bottom;
+    public Color GlowColor => Theme.Glow;
+    public Color SoftTextColor => Theme.SoftText;
+    public Color SoftMutedColor => Theme.SoftMuted;
+    public Color AccentColor => Theme.Accent;
+
+    private Helpers.SportColors.BackdropTheme Theme
+        => Helpers.SportColors.GetTheme(SelectedSport?.Key);
 
     public string Greeting
     {
