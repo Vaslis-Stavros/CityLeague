@@ -11,5 +11,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(AppRoutes.EventDetail, typeof(EventDetailPage));
         Routing.RegisterRoute(AppRoutes.SubmitResult, typeof(SubmitResultPage));
         Routing.RegisterRoute(AppRoutes.LocationPicker, typeof(LocationPickerPage));
+        Routing.RegisterRoute(AppRoutes.History, typeof(HistoryPage));
+        Routing.RegisterRoute(AppRoutes.Profile, typeof(ProfilePage));
     }
 }

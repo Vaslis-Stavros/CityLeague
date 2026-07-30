@@ -31,11 +31,8 @@
         <Tab Title="Leagues" Route="leagues" Icon="tab_leagues.png">
             <ShellContent ContentTemplate="{DataTemplate views:LeaguesPage}" />
         </Tab>
-        <Tab Title="History" Route="history" Icon="tab_history.png">
-            <ShellContent ContentTemplate="{DataTemplate views:HistoryPage}" />
-        </Tab>
-        <Tab Title="Profile" Route="profile" Icon="tab_profile.png">
-            <ShellContent ContentTemplate="{DataTemplate views:ProfilePage}" />
+        <Tab Title="More" Route="more" Icon="tab_more.png">
+            <ShellContent ContentTemplate="{DataTemplate views:MorePage}" />
         </Tab>
     </TabBar>
 

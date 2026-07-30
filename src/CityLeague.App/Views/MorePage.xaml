@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.MorePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Shell.NavBarIsVisible="False"
+    Title="More">
+
+    <ContentPage.Resources>
+        <Style x:Key="GlassPanel" TargetType="Border">
+            <Setter Property="Stroke" Value="#55FFFFFF" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="BackgroundColor" Value="#38FFFFFF" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 24" />
+            <Setter Property="Padding" Value="18,16" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid x:Name="Root">
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#0E1525" Offset="0" />
+                    <GradientStop Color="#1A2740" Offset="0.5" />
+                    <GradientStop Color="#2A3F5F" Offset="1" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+        <Ellipse x:Name="GlowOrb"
+                 Fill="#33E8B86D"
+                 WidthRequest="180"
+                 HeightRequest="180"
+                 HorizontalOptions="End"
+                 VerticalOptions="Start"
+                 Margin="0,-40,-50,0" />
+        <Ellipse Fill="#18FFFFFF"
+                 WidthRequest="150"
+                 HeightRequest="150"
+                 HorizontalOptions="Start"
+                 VerticalOptions="End"
+                 Margin="-50,0,0,80" />
+
+        <Grid RowDefinitions="Auto,*" Padding="0,8,0,0">
+            <VerticalStackLayout x:Name="HeaderBlock"
+                                 Grid.Row="0"
+                                 Padding="22,18,22,10"
+                                 Spacing="4"
+                                 Opacity="0">
+                <Label Text="CityLeague"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="13"
+                       TextColor="#C5D0E0"
+                       CharacterSpacing="1.2" />
+                <Label Text="More"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="28"
+                       TextColor="White" />
+                <Label Text="History and your profile"
+                       FontFamily="OutfitRegular"
+                       FontSize="14"
+                       TextColor="#A8B8CC" />
+            </VerticalStackLayout>
+
+            <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+                <VerticalStackLayout x:Name="MenuBlock"
+                                     Padding="18,4,18,24"
+                                     Spacing="12"
+                                     Opacity="0">
+
+                    <!-- Glass sheet -->
+                    <Border Style="{StaticResource GlassPanel}" Padding="14">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="MENU"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="12"
+                                   TextColor="#A8B8CC"
+                                   CharacterSpacing="1.2"
+                                   Margin="4,2,0,2" />
+
+                            <Border x:Name="HistoryCard"
+                                    BackgroundColor="#28FFFFFF"
+                                    Stroke="#55FFFFFF"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 20"
+                                    Padding="16,14">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenHistoryCommand}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                    <Border Grid.Column="0"
+                                            WidthRequest="48"
+                                            HeightRequest="48"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 16"
+                                            BackgroundColor="#33E8B86D"
+                                            VerticalOptions="Center">
+                                        <Image Source="tab_history.png"
+                                               WidthRequest="22"
+                                               HeightRequest="22"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="History"
+                                               FontFamily="OutfitSemiBold"
+                                               FontSize="17"
+                                               TextColor="White" />
+                                        <Label Text="Past matches and finished leagues"
+                                               FontFamily="OutfitRegular"
+                                               FontSize="13"
+                                               TextColor="#A8B8CC" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2"
+                                           Text="›"
+                                           FontSize="26"
+                                           TextColor="#AAFFFFFF"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+
+                            <Border x:Name="ProfileCard"
+                                    BackgroundColor="#28FFFFFF"
+                                    Stroke="#55FFFFFF"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 20"
+                                    Padding="16,14">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenProfileCommand}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                    <Border Grid.Column="0"
+                                            WidthRequest="48"
+                                            HeightRequest="48"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 16"
+                                            BackgroundColor="#333DDC84"
+                                            VerticalOptions="Center">
+                                        <Image Source="tab_profile.png"
+                                               WidthRequest="22"
+                                               HeightRequest="22"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="Profile"
+                                               FontFamily="OutfitSemiBold"
+                                               FontSize="17"
+                                               TextColor="White" />
+                                        <Label Text="Name, password, photo, and stats"
+                                               FontFamily="OutfitRegular"
+                                               FontSize="13"
+                                               TextColor="#A8B8CC" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2"
+                                           Text="›"
+                                           FontSize="26"
+                                           TextColor="#AAFFFFFF"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -60,6 +60,7 @@ public static class MauiProgram
         services.AddTransient<LeaguesViewModel>();
         services.AddTransient<HistoryViewModel>();
         services.AddTransient<LocationPickerViewModel>();
+        services.AddTransient<MoreViewModel>();
 
         var app = builder.Build();
         ServiceHelper.Initialize(app.Services);
