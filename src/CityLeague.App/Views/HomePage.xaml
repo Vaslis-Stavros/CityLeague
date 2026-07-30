@@ -12,9 +12,9 @@
 
     <ContentPage.Resources>
         <Style x:Key="GlassPanel" TargetType="Border">
-            <Setter Property="Stroke" Value="{StaticResource GlassStroke}" />
+            <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}" />
             <Setter Property="StrokeThickness" Value="1" />
-            <Setter Property="BackgroundColor" Value="{StaticResource GlassFill}" />
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource GlassFillLight}, Dark={StaticResource GlassFillDark}}" />
             <Setter Property="StrokeShape" Value="RoundRectangle 22" />
             <Setter Property="Padding" Value="18,16" />
         </Style>
@@ -32,7 +32,7 @@
                       RowDefinitions="Auto,Auto,Auto"
                       RowSpacing="6">
                     <Border Grid.Row="0" Grid.RowSpan="3"
-                            BackgroundColor="#28FFFFFF"
+                            BackgroundColor="{AppThemeBinding Light=#22000000, Dark=#28FFFFFF}"
                             StrokeThickness="0"
                             StrokeShape="RoundRectangle 16"
                             Padding="8,12"
@@ -42,14 +42,14 @@
                             <Label Text="{Binding DayLabel}"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="11"
-                                   TextColor="#EAF7EE"
+                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark=#EAF7EE}"
                                    HorizontalTextAlignment="Center"
                                    LineBreakMode="TailTruncation"
                                    MaxLines="1" />
                             <Label Text="{Binding TimeLabel}"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="20"
-                                   TextColor="White"
+                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                    HorizontalTextAlignment="Center" />
                         </VerticalStackLayout>
                     </Border>
@@ -58,25 +58,25 @@
                            Text="{Binding Title}"
                            FontFamily="OutfitSemiBold"
                            FontSize="17"
-                           TextColor="White"
+                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                            LineBreakMode="TailTruncation" />
 
                     <Label Grid.Row="1" Grid.Column="1"
                            Text="{Binding MetaLabel}"
                            FontFamily="OutfitRegular"
                            FontSize="13"
-                           TextColor="#D5EBD8"
+                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark=#D5EBD8}"
                            LineBreakMode="TailTruncation" />
 
                     <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="4">
                         <ProgressBar Progress="{Binding FillRatio}"
                                      ProgressColor="{Binding Accent}"
-                                     BackgroundColor="#33FFFFFF"
+                                     BackgroundColor="{AppThemeBinding Light=#22000000, Dark=#33FFFFFF}"
                                      HeightRequest="6" />
                         <Label Text="{Binding SpotsLabel}"
                                FontFamily="OutfitRegular"
                                FontSize="12"
-                               TextColor="#E6F4EA" />
+                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark=#E6F4EA}" />
                     </VerticalStackLayout>
 
                     <Label Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"
@@ -123,13 +123,13 @@
                 <Label Text="{Binding Greeting}"
                        FontFamily="OutfitSemiBold"
                        FontSize="30"
-                       TextColor="White"
+                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                        LineBreakMode="TailTruncation" />
                 <Label x:Name="SubtitleLabel"
                        Text="{Binding ScheduleSubtitle}"
                        FontFamily="OutfitRegular"
                        FontSize="14"
-                       TextColor="#C8E6C8"
+                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                        Margin="0,2,0,8" />
             </VerticalStackLayout>
 
@@ -190,12 +190,12 @@
                     <Label Text="{Binding ScheduleTitle}"
                            FontFamily="OutfitSemiBold"
                            FontSize="24"
-                           TextColor="White"
+                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                            HorizontalOptions="Center" />
                     <Label Text="{Binding ScheduleSubtitle}"
                            FontFamily="OutfitRegular"
                            FontSize="14"
-                           TextColor="#E6F4EA"
+                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark=#E6F4EA}"
                            HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
             </Border>
@@ -222,7 +222,7 @@
                         <Label Text="{Binding ScheduleTitle}"
                                FontFamily="OutfitSemiBold"
                                FontSize="18"
-                               TextColor="White"
+                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                Margin="22,8,22,0"
                                IsVisible="{Binding HasUpcoming}" />
 
@@ -236,7 +236,7 @@
                             <Label Text="Incomplete"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="18"
-                                   TextColor="White"
+                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                    Margin="22,12,22,0" />
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding IncompleteMatches}"
                                                  BindableLayout.ItemTemplate="{StaticResource MatchRow}"
@@ -251,12 +251,12 @@
                                 <Label Text="Pitch is clear"
                                        FontFamily="OutfitSemiBold"
                                        FontSize="22"
-                                       TextColor="White"
+                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                        HorizontalOptions="Center" />
                                 <Label Text="Schedule a match and invite your contacts."
                                        FontFamily="OutfitRegular"
                                        FontSize="14"
-                                       TextColor="#E6F4EA"
+                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark=#E6F4EA}"
                                        HorizontalTextAlignment="Center" />
                             </VerticalStackLayout>
                         </Border>

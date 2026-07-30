@@ -26,23 +26,23 @@
                 <Label Text="{Binding EventTitle}"
                        FontFamily="OutfitSemiBold"
                        FontSize="26"
-                       TextColor="White" />
+                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                 <Label Text="Enter the final score"
                        FontFamily="OutfitRegular"
                        FontSize="14"
-                       TextColor="#C8E6C8" />
+                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}" />
 
                 <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10" Margin="0,8">
                     <VerticalStackLayout Grid.Column="0" Spacing="8">
                         <Label Text="Home"
                                FontFamily="OutfitSemiBold"
                                FontSize="13"
-                               TextColor="#C8E6C8"
+                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                                HorizontalOptions="Center" />
                         <Label Text="{Binding HomeScore}"
                                FontFamily="OutfitSemiBold"
                                FontSize="52"
-                               TextColor="White"
+                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                HorizontalOptions="Center" />
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                             <Border Grid.Column="0"
@@ -57,7 +57,7 @@
                                 <Label Text="−"
                                        FontFamily="OutfitSemiBold"
                                        FontSize="22"
-                                       TextColor="White"
+                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                        HorizontalOptions="Center"
                                        VerticalOptions="Center" />
                             </Border>
@@ -73,7 +73,7 @@
                                 <Label Text="+"
                                        FontFamily="OutfitSemiBold"
                                        FontSize="22"
-                                       TextColor="White"
+                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                        HorizontalOptions="Center"
                                        VerticalOptions="Center" />
                             </Border>
@@ -84,19 +84,19 @@
                            Text=":"
                            FontFamily="OutfitSemiBold"
                            FontSize="46"
-                           TextColor="#C8E6C8"
+                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                            VerticalOptions="Center" />
 
                     <VerticalStackLayout Grid.Column="2" Spacing="8">
                         <Label Text="Away"
                                FontFamily="OutfitSemiBold"
                                FontSize="13"
-                               TextColor="#C8E6C8"
+                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                                HorizontalOptions="Center" />
                         <Label Text="{Binding AwayScore}"
                                FontFamily="OutfitSemiBold"
                                FontSize="52"
-                               TextColor="White"
+                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                HorizontalOptions="Center" />
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                             <Border Grid.Column="0"
@@ -111,7 +111,7 @@
                                 <Label Text="−"
                                        FontFamily="OutfitSemiBold"
                                        FontSize="22"
-                                       TextColor="White"
+                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                        HorizontalOptions="Center"
                                        VerticalOptions="Center" />
                             </Border>
@@ -127,7 +127,7 @@
                                 <Label Text="+"
                                        FontFamily="OutfitSemiBold"
                                        FontSize="22"
-                                       TextColor="White"
+                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                        HorizontalOptions="Center"
                                        VerticalOptions="Center" />
                             </Border>

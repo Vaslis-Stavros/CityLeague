@@ -7,7 +7,7 @@ using CityLeague.Core.Dtos;
 
 namespace CityLeague.App.ViewModels;
 
-public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth) : BaseViewModel
+public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth, IAppPreferences prefs) : BaseViewModel
 {
     private List<EventSummaryDto> _upcoming = [];
     private List<EventSummaryDto> _incomplete = [];
@@ -44,7 +44,20 @@ public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth) : Base
     public Color AccentColor => Theme.Accent;
 
     private Helpers.SportColors.BackdropTheme Theme
-        => Helpers.SportColors.GetTheme(SelectedSport?.Key);
+        => Helpers.SportColors.GetTheme(SelectedSport?.Key, prefs.IsLight);
+
+    /// <summary>Re-raises backdrop/text colors after light/dark preference changes.</summary>
+    public void NotifyThemeChanged()
+    {
+        OnPropertyChanged(nameof(BackdropTop));
+        OnPropertyChanged(nameof(BackdropMid));
+        OnPropertyChanged(nameof(BackdropBottom));
+        OnPropertyChanged(nameof(GlowColor));
+        OnPropertyChanged(nameof(SoftTextColor));
+        OnPropertyChanged(nameof(SoftMutedColor));
+        OnPropertyChanged(nameof(AccentColor));
+        ApplyFilter();
+    }
 
     public string Greeting
     {

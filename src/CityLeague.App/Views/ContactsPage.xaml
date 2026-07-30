@@ -55,11 +55,11 @@
                 <Label Text="Contacts"
                        FontFamily="OutfitSemiBold"
                        FontSize="28"
-                       TextColor="White" />
+                       TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
                 <Label Text="{Binding ContactsSubtitle}"
                        FontFamily="OutfitRegular"
                        FontSize="14"
-                       TextColor="#A8B8CC" />
+                       TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
             </VerticalStackLayout>
 
             <Border x:Name="SearchBlock"
@@ -73,7 +73,7 @@
                            Text="{Binding SearchQuery}"
                            ReturnCommand="{Binding SearchCommand}"
                            BackgroundColor="Transparent"
-                           TextColor="White"
+                           TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}"
                            PlaceholderColor="#8FA0B5"
                            FontFamily="OutfitRegular"
                            FontSize="16" />
@@ -109,7 +109,7 @@
                             <Label Text="RESULTS"
                                    FontFamily="OutfitRegular"
                                    FontSize="12"
-                                   TextColor="#A8B8CC"
+                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
                                    CharacterSpacing="1.2"
                                    Margin="4,0,0,0" />
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding SearchResults}" Spacing="8">
@@ -125,12 +125,12 @@
                                                     <Label Text="{Binding DisplayName}"
                                                            FontFamily="OutfitSemiBold"
                                                            FontSize="15"
-                                                           TextColor="White"
+                                                           TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}"
                                                            LineBreakMode="TailTruncation" />
                                                     <Label Text="{Binding Handle, StringFormat='@{0}'}"
                                                            FontFamily="OutfitRegular"
                                                            FontSize="12"
-                                                           TextColor="#A8B8CC" />
+                                                           TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
                                                 </VerticalStackLayout>
                                                 <Border Grid.Column="2"
                                                         BackgroundColor="White"
@@ -160,7 +160,7 @@
                         <Label Text="YOUR PEOPLE"
                                FontFamily="OutfitRegular"
                                FontSize="12"
-                               TextColor="#A8B8CC"
+                               TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
                                CharacterSpacing="1.2"
                                Margin="4,4,0,0"
                                IsVisible="{Binding ShowEmptyContacts, Converter={StaticResource InvertedBool}}" />
@@ -178,12 +178,12 @@
                                                 <Label Text="{Binding User.DisplayName}"
                                                        FontFamily="OutfitSemiBold"
                                                        FontSize="15"
-                                                       TextColor="White"
+                                                       TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}"
                                                        LineBreakMode="TailTruncation" />
                                                 <Label Text="{Binding User.Handle, StringFormat='@{0}'}"
                                                        FontFamily="OutfitRegular"
                                                        FontSize="12"
-                                                       TextColor="#A8B8CC" />
+                                                       TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
                                                 <Label Text="Wants to connect"
                                                        FontFamily="OutfitRegular"
                                                        FontSize="12"
@@ -222,12 +222,12 @@
                                 <Label Text="No contacts yet"
                                        FontFamily="OutfitSemiBold"
                                        FontSize="16"
-                                       TextColor="White"
+                                       TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}"
                                        HorizontalTextAlignment="Center" />
                                 <Label Text="Search an @handle above to add people."
                                        FontFamily="OutfitRegular"
                                        FontSize="13"
-                                       TextColor="#A8B8CC"
+                                       TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
                                        HorizontalTextAlignment="Center" />
                             </VerticalStackLayout>
                         </Border>

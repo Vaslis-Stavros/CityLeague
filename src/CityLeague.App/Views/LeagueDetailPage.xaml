@@ -13,9 +13,9 @@
 
     <ContentPage.Resources>
         <Style x:Key="GlassPanel" TargetType="Border">
-            <Setter Property="Stroke" Value="{StaticResource GlassStroke}" />
+            <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}" />
             <Setter Property="StrokeThickness" Value="1" />
-            <Setter Property="BackgroundColor" Value="{StaticResource GlassFill}" />
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource GlassFillLight}, Dark={StaticResource GlassFillDark}}" />
             <Setter Property="StrokeShape" Value="RoundRectangle 22" />
             <Setter Property="Padding" Value="16,14" />
         </Style>
@@ -52,7 +52,7 @@
                             <Label Text="{Binding League.Name}"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="24"
-                                   TextColor="White"
+                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                    LineBreakMode="TailTruncation" />
                         </VerticalStackLayout>
                     </Grid>
@@ -69,16 +69,16 @@
                                        Text="{Binding League.SportName}"
                                        FontFamily="OutfitRegular"
                                        FontSize="13"
-                                       TextColor="#C8E6C8" />
+                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}" />
                             </Grid>
                             <Label Text="{Binding StatusSubtitle}"
                                    FontFamily="OutfitRegular"
                                    FontSize="13"
-                                   TextColor="#C8E6C8" />
+                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}" />
                             <Label Text="{Binding ProgressLabel}"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="13"
-                                   TextColor="White" />
+                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                             <ProgressBar Progress="{Binding League.ProgressFraction}"
                                          ProgressColor="#F2A900"
                                          HeightRequest="8" />
@@ -100,7 +100,7 @@
                                    TextColor="{StaticResource Brand}" />
                         </Border>
                         <Border BackgroundColor="#28FFFFFF"
-                                Stroke="{StaticResource GlassStroke}"
+                                Stroke="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 16"
                                 Padding="14,10"
@@ -111,10 +111,10 @@
                             <Label Text="Extend"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="13"
-                                   TextColor="White" />
+                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                         </Border>
                         <Border BackgroundColor="#28FFFFFF"
-                                Stroke="{StaticResource GlassStroke}"
+                                Stroke="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 16"
                                 Padding="14,10"
@@ -125,7 +125,7 @@
                             <Label Text="Finish early"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="13"
-                                   TextColor="White" />
+                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                         </Border>
                         <Border BackgroundColor="#33C0392B"
                                 Stroke="#88FF8A80"
@@ -146,7 +146,7 @@
                     <Label Text="TEAMS"
                            FontFamily="OutfitRegular"
                            FontSize="12"
-                           TextColor="#C8E6C8"
+                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                            CharacterSpacing="1.2"
                            Margin="4,8,0,0" />
 
@@ -171,7 +171,7 @@
                                                     <Label Text="Logo"
                                                            FontFamily="OutfitRegular"
                                                            FontSize="11"
-                                                           TextColor="#C8E6C8"
+                                                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                                                            HorizontalOptions="Center"
                                                            VerticalOptions="Center" />
                                                     <Image Source="{Binding LogoUrl}"
@@ -183,22 +183,22 @@
                                                 <Label Text="{Binding Name}"
                                                        FontFamily="OutfitSemiBold"
                                                        FontSize="18"
-                                                       TextColor="White">
+                                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}">
                                                     <Label.GestureRecognizers>
                                                         <TapGestureRecognizer
                                                             Command="{Binding Source={x:Reference Page}, Path=BindingContext.RenameTeamCommand}"
                                                             CommandParameter="{Binding .}" />
                                                     </Label.GestureRecognizers>
                                                 </Label>
-                                                <Label FontFamily="OutfitRegular" FontSize="13" TextColor="#C8E6C8">
+                                                <Label FontFamily="OutfitRegular" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}">
                                                     <Label.FormattedText>
                                                         <FormattedString>
                                                             <Span Text="Leader · " />
-                                                            <Span Text="{Binding LeaderDisplayName}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                            <Span Text="{Binding LeaderDisplayName}" FontFamily="OutfitSemiBold" TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                                                         </FormattedString>
                                                     </Label.FormattedText>
                                                 </Label>
-                                                <Label FontFamily="OutfitRegular" FontSize="12" TextColor="#A8D5B5">
+                                                <Label FontFamily="OutfitRegular" FontSize="12" TextColor="{AppThemeBinding Light=#4A7A5C, Dark=#A8D5B5}">
                                                     <Label.FormattedText>
                                                         <FormattedString>
                                                             <Span Text="{Binding Wins}" />
@@ -225,7 +225,7 @@
                                                 <Label Text="Rename"
                                                        FontFamily="OutfitSemiBold"
                                                        FontSize="12"
-                                                       TextColor="White" />
+                                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                                             </Border>
                                             <Border BackgroundColor="#28FFFFFF"
                                                     StrokeThickness="0"
@@ -239,7 +239,7 @@
                                                 <Label Text="Logo"
                                                        FontFamily="OutfitSemiBold"
                                                        FontSize="12"
-                                                       TextColor="White" />
+                                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                                             </Border>
                                             <Border BackgroundColor="#33F2A900"
                                                     StrokeThickness="0"
@@ -268,7 +268,7 @@
                                Text="PLAYERS"
                                FontFamily="OutfitRegular"
                                FontSize="12"
-                               TextColor="#C8E6C8"
+                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                                CharacterSpacing="1.2"
                                VerticalOptions="Center" />
                         <Border Grid.Column="1"
@@ -292,11 +292,11 @@
                             <Label Text="INVITE CONTACTS"
                                    FontFamily="OutfitRegular"
                                    FontSize="12"
-                                   TextColor="#C8E6C8"
+                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                                    CharacterSpacing="1.2" />
 
                             <Border BackgroundColor="#22FFFFFF"
-                                    Stroke="{StaticResource GlassStroke}"
+                                    Stroke="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}"
                                     StrokeThickness="1"
                                     StrokeShape="RoundRectangle 16"
                                     Padding="12,8"
@@ -304,7 +304,7 @@
                                 <Entry Placeholder="Search contacts"
                                        Text="{Binding InviteSearchQuery}"
                                        BackgroundColor="Transparent"
-                                       TextColor="White"
+                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                        PlaceholderColor="#A8D5B5"
                                        FontFamily="OutfitRegular"
                                        FontSize="14" />
@@ -334,12 +334,12 @@
                                                     <Label Text="{Binding User.DisplayName}"
                                                            FontFamily="OutfitSemiBold"
                                                            FontSize="14"
-                                                           TextColor="White"
+                                                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                                            LineBreakMode="TailTruncation" />
                                                     <Label Text="{Binding User.Handle, StringFormat='@{0}'}"
                                                            FontFamily="OutfitRegular"
                                                            FontSize="12"
-                                                           TextColor="#A8D5B5"
+                                                           TextColor="{AppThemeBinding Light=#4A7A5C, Dark=#A8D5B5}"
                                                            LineBreakMode="TailTruncation" />
                                                 </VerticalStackLayout>
                                                 <controls:RoundCheckBox Grid.Column="2"
@@ -354,13 +354,13 @@
                             <Label Text="No contacts match that search."
                                    FontFamily="OutfitRegular"
                                    FontSize="13"
-                                   TextColor="#A8D5B5"
+                                   TextColor="{AppThemeBinding Light=#4A7A5C, Dark=#A8D5B5}"
                                    IsVisible="{Binding ShowInviteSearchEmpty}" />
 
                             <Label Text="All your contacts are already in."
                                    FontFamily="OutfitRegular"
                                    FontSize="13"
-                                   TextColor="#A8D5B5"
+                                   TextColor="{AppThemeBinding Light=#4A7A5C, Dark=#A8D5B5}"
                                    IsVisible="{Binding HasInviteCandidates, Converter={StaticResource InvertedBool}}" />
 
                             <Border BackgroundColor="White"
@@ -398,11 +398,11 @@
                                                 <Label Text="{Binding DisplayName}"
                                                        FontFamily="OutfitSemiBold"
                                                        FontSize="15"
-                                                       TextColor="White" />
+                                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                                                 <Label Text="{Binding TeamName, TargetNullValue='Unassigned'}"
                                                        FontFamily="OutfitRegular"
                                                        FontSize="12"
-                                                       TextColor="#C8E6C8" />
+                                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}" />
                                             </VerticalStackLayout>
                                             <Border Grid.Column="2"
                                                     BackgroundColor="#33F2A900"
@@ -432,7 +432,7 @@
                                                 <Label Text="{Binding Source={x:Reference Page}, Path=BindingContext.TeamA.Name, StringFormat='→ {0}'}"
                                                        FontFamily="OutfitSemiBold"
                                                        FontSize="12"
-                                                       TextColor="White" />
+                                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                                             </Border>
                                             <Border BackgroundColor="#28FFFFFF"
                                                     StrokeThickness="0"
@@ -446,7 +446,7 @@
                                                 <Label Text="{Binding Source={x:Reference Page}, Path=BindingContext.TeamB.Name, StringFormat='→ {0}'}"
                                                        FontFamily="OutfitSemiBold"
                                                        FontSize="12"
-                                                       TextColor="White" />
+                                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                                             </Border>
                                             <Border BackgroundColor="#22FFFFFF"
                                                     StrokeThickness="0"
@@ -460,7 +460,7 @@
                                                 <Label Text="Clear"
                                                        FontFamily="OutfitSemiBold"
                                                        FontSize="12"
-                                                       TextColor="#C8E6C8" />
+                                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}" />
                                             </Border>
                                         </HorizontalStackLayout>
 
@@ -504,7 +504,7 @@
                     <Label Text="MATCH RESULTS"
                            FontFamily="OutfitRegular"
                            FontSize="12"
-                           TextColor="#C8E6C8"
+                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                            CharacterSpacing="1.2"
                            Margin="4,8,0,0" />
 
@@ -514,7 +514,7 @@
                         <Label Text="No finished matches yet."
                                FontFamily="OutfitRegular"
                                FontSize="13"
-                               TextColor="#C8E6C8"
+                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                                HorizontalTextAlignment="Center" />
                     </Border>
 
@@ -526,17 +526,17 @@
                                         <Label Text="{Binding Title}"
                                                FontFamily="OutfitSemiBold"
                                                FontSize="15"
-                                               TextColor="White" />
-                                        <Label FontFamily="OutfitSemiBold" FontSize="20" TextColor="White">
+                                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
+                                        <Label FontFamily="OutfitSemiBold" FontSize="20" TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}">
                                             <Label.FormattedText>
                                                 <FormattedString>
                                                     <Span Text="{Binding HomeScore}" />
-                                                    <Span Text=" – " TextColor="#C8E6C8" />
+                                                    <Span Text=" – " TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}" />
                                                     <Span Text="{Binding AwayScore}" />
                                                 </FormattedString>
                                             </Label.FormattedText>
                                         </Label>
-                                        <Label FontFamily="OutfitRegular" FontSize="12" TextColor="#C8E6C8">
+                                        <Label FontFamily="OutfitRegular" FontSize="12" TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}">
                                             <Label.FormattedText>
                                                 <FormattedString>
                                                     <Span Text="{Binding HomeTeamName}" />

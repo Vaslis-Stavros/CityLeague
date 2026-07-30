@@ -50,11 +50,11 @@
                 <Label Text="More"
                        FontFamily="OutfitSemiBold"
                        FontSize="28"
-                       TextColor="White" />
+                       TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
                 <Label Text="History, profile, and settings"
                        FontFamily="OutfitRegular"
                        FontSize="14"
-                       TextColor="#A8B8CC" />
+                       TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
             </VerticalStackLayout>
 
             <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
@@ -69,7 +69,7 @@
                             <Label Text="MENU"
                                    FontFamily="OutfitRegular"
                                    FontSize="12"
-                                   TextColor="#A8B8CC"
+                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
                                    CharacterSpacing="1.2"
                                    Margin="4,2,0,2" />
 
@@ -100,11 +100,11 @@
                                         <Label Text="History"
                                                FontFamily="OutfitSemiBold"
                                                FontSize="17"
-                                               TextColor="White" />
+                                               TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
                                         <Label Text="Past matches and finished leagues"
                                                FontFamily="OutfitRegular"
                                                FontSize="13"
-                                               TextColor="#A8B8CC" />
+                                               TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
                                            Text="›"
@@ -141,11 +141,11 @@
                                         <Label Text="Profile"
                                                FontFamily="OutfitSemiBold"
                                                FontSize="17"
-                                               TextColor="White" />
+                                               TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
                                         <Label Text="Name, password, photo, and stats"
                                                FontFamily="OutfitRegular"
                                                FontSize="13"
-                                               TextColor="#A8B8CC" />
+                                               TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
                                            Text="›"
@@ -181,11 +181,11 @@
                                         <Label Text="Settings"
                                                FontFamily="OutfitSemiBold"
                                                FontSize="17"
-                                               TextColor="White" />
+                                               TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
                                         <Label Text="Theme, date format, and display"
                                                FontFamily="OutfitRegular"
                                                FontSize="13"
-                                               TextColor="#A8B8CC" />
+                                               TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
                                            Text="›"

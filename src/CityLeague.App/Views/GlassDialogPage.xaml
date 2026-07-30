@@ -32,13 +32,13 @@
                 <Label x:Name="TitleLabel"
                        FontFamily="OutfitSemiBold"
                        FontSize="22"
-                       TextColor="White"
+                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                        HorizontalTextAlignment="Center" />
 
                 <Label x:Name="MessageLabel"
                        FontFamily="OutfitRegular"
                        FontSize="14"
-                       TextColor="#D5EBD8"
+                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark=#D5EBD8}"
                        HorizontalTextAlignment="Center"
                        LineBreakMode="WordWrap" />
 
@@ -51,7 +51,7 @@
                         IsVisible="False">
                     <Entry x:Name="PromptEntry"
                            BackgroundColor="Transparent"
-                           TextColor="White"
+                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                            PlaceholderColor="#A8D5B5"
                            FontFamily="OutfitRegular"
                            FontSize="15"
@@ -74,7 +74,7 @@
                            Text="Cancel"
                            FontFamily="OutfitSemiBold"
                            FontSize="15"
-                           TextColor="#EAF7EE"
+                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark=#EAF7EE}"
                            HorizontalOptions="Center"
                            VerticalOptions="Center" />
                 </Border>

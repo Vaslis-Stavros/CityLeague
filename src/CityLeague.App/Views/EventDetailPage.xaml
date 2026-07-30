@@ -13,9 +13,9 @@
 
     <ContentPage.Resources>
         <Style x:Key="GlassPanel" TargetType="Border">
-            <Setter Property="Stroke" Value="{StaticResource GlassStroke}" />
+            <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}" />
             <Setter Property="StrokeThickness" Value="1" />
-            <Setter Property="BackgroundColor" Value="{StaticResource GlassFill}" />
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource GlassFillLight}, Dark={StaticResource GlassFillDark}}" />
             <Setter Property="StrokeShape" Value="RoundRectangle 22" />
             <Setter Property="Padding" Value="16,14" />
         </Style>
@@ -65,7 +65,7 @@
                                Text="{Binding Title}"
                                FontFamily="OutfitSemiBold"
                                FontSize="26"
-                               TextColor="White"
+                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                LineBreakMode="TailTruncation"
                                VerticalOptions="Center" />
                         <Border Grid.Column="1"
@@ -88,7 +88,7 @@
                     <Label Text="{Binding StatusText}"
                            FontFamily="OutfitRegular"
                            FontSize="13"
-                           TextColor="#C8E6C8" />
+                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}" />
 
                     <Label Text="{Binding ResultText, StringFormat='Result · {0}'}"
                            FontFamily="OutfitSemiBold"
@@ -99,7 +99,7 @@
                     <Label Text="{Binding HintText}"
                            FontFamily="OutfitRegular"
                            FontSize="13"
-                           TextColor="#C8E6C8" />
+                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}" />
                 </VerticalStackLayout>
 
                 <Border Style="{StaticResource GlassPanel}"
@@ -108,12 +108,12 @@
                         <Label Text="RESCHEDULE"
                                FontFamily="OutfitRegular"
                                FontSize="12"
-                               TextColor="#C8E6C8"
+                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                                CharacterSpacing="1.2" />
                         <DatePicker Date="{Binding EditDate}"
-                                    TextColor="White" />
+                                    TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                         <TimePicker Time="{Binding EditTime}"
-                                    TextColor="White" />
+                                    TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                         <Border Style="{StaticResource GlassAction}">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding SaveScheduleCommand}" />
@@ -213,11 +213,11 @@
                         <Label Text="INVITE CONTACTS"
                                FontFamily="OutfitRegular"
                                FontSize="12"
-                               TextColor="#C8E6C8"
+                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                                CharacterSpacing="1.2" />
 
                         <Border BackgroundColor="#22FFFFFF"
-                                Stroke="{StaticResource GlassStroke}"
+                                Stroke="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 16"
                                 Padding="12,8"
@@ -225,7 +225,7 @@
                             <Entry Placeholder="Search contacts"
                                    Text="{Binding InviteSearchQuery}"
                                    BackgroundColor="Transparent"
-                                   TextColor="White"
+                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                    PlaceholderColor="#A8D5B5"
                                    FontFamily="OutfitRegular"
                                    FontSize="14" />
@@ -255,12 +255,12 @@
                                                 <Label Text="{Binding User.DisplayName}"
                                                        FontFamily="OutfitSemiBold"
                                                        FontSize="14"
-                                                       TextColor="White"
+                                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                                                        LineBreakMode="TailTruncation" />
                                                 <Label Text="{Binding User.Handle, StringFormat='@{0}'}"
                                                        FontFamily="OutfitRegular"
                                                        FontSize="12"
-                                                       TextColor="#A8D5B5"
+                                                       TextColor="{AppThemeBinding Light=#4A7A5C, Dark=#A8D5B5}"
                                                        LineBreakMode="TailTruncation" />
                                             </VerticalStackLayout>
                                             <controls:RoundCheckBox Grid.Column="2"
@@ -275,13 +275,13 @@
                         <Label Text="No contacts match that search."
                                FontFamily="OutfitRegular"
                                FontSize="13"
-                               TextColor="#A8D5B5"
+                               TextColor="{AppThemeBinding Light=#4A7A5C, Dark=#A8D5B5}"
                                IsVisible="{Binding ShowInviteSearchEmpty}" />
 
                         <Label Text="All your contacts are already in."
                                FontFamily="OutfitRegular"
                                FontSize="13"
-                               TextColor="#A8D5B5"
+                               TextColor="{AppThemeBinding Light=#4A7A5C, Dark=#A8D5B5}"
                                IsVisible="{Binding HasInviteCandidates, Converter={StaticResource InvertedBool}}" />
 
                         <Border Style="{StaticResource GlassAction}"
@@ -304,7 +304,7 @@
                 <Label Text="PLAYERS"
                        FontFamily="OutfitRegular"
                        FontSize="12"
-                       TextColor="#C8E6C8"
+                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
                        CharacterSpacing="1.2"
                        Margin="4,4,0,0" />
 
@@ -321,11 +321,11 @@
                                         <Label Text="{Binding DisplayName}"
                                                FontFamily="OutfitSemiBold"
                                                FontSize="15"
-                                               TextColor="White" />
+                                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
                                         <Label Text="{Binding Handle, StringFormat='@{0}'}"
                                                FontFamily="OutfitRegular"
                                                FontSize="12"
-                                               TextColor="#A8D5B5" />
+                                               TextColor="{AppThemeBinding Light=#4A7A5C, Dark=#A8D5B5}" />
                                     </VerticalStackLayout>
                                     <Label Grid.Column="2"
                                            Text="Organizer"
@@ -370,7 +370,7 @@
                     <Label Text="Cancel lock"
                            FontFamily="OutfitSemiBold"
                            FontSize="15"
-                           TextColor="White"
+                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
                            HorizontalOptions="Center"
                            VerticalOptions="Center" />
                 </Border>

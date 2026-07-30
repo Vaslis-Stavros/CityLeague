@@ -7,6 +7,9 @@ namespace CityLeague.App.Helpers;
 /// </summary>
 public static class StatusBarTheme
 {
+    private static readonly BindableProperty AppliedChromeProperty =
+        BindableProperty.CreateAttached("AppliedChrome", typeof(ScreenChrome?), typeof(StatusBarTheme), null);
+
     public static Color PitchTop => Resolve(ScreenChrome.Pitch).Top;
     public static Color SlateTop => Resolve(ScreenChrome.Slate).Top;
     public static Color BrandTop => Resolve(ScreenChrome.Brand).Top;
@@ -61,9 +64,18 @@ public static class StatusBarTheme
 
     public static void Apply(Page page, ScreenChrome chrome)
     {
+        page.SetValue(AppliedChromeProperty, chrome);
         var (top, mid, bottom, darkContent) = Resolve(chrome);
         Apply(page, top, darkContent);
         TryPaintBackdrop(page, top, mid, bottom);
+    }
+
+    /// <summary>Re-applies chrome for the current Shell page after light/dark toggles.</summary>
+    public static void RefreshCurrentPage()
+    {
+        if (Shell.Current?.CurrentPage is not Page page) return;
+        if (page.GetValue(AppliedChromeProperty) is ScreenChrome chrome)
+            Apply(page, chrome);
     }
 
     /// <param name="darkContent">True for dark status-bar icons on a light background.</param>

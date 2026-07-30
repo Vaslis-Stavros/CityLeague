@@ -1,5 +1,6 @@
 using System.Globalization;
 using CityLeague.App.Helpers;
+using CityLeague.App.Services;
 using CityLeague.Core.Dtos;
 
 namespace CityLeague.App.Converters;
@@ -15,14 +16,16 @@ public class SportChipMultiConverter : IMultiValueConverter
             && string.Equals(sport.Key, selected.Key, StringComparison.OrdinalIgnoreCase);
 
         var part = parameter?.ToString() ?? "background";
+        var light = false;
+        try { light = ServiceHelper.GetService<IAppPreferences>().IsLight; } catch { /* ignore */ }
 
         if (!isSelected)
         {
             return part switch
             {
-                "background" => Color.FromArgb("#28FFFFFF"),
-                "text" => Color.FromArgb("#EAF7EE"),
-                "stroke" => Color.FromArgb("#55FFFFFF"),
+                "background" => light ? Color.FromArgb("#22000000") : Color.FromArgb("#28FFFFFF"),
+                "text" => light ? Color.FromArgb("#14261A") : Color.FromArgb("#EAF7EE"),
+                "stroke" => light ? Color.FromArgb("#33000000") : Color.FromArgb("#55FFFFFF"),
                 _ => Colors.Transparent,
             };
         }

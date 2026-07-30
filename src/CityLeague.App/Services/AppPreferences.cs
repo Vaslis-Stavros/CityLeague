@@ -123,6 +123,8 @@ public sealed class AppPreferences : IAppPreferences
                     Shell.Current.SetValue(Shell.BackgroundColorProperty, Color.FromArgb("#0E1525"));
                 }
             }
+
+            Helpers.StatusBarTheme.RefreshCurrentPage();
         });
     }
 
