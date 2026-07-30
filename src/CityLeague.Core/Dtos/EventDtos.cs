@@ -13,6 +13,11 @@ public record CreateEventRequest(
     IReadOnlyList<Guid>? InviteUserIds,
     Guid? LeagueId = null);
 
+public record UpdateEventRequest(
+    string? Title = null,
+    DateTimeOffset? ScheduledAt = null,
+    string? Location = null);
+
 public record EventSummaryDto(
     Guid Id,
     string Title,
@@ -24,6 +29,7 @@ public record EventSummaryDto(
     int ClaimedCount,
     int TotalSlots,
     bool IsOwner,
+    bool IsPendingResult = false,
     ResultDto? Result = null);
 
 public record PositionDto(
@@ -67,7 +73,16 @@ public record EventDetailDto(
     Guid OwnerUserId,
     IReadOnlyList<PositionDto> Positions,
     IReadOnlyList<ParticipantDto> Participants,
-    ResultDto? Result);
+    ResultDto? Result,
+    bool IsFull = false,
+    bool IsPast = false,
+    bool IsPendingResult = false,
+    bool CanLock = false,
+    bool CanUnlock = false,
+    bool CanEditSchedule = false,
+    bool CanSubmitResult = false,
+    bool CanLeave = false,
+    bool CanDelete = false);
 
 public record InviteRequest(IReadOnlyList<Guid> UserIds);
 

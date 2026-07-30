@@ -60,12 +60,30 @@
                 <VerticalStackLayout x:Name="HeaderBlock" Spacing="4">
                     <controls:MinimalBackButton />
 
-                    <Label Text="{Binding Title}"
-                           FontFamily="OutfitSemiBold"
-                           FontSize="26"
-                           TextColor="White"
-                           LineBreakMode="TailTruncation"
-                           Margin="0,6,0,0" />
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="0,6,0,0">
+                        <Label Grid.Column="0"
+                               Text="{Binding Title}"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="26"
+                               TextColor="White"
+                               LineBreakMode="TailTruncation"
+                               VerticalOptions="Center" />
+                        <Border Grid.Column="1"
+                                BackgroundColor="#28FFFFFF"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14"
+                                Padding="10,8"
+                                VerticalOptions="Center">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleScheduleEditorCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{Binding ScheduleLabel}"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="13"
+                                   TextColor="#F2A900"
+                                   LineBreakMode="TailTruncation" />
+                        </Border>
+                    </Grid>
 
                     <Label Text="{Binding StatusText}"
                            FontFamily="OutfitRegular"
@@ -78,17 +96,37 @@
                            TextColor="#F2A900"
                            IsVisible="{Binding ResultText, Converter={StaticResource IsStringNotEmpty}}" />
 
-                    <Label Text="Tap an open spot to claim it — tap yours to leave."
+                    <Label Text="{Binding HintText}"
                            FontFamily="OutfitRegular"
                            FontSize="13"
-                           TextColor="#C8E6C8"
-                           IsVisible="{Binding IsReadOnly, Converter={StaticResource InvertedBool}}" />
-                    <Label Text="Final lineup and result."
-                           FontFamily="OutfitRegular"
-                           FontSize="13"
-                           TextColor="#C8E6C8"
-                           IsVisible="{Binding IsReadOnly}" />
+                           TextColor="#C8E6C8" />
                 </VerticalStackLayout>
+
+                <Border Style="{StaticResource GlassPanel}"
+                        IsVisible="{Binding ShowScheduleEditor}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="RESCHEDULE"
+                               FontFamily="OutfitRegular"
+                               FontSize="12"
+                               TextColor="#C8E6C8"
+                               CharacterSpacing="1.2" />
+                        <DatePicker Date="{Binding EditDate}"
+                                    TextColor="White" />
+                        <TimePicker Time="{Binding EditTime}"
+                                    TextColor="White" />
+                        <Border Style="{StaticResource GlassAction}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SaveScheduleCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Save date"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="14"
+                                   TextColor="{StaticResource Brand}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
 
                 <!-- Pitch -->
                 <Border Style="{StaticResource GlassPanel}" Padding="8">
@@ -96,7 +134,7 @@
                         HeightRequest="300"
                         Positions="{Binding Positions}"
                         CurrentUserId="{Binding CurrentUserId}"
-                        IsReadOnly="{Binding IsReadOnly}" />
+                        IsReadOnly="{Binding PitchReadOnly}" />
                 </Border>
 
                 <Label Text="{Binding ErrorMessage}"
@@ -106,8 +144,7 @@
                        IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
 
                 <!-- Actions -->
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10"
-                      IsVisible="{Binding IsReadOnly, Converter={StaticResource InvertedBool}}">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                     <Border Grid.Column="0"
                             Style="{StaticResource GlassAction}"
                             IsVisible="{Binding CanInvite}">
@@ -130,7 +167,7 @@
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SubmitResultCommand}" />
                         </Border.GestureRecognizers>
-                        <Label Text="Result"
+                        <Label Text="Set result"
                                FontFamily="OutfitSemiBold"
                                FontSize="14"
                                TextColor="#1A1520"
@@ -152,6 +189,19 @@
                            FontFamily="OutfitSemiBold"
                            FontSize="14"
                            TextColor="#FFCDD2"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+
+                <Border Style="{StaticResource GlassAction}"
+                        IsVisible="{Binding CanLeave}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding LeaveCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Remove from my list"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="14"
+                           TextColor="{StaticResource Brand}"
                            HorizontalOptions="Center"
                            VerticalOptions="Center" />
                 </Border>
@@ -289,6 +339,41 @@
                         </DataTemplate>
                     </BindableLayout.ItemTemplate>
                 </VerticalStackLayout>
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 18"
+                        Padding="14,12"
+                        Margin="0,4,0,0"
+                        IsVisible="{Binding CanLock}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding LockCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Lock match"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="15"
+                           TextColor="{StaticResource Brand}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+
+                <Border BackgroundColor="#33FFFFFF"
+                        Stroke="#88FFFFFF"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18"
+                        Padding="14,12"
+                        Margin="0,4,0,0"
+                        IsVisible="{Binding CanUnlock}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding UnlockCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Cancel lock"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="15"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
 
                 <ActivityIndicator IsRunning="{Binding IsBusy}"
                                    IsVisible="{Binding IsBusy}"

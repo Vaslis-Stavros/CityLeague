@@ -8,15 +8,20 @@ namespace CityLeague.App.ViewModels;
 
 public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth) : BaseViewModel
 {
-    private List<EventSummaryDto> _allEvents = [];
+    private List<EventSummaryDto> _upcoming = [];
+    private List<EventSummaryDto> _incomplete = [];
+    private List<EventSummaryDto> _pending = [];
 
     public ObservableCollection<SportDto> Sports { get; } = [];
+    public ObservableCollection<HomeMatchItem> PendingResults { get; } = [];
     public ObservableCollection<HomeMatchItem> Matches { get; } = [];
+    public ObservableCollection<HomeMatchItem> IncompleteMatches { get; } = [];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsComingSoon))]
     [NotifyPropertyChangedFor(nameof(ShowEmptyState))]
     [NotifyPropertyChangedFor(nameof(ScheduleSubtitle))]
+    [NotifyPropertyChangedFor(nameof(CanCreateMatch))]
     [NotifyPropertyChangedFor(nameof(BackdropTop))]
     [NotifyPropertyChangedFor(nameof(BackdropMid))]
     [NotifyPropertyChangedFor(nameof(BackdropBottom))]
@@ -60,16 +65,29 @@ public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth) : Base
         {
             if (IsComingSoon)
                 return "This sport isn’t ready yet — football is live.";
-            if (Matches.Count == 0)
+            if (HasPendingResults)
+                return "Set the pending result before creating another match.";
+            if (!HasUpcoming && !HasIncomplete)
                 return "No matches on the board.";
-            return Matches.Count == 1 ? "1 match scheduled" : $"{Matches.Count} matches scheduled";
+            var parts = new List<string>();
+            if (HasUpcoming)
+                parts.Add(Matches.Count == 1 ? "1 upcoming" : $"{Matches.Count} upcoming");
+            if (HasIncomplete)
+                parts.Add(IncompleteMatches.Count == 1 ? "1 incomplete" : $"{IncompleteMatches.Count} incomplete");
+            return string.Join(" · ", parts);
         }
     }
 
     public bool IsComingSoon => SelectedSport is not null &&
         !string.Equals(SelectedSport.Availability, "Enabled", StringComparison.OrdinalIgnoreCase);
 
-    public bool ShowEmptyState => !IsBusy && !IsComingSoon && Matches.Count == 0;
+    public bool ShowEmptyState => !IsBusy && !IsComingSoon && !HasUpcoming && !HasIncomplete && !HasPendingResults;
+
+    public bool CanCreateMatch => !IsComingSoon && !HasPendingResults;
+
+    public bool HasPendingResults => PendingResults.Count > 0;
+    public bool HasIncomplete => IncompleteMatches.Count > 0;
+    public bool HasUpcoming => Matches.Count > 0;
 
     [RelayCommand]
     private async Task AppearingAsync()
@@ -116,7 +134,13 @@ public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth) : Base
     {
         try
         {
-            _allEvents = (await api.GetEventsAsync()).ToList();
+            var upcomingTask = api.GetEventsAsync();
+            var incompleteTask = api.GetIncompleteEventsAsync();
+            var pendingTask = api.GetPendingResultEventsAsync();
+            await Task.WhenAll(upcomingTask, incompleteTask, pendingTask);
+            _upcoming = (await upcomingTask).ToList();
+            _incomplete = (await incompleteTask).ToList();
+            _pending = (await pendingTask).ToList();
         }
         catch (ApiException ex)
         {
@@ -136,17 +160,34 @@ public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth) : Base
 
     private void ApplyFilter()
     {
+        PendingResults.Clear();
         Matches.Clear();
+        IncompleteMatches.Clear();
+
         if (SelectedSport is not null && !IsComingSoon)
         {
-            foreach (var e in _allEvents
+            foreach (var e in _pending
+                         .Where(e => string.Equals(e.SportKey, SelectedSport.Key, StringComparison.OrdinalIgnoreCase))
+                         .OrderBy(e => e.ScheduledAt))
+                PendingResults.Add(new HomeMatchItem(e, HomeMatchKind.PendingResult));
+
+            foreach (var e in _upcoming
                          .Where(e => string.Equals(e.SportKey, SelectedSport.Key, StringComparison.OrdinalIgnoreCase))
                          .OrderBy(e => e.ScheduledAt))
                 Matches.Add(new HomeMatchItem(e));
+
+            foreach (var e in _incomplete
+                         .Where(e => string.Equals(e.SportKey, SelectedSport.Key, StringComparison.OrdinalIgnoreCase))
+                         .OrderByDescending(e => e.ScheduledAt))
+                IncompleteMatches.Add(new HomeMatchItem(e, HomeMatchKind.Incomplete));
         }
 
         OnPropertyChanged(nameof(ShowEmptyState));
         OnPropertyChanged(nameof(ScheduleSubtitle));
+        OnPropertyChanged(nameof(CanCreateMatch));
+        OnPropertyChanged(nameof(HasPendingResults));
+        OnPropertyChanged(nameof(HasUpcoming));
+        OnPropertyChanged(nameof(HasIncomplete));
     }
 
     [RelayCommand]
@@ -159,6 +200,15 @@ public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth) : Base
     [RelayCommand]
     private async Task CreateMatchAsync()
     {
+        if (!CanCreateMatch)
+        {
+            await Shell.Current.DisplayAlert(
+                "Result needed",
+                "Submit the pending match result before creating another event.",
+                "OK");
+            return;
+        }
+
         var key = SelectedSport?.Key ?? "football";
         await Shell.Current.GoToAsync($"{AppRoutes.Create}?sport={Uri.EscapeDataString(key)}");
     }
@@ -171,5 +221,5 @@ public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth) : Base
     }
 
     [RelayCommand]
-    private async Task CreateAsync() => await Shell.Current.GoToAsync(AppRoutes.Create);
+    private async Task CreateAsync() => await CreateMatchAsync();
 }

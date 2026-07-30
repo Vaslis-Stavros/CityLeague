@@ -18,6 +18,75 @@
             <Setter Property="StrokeShape" Value="RoundRectangle 22" />
             <Setter Property="Padding" Value="18,16" />
         </Style>
+        <DataTemplate x:Key="MatchRow" x:DataType="vm:HomeMatchItem">
+            <Border Style="{StaticResource GlassPanel}"
+                    Margin="18,0"
+                    Padding="16,14">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer
+                        Command="{Binding Source={x:Reference Page}, Path=BindingContext.OpenEventCommand}"
+                        CommandParameter="{Binding .}" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto"
+                      ColumnSpacing="14"
+                      RowDefinitions="Auto,Auto,Auto"
+                      RowSpacing="6">
+                    <Border Grid.Row="0" Grid.RowSpan="3"
+                            BackgroundColor="#28FFFFFF"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 16"
+                            Padding="8,12"
+                            WidthRequest="68"
+                            VerticalOptions="Fill">
+                        <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding DayLabel}"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="11"
+                                   TextColor="#EAF7EE"
+                                   HorizontalTextAlignment="Center"
+                                   LineBreakMode="TailTruncation"
+                                   MaxLines="1" />
+                            <Label Text="{Binding TimeLabel}"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="20"
+                                   TextColor="White"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Label Grid.Row="0" Grid.Column="1"
+                           Text="{Binding Title}"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="17"
+                           TextColor="White"
+                           LineBreakMode="TailTruncation" />
+
+                    <Label Grid.Row="1" Grid.Column="1"
+                           Text="{Binding MetaLabel}"
+                           FontFamily="OutfitRegular"
+                           FontSize="13"
+                           TextColor="#D5EBD8"
+                           LineBreakMode="TailTruncation" />
+
+                    <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="4">
+                        <ProgressBar Progress="{Binding FillRatio}"
+                                     ProgressColor="{Binding Accent}"
+                                     BackgroundColor="#33FFFFFF"
+                                     HeightRequest="6" />
+                        <Label Text="{Binding SpotsLabel}"
+                               FontFamily="OutfitRegular"
+                               FontSize="12"
+                               TextColor="#E6F4EA" />
+                    </VerticalStackLayout>
+
+                    <Label Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"
+                           Text="›"
+                           FontSize="28"
+                           TextColor="#AAFFFFFF"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Border>
+        </DataTemplate>
     </ContentPage.Resources>
 
     <Grid x:Name="Root">
@@ -131,115 +200,69 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Grid Grid.Row="2"
-                  RowDefinitions="Auto,*"
-                  IsVisible="{Binding IsComingSoon, Converter={StaticResource InvertedBool}}">
-                <Label Grid.Row="0"
-                       Text="{Binding ScheduleTitle}"
-                       FontFamily="OutfitSemiBold"
-                       FontSize="18"
-                       TextColor="White"
-                       Margin="22,8,22,8" />
+            <RefreshView Grid.Row="2"
+                         IsRefreshing="{Binding IsRefreshing}"
+                         Command="{Binding RefreshCommand}"
+                         IsVisible="{Binding IsComingSoon, Converter={StaticResource InvertedBool}}">
+                <ScrollView>
+                    <VerticalStackLayout Spacing="10" Padding="0,4,0,12">
 
-                <RefreshView Grid.Row="1"
-                             IsRefreshing="{Binding IsRefreshing}"
-                             Command="{Binding RefreshCommand}">
-                    <CollectionView ItemsSource="{Binding Matches}">
-                        <CollectionView.EmptyView>
-                            <Border Style="{StaticResource GlassPanel}"
-                                    Margin="18,20"
-                                    VerticalOptions="Start">
-                                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                                    <Label Text="Pitch is clear"
-                                           FontFamily="OutfitSemiBold"
-                                           FontSize="22"
-                                           TextColor="White"
-                                           HorizontalOptions="Center" />
-                                    <Label Text="Schedule a match and invite your contacts."
-                                           FontFamily="OutfitRegular"
-                                           FontSize="14"
-                                           TextColor="#E6F4EA"
-                                           HorizontalTextAlignment="Center" />
-                                </VerticalStackLayout>
-                            </Border>
-                        </CollectionView.EmptyView>
-                        <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
-                        </CollectionView.ItemsLayout>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="vm:HomeMatchItem">
-                                <Border Style="{StaticResource GlassPanel}"
-                                        Margin="18,0"
-                                        Padding="16,14">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer
-                                            Command="{Binding Source={x:Reference Page}, Path=BindingContext.OpenEventCommand}"
-                                            CommandParameter="{Binding .}" />
-                                    </Border.GestureRecognizers>
-                                    <Grid ColumnDefinitions="Auto,*,Auto"
-                                          ColumnSpacing="14"
-                                          RowDefinitions="Auto,Auto,Auto"
-                                          RowSpacing="6">
-                                        <Border Grid.Row="0" Grid.RowSpan="3"
-                                                BackgroundColor="#28FFFFFF"
-                                                StrokeThickness="0"
-                                                StrokeShape="RoundRectangle 16"
-                                                Padding="8,12"
-                                                WidthRequest="68"
-                                                VerticalOptions="Fill">
-                                            <VerticalStackLayout VerticalOptions="Center" Spacing="2">
-                                                <Label Text="{Binding DayLabel}"
-                                                       FontFamily="OutfitSemiBold"
-                                                       FontSize="11"
-                                                       TextColor="#EAF7EE"
-                                                       HorizontalTextAlignment="Center"
-                                                       LineBreakMode="TailTruncation"
-                                                       MaxLines="1" />
-                                                <Label Text="{Binding TimeLabel}"
-                                                       FontFamily="OutfitSemiBold"
-                                                       FontSize="20"
-                                                       TextColor="White"
-                                                       HorizontalTextAlignment="Center" />
-                                            </VerticalStackLayout>
-                                        </Border>
+                        <VerticalStackLayout Spacing="10"
+                                             IsVisible="{Binding HasPendingResults}">
+                            <Label Text="Pending result"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="18"
+                                   TextColor="#F2A900"
+                                   Margin="22,8,22,0" />
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding PendingResults}"
+                                                 BindableLayout.ItemTemplate="{StaticResource MatchRow}"
+                                                 Spacing="10" />
+                        </VerticalStackLayout>
 
-                                        <Label Grid.Row="0" Grid.Column="1"
-                                               Text="{Binding Title}"
-                                               FontFamily="OutfitSemiBold"
-                                               FontSize="17"
-                                               TextColor="White"
-                                               LineBreakMode="TailTruncation" />
+                        <Label Text="{Binding ScheduleTitle}"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="18"
+                               TextColor="White"
+                               Margin="22,8,22,0"
+                               IsVisible="{Binding HasUpcoming}" />
 
-                                        <Label Grid.Row="1" Grid.Column="1"
-                                               Text="{Binding MetaLabel}"
-                                               FontFamily="OutfitRegular"
-                                               FontSize="13"
-                                               TextColor="#D5EBD8"
-                                               LineBreakMode="TailTruncation" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Matches}"
+                                             BindableLayout.ItemTemplate="{StaticResource MatchRow}"
+                                             Spacing="10"
+                                             IsVisible="{Binding HasUpcoming}" />
 
-                                        <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="4">
-                                            <ProgressBar Progress="{Binding FillRatio}"
-                                                         ProgressColor="{Binding Accent}"
-                                                         BackgroundColor="#33FFFFFF"
-                                                         HeightRequest="6" />
-                                            <Label Text="{Binding SpotsLabel}"
-                                                   FontFamily="OutfitRegular"
-                                                   FontSize="12"
-                                                   TextColor="#E6F4EA" />
-                                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="10"
+                                             IsVisible="{Binding HasIncomplete}">
+                            <Label Text="Incomplete"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="18"
+                                   TextColor="White"
+                                   Margin="22,12,22,0" />
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding IncompleteMatches}"
+                                                 BindableLayout.ItemTemplate="{StaticResource MatchRow}"
+                                                 Spacing="10" />
+                        </VerticalStackLayout>
 
-                                        <Label Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"
-                                               Text="›"
-                                               FontSize="28"
-                                               TextColor="#AAFFFFFF"
-                                               VerticalOptions="Center" />
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </RefreshView>
-            </Grid>
+                        <Border Style="{StaticResource GlassPanel}"
+                                Margin="18,20"
+                                VerticalOptions="Start"
+                                IsVisible="{Binding ShowEmptyState}">
+                            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                                <Label Text="Pitch is clear"
+                                       FontFamily="OutfitSemiBold"
+                                       FontSize="22"
+                                       TextColor="White"
+                                       HorizontalOptions="Center" />
+                                <Label Text="Schedule a match and invite your contacts."
+                                       FontFamily="OutfitRegular"
+                                       FontSize="14"
+                                       TextColor="#E6F4EA"
+                                       HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </RefreshView>
 
             <Border x:Name="CreateCta"
                     Grid.Row="3"
@@ -249,7 +272,7 @@
                     StrokeShape="RoundRectangle 24"
                     BackgroundColor="White"
                     HeightRequest="54"
-                    IsVisible="{Binding IsComingSoon, Converter={StaticResource InvertedBool}}">
+                    IsVisible="{Binding CanCreateMatch}">
                 <Border.Shadow>
                     <Shadow Brush="#40000000" Offset="0,8" Radius="18" Opacity="0.28" />
                 </Border.Shadow>

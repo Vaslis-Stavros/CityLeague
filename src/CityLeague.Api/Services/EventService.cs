@@ -62,6 +62,8 @@ public class EventService(
         if (format.Sport!.Availability != SportAvailability.Enabled)
             throw ServiceException.BadRequest($"{format.Sport.Name} is coming soon.");
 
+        await EnforceOutstandingResultGateAsync(ownerId, ct);
+
         if (request.SeriesId is Guid seriesId)
             await EnforceResultGatingAsync(ownerId, seriesId, ct);
 
@@ -121,6 +123,19 @@ public class EventService(
         return await GetEventAsync(ownerId, ev.Id, ct) ?? throw ServiceException.NotFound();
     }
 
+    private async Task EnforceOutstandingResultGateAsync(Guid ownerId, CancellationToken ct)
+    {
+        await SyncLifecycleAsync(ownerId, ct);
+        var now = DateTimeOffset.UtcNow;
+        var pending = await _db.Events.AnyAsync(e =>
+            e.OwnerUserId == ownerId
+            && e.Status == EventStatus.Locked
+            && e.ScheduledAt < now
+            && e.Result == null, ct);
+        if (pending)
+            throw ServiceException.Conflict("Submit the pending match result before creating another event.");
+    }
+
     private async Task EnforceResultGatingAsync(Guid ownerId, Guid seriesId, CancellationToken ct)
     {
         var series = await _db.EventSeries.FirstOrDefaultAsync(s => s.Id == seriesId, ct)
@@ -129,7 +144,7 @@ public class EventService(
             throw ServiceException.Forbidden("Only the series owner can add matches.");
 
         var last = await _db.Events
-            .Where(e => e.SeriesId == seriesId && e.Status != EventStatus.Cancelled)
+            .Where(e => e.SeriesId == seriesId && e.Status != EventStatus.Cancelled && e.Status != EventStatus.Incomplete)
             .OrderByDescending(e => e.CreatedAt)
             .FirstOrDefaultAsync(ct);
 
@@ -137,10 +152,30 @@ public class EventService(
             throw ServiceException.Conflict("Submit result for the previous match first.");
     }
 
+    /// <summary>Open events past kickoff become Incomplete; locked past events stay Locked (pending result).</summary>
+    private async Task SyncLifecycleAsync(Guid userId, CancellationToken ct)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var stale = await _db.Events
+            .Where(e => e.Status == EventStatus.Open
+                        && e.ScheduledAt < now
+                        && e.Participants.Any(p => p.UserId == userId))
+            .ToListAsync(ct);
+        if (stale.Count == 0) return;
+
+        foreach (var ev in stale)
+            ev.Status = EventStatus.Incomplete;
+        await _db.SaveChangesAsync(ct);
+    }
+
     public async Task<List<EventSummaryDto>> GetMyEventsAsync(Guid userId, CancellationToken ct = default)
     {
+        await SyncLifecycleAsync(userId, ct);
+        var now = DateTimeOffset.UtcNow;
+
         var events = await _db.Events
-            .Where(e => (e.Status == EventStatus.Open || e.Status == EventStatus.InProgress)
+            .Where(e => (e.Status == EventStatus.Open || e.Status == EventStatus.Locked)
+                        && e.ScheduledAt >= now
                         && e.Participants.Any(p => p.UserId == userId))
             .Include(e => e.Sport)
             .Include(e => e.EventFormat)
@@ -148,7 +183,41 @@ public class EventService(
             .OrderBy(e => e.ScheduledAt)
             .ToListAsync(ct);
 
-        return events.Select(e => ToSummary(e, userId)).ToList();
+        return events.Select(e => ToSummary(e, userId, now)).ToList();
+    }
+
+    public async Task<List<EventSummaryDto>> GetIncompleteEventsAsync(Guid userId, CancellationToken ct = default)
+    {
+        await SyncLifecycleAsync(userId, ct);
+
+        var events = await _db.Events
+            .Where(e => e.Status == EventStatus.Incomplete && e.Participants.Any(p => p.UserId == userId))
+            .Include(e => e.Sport)
+            .Include(e => e.EventFormat)
+            .Include(e => e.Positions)
+            .OrderByDescending(e => e.ScheduledAt)
+            .ToListAsync(ct);
+
+        return events.Select(e => ToSummary(e, userId, DateTimeOffset.UtcNow)).ToList();
+    }
+
+    public async Task<List<EventSummaryDto>> GetPendingResultEventsAsync(Guid userId, CancellationToken ct = default)
+    {
+        await SyncLifecycleAsync(userId, ct);
+        var now = DateTimeOffset.UtcNow;
+
+        var events = await _db.Events
+            .Where(e => e.OwnerUserId == userId
+                        && e.Status == EventStatus.Locked
+                        && e.ScheduledAt < now
+                        && e.Result == null)
+            .Include(e => e.Sport)
+            .Include(e => e.EventFormat)
+            .Include(e => e.Positions)
+            .OrderBy(e => e.ScheduledAt)
+            .ToListAsync(ct);
+
+        return events.Select(e => ToSummary(e, userId, now)).ToList();
     }
 
     public async Task<List<EventSummaryDto>> GetPastEventsAsync(Guid userId, CancellationToken ct = default)
@@ -162,7 +231,7 @@ public class EventService(
             .OrderByDescending(e => e.Result!.SubmittedAt)
             .ToListAsync(ct);
 
-        return events.Select(e => ToSummary(e, userId)).ToList();
+        return events.Select(e => ToSummary(e, userId, DateTimeOffset.UtcNow)).ToList();
     }
 
     public async Task DeleteEventAsync(Guid ownerId, Guid eventId, CancellationToken ct = default)
@@ -175,27 +244,152 @@ public class EventService(
         if (ev.OwnerUserId != ownerId)
             throw ServiceException.Forbidden("Only the organizer can delete this event.");
         if (ev.Status == EventStatus.Completed)
-            throw ServiceException.Conflict("Completed events appear in Past events and cannot be deleted.");
+            throw ServiceException.Conflict("Completed events appear in History and cannot be deleted.");
 
         _db.Events.Remove(ev);
         await _db.SaveChangesAsync(ct);
     }
 
-    private static EventSummaryDto ToSummary(Event e, Guid userId) => new(
-        e.Id,
-        e.Title,
-        e.Sport!.Key,
-        e.EventFormat!.Name,
-        e.ScheduledAt,
-        e.Location,
-        e.Status.ToString(),
-        e.Positions.Count(p => p.UserId != null),
-        e.Positions.Count,
-        e.OwnerUserId == userId,
-        ApiMapper.ToResultDto(e.Result));
+    public async Task LeaveEventAsync(Guid userId, Guid eventId, CancellationToken ct = default)
+    {
+        var ev = await _db.Events
+            .Include(e => e.Participants)
+            .Include(e => e.Positions)
+            .FirstOrDefaultAsync(e => e.Id == eventId, ct)
+            ?? throw ServiceException.NotFound("Event not found.");
+
+        if (ev.OwnerUserId == userId)
+            throw ServiceException.Conflict("Organizers can't leave — delete or reschedule the match instead.");
+        if (ev.Status == EventStatus.Completed)
+            throw ServiceException.Conflict("Completed matches stay in History.");
+        if (ev.Status == EventStatus.Locked)
+            throw ServiceException.Conflict("This match is locked — you can't leave the roster.");
+
+        var part = ev.Participants.FirstOrDefault(p => p.UserId == userId)
+            ?? throw ServiceException.NotFound("You are not in this match.");
+
+        foreach (var pos in ev.Positions.Where(p => p.UserId == userId))
+        {
+            pos.UserId = null;
+            pos.ClaimedAt = null;
+        }
+
+        _db.EventParticipants.Remove(part);
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task<EventDetailDto> UpdateEventAsync(Guid userId, Guid eventId, UpdateEventRequest request, CancellationToken ct = default)
+    {
+        var ev = await _db.Events
+            .Include(e => e.Participants)
+            .FirstOrDefaultAsync(e => e.Id == eventId, ct)
+            ?? throw ServiceException.NotFound("Event not found.");
+
+        if (ev.OwnerUserId != userId)
+            throw ServiceException.Forbidden("Only the organizer can edit this match.");
+        if (ev.Status is EventStatus.Completed or EventStatus.Cancelled)
+            throw ServiceException.Conflict("This match can't be edited.");
+
+        if (!string.IsNullOrWhiteSpace(request.Title))
+            ev.Title = request.Title.Trim();
+        if (request.Location is not null)
+            ev.Location = string.IsNullOrWhiteSpace(request.Location) ? null : request.Location.Trim();
+
+        if (request.ScheduledAt is DateTimeOffset when)
+        {
+            ev.ScheduledAt = when;
+            var now = DateTimeOffset.UtcNow;
+            if (ev.Status == EventStatus.Incomplete && when >= now)
+                ev.Status = EventStatus.Open;
+            else if (ev.Status == EventStatus.Open && when < now)
+                ev.Status = EventStatus.Incomplete;
+            else if (ev.Status == EventStatus.Locked && when < now)
+            {
+                // stays Locked → pending result
+            }
+            else if (ev.Status == EventStatus.Locked && when >= now)
+            {
+                // remains Locked but back in upcoming
+            }
+        }
+
+        await _db.SaveChangesAsync(ct);
+        return await GetEventAsync(userId, eventId, ct) ?? throw ServiceException.NotFound();
+    }
+
+    public async Task<EventDetailDto> LockEventAsync(Guid userId, Guid eventId, CancellationToken ct = default)
+    {
+        var ev = await LoadEventGraphAsync(eventId, ct);
+        if (ev.OwnerUserId != userId)
+            throw ServiceException.Forbidden("Only the organizer can lock the match.");
+        if (ev.Status != EventStatus.Open)
+            throw ServiceException.Conflict("Only open matches can be locked.");
+        if (ev.ScheduledAt < DateTimeOffset.UtcNow)
+            throw ServiceException.Conflict("This match is already past kickoff.");
+
+        var claimed = ev.Positions.Count(p => p.UserId != null);
+        if (claimed != ev.Positions.Count || ev.Positions.Count == 0)
+            throw ServiceException.Conflict("Fill every spot before locking.");
+
+        ev.Status = EventStatus.Locked;
+        await _db.SaveChangesAsync(ct);
+        return await GetEventAsync(userId, eventId, ct) ?? throw ServiceException.NotFound();
+    }
+
+    public async Task<EventDetailDto> UnlockEventAsync(Guid userId, Guid eventId, CancellationToken ct = default)
+    {
+        var ev = await LoadEventGraphAsync(eventId, ct);
+        if (ev.OwnerUserId != userId)
+            throw ServiceException.Forbidden("Only the organizer can unlock the match.");
+        if (ev.Status != EventStatus.Locked)
+            throw ServiceException.Conflict("This match is not locked.");
+        if (ev.ScheduledAt < DateTimeOffset.UtcNow)
+            throw ServiceException.Conflict("Past locked matches need a result — they can't be unlocked.");
+
+        ev.Status = EventStatus.Open;
+        await _db.SaveChangesAsync(ct);
+        return await GetEventAsync(userId, eventId, ct) ?? throw ServiceException.NotFound();
+    }
+
+    private async Task<Event> LoadEventGraphAsync(Guid eventId, CancellationToken ct)
+        => await _db.Events
+            .Include(e => e.Positions)
+            .Include(e => e.Participants)
+            .FirstOrDefaultAsync(e => e.Id == eventId, ct)
+           ?? throw ServiceException.NotFound("Event not found.");
+
+    private static string StatusLabel(EventStatus status) => status switch
+    {
+        EventStatus.Locked => "Locked",
+        EventStatus.Incomplete => "Incomplete",
+        _ => status.ToString(),
+    };
+
+    private static EventSummaryDto ToSummary(Event e, Guid userId, DateTimeOffset now)
+    {
+        var pending = e.OwnerUserId == userId
+                      && e.Status == EventStatus.Locked
+                      && e.ScheduledAt < now
+                      && e.Result is null;
+        return new(
+            e.Id,
+            e.Title,
+            e.Sport!.Key,
+            e.EventFormat!.Name,
+            e.ScheduledAt,
+            e.Location,
+            StatusLabel(e.Status),
+            e.Positions.Count(p => p.UserId != null),
+            e.Positions.Count,
+            e.OwnerUserId == userId,
+            pending,
+            ApiMapper.ToResultDto(e.Result));
+    }
 
     public async Task<EventDetailDto?> GetEventAsync(Guid userId, Guid eventId, CancellationToken ct = default)
     {
+        await SyncLifecycleAsync(userId, ct);
+
         var ev = await _db.Events
             .Include(e => e.Sport)
             .Include(e => e.EventFormat)
@@ -210,6 +404,26 @@ public class EventService(
         if (me is null)
             throw ServiceException.Forbidden("You are not part of this event.");
 
+        return ToDetail(ev, userId, me);
+    }
+
+    private EventDetailDto ToDetail(Event ev, Guid userId, EventParticipant me)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var isOwner = ev.OwnerUserId == userId;
+        var claimed = ev.Positions.Count(p => p.UserId != null);
+        var total = ev.Positions.Count;
+        var isFull = total > 0 && claimed == total;
+        var isPast = ev.ScheduledAt < now;
+        var isPending = isOwner && ev.Status == EventStatus.Locked && isPast && ev.Result is null;
+        var canLock = isOwner && ev.Status == EventStatus.Open && isFull && !isPast;
+        var canUnlock = isOwner && ev.Status == EventStatus.Locked && !isPast;
+        var canEditSchedule = isOwner && ev.Status is EventStatus.Open or EventStatus.Locked or EventStatus.Incomplete;
+        var canSubmit = isOwner && ev.Status == EventStatus.Locked && isPast && ev.Result is null;
+        var canLeave = !isOwner && ev.Status is EventStatus.Open or EventStatus.Incomplete;
+        var canDelete = isOwner && ev.Status is not EventStatus.Completed;
+        var canInvite = me.CanInvite && ev.Status == EventStatus.Open && !isPast;
+
         return new EventDetailDto(
             ev.Id,
             ev.Title,
@@ -220,13 +434,22 @@ public class EventService(
             ev.EventFormat.PlayersPerSide,
             ev.ScheduledAt,
             ev.Location,
-            ev.Status.ToString(),
-            ev.OwnerUserId == userId,
-            me.CanInvite,
+            StatusLabel(ev.Status),
+            isOwner,
+            canInvite,
             ev.OwnerUserId,
             ev.Positions.OrderBy(p => p.Side).ThenBy(p => p.X).Select(_mapper.ToPositionDto).ToList(),
             ev.Participants.Select(p => _mapper.ToParticipantDto(p, ev.OwnerUserId)).ToList(),
-            ApiMapper.ToResultDto(ev.Result));
+            ApiMapper.ToResultDto(ev.Result),
+            isFull,
+            isPast,
+            isPending,
+            canLock,
+            canUnlock,
+            canEditSchedule,
+            canSubmit,
+            canLeave,
+            canDelete);
     }
 
     // ---- Participation ----
@@ -244,8 +467,10 @@ public class EventService(
             .FirstOrDefaultAsync(e => e.Id == eventId, ct)
             ?? throw ServiceException.NotFound("Event not found.");
 
-        if (ev.Status is EventStatus.Completed or EventStatus.Cancelled)
-            throw ServiceException.Conflict("This event is closed.");
+        if (ev.Status is not EventStatus.Open)
+            throw ServiceException.Conflict("Invites are only open before the match is locked.");
+        if (ev.ScheduledAt < DateTimeOffset.UtcNow)
+            throw ServiceException.Conflict("This match is past kickoff.");
 
         var me = ev.Participants.FirstOrDefault(p => p.UserId == actingUserId)
             ?? throw ServiceException.Forbidden("You are not part of this event.");
@@ -301,10 +526,17 @@ public class EventService(
     {
         var ev = await _db.Events.FirstOrDefaultAsync(e => e.Id == eventId, ct)
             ?? throw ServiceException.NotFound("Event not found.");
-        if (ev.Status is EventStatus.Completed or EventStatus.Cancelled)
+        if (ev.Status is EventStatus.Completed or EventStatus.Cancelled or EventStatus.Incomplete)
             throw ServiceException.Conflict("This event is closed.");
 
         await EnsureParticipantAsync(userId, eventId, ct);
+
+        if (ev.Status == EventStatus.Locked)
+        {
+            var alreadyOnPitch = await _db.EventPositions.AnyAsync(p => p.EventId == eventId && p.UserId == userId, ct);
+            if (!alreadyOnPitch)
+                throw ServiceException.Conflict("This match is locked — only position swaps are allowed.");
+        }
 
         var target = await _db.EventPositions.AsNoTracking()
             .FirstOrDefaultAsync(p => p.EventId == eventId && p.SlotId == slotId, ct)
@@ -346,8 +578,10 @@ public class EventService(
     {
         var ev = await _db.Events.FirstOrDefaultAsync(e => e.Id == eventId, ct)
             ?? throw ServiceException.NotFound("Event not found.");
-        if (ev.Status is EventStatus.Completed or EventStatus.Cancelled)
+        if (ev.Status is EventStatus.Completed or EventStatus.Cancelled or EventStatus.Incomplete)
             throw ServiceException.Conflict("This event is closed.");
+        if (ev.Status == EventStatus.Locked)
+            throw ServiceException.Conflict("This match is locked — swap into another spot instead of leaving empty.");
 
         await EnsureParticipantAsync(userId, eventId, ct);
 
@@ -391,6 +625,10 @@ public class EventService(
             throw ServiceException.Forbidden("Only the organizer can submit the result.");
         if (ev.Result is not null || ev.Status == EventStatus.Completed)
             throw ServiceException.Conflict("Result already submitted.");
+        if (ev.Status != EventStatus.Locked)
+            throw ServiceException.Conflict("Lock the match and wait until kickoff before submitting a result.");
+        if (ev.ScheduledAt >= DateTimeOffset.UtcNow)
+            throw ServiceException.Conflict("Results can be submitted after kickoff.");
         if (ev.Status == EventStatus.Cancelled)
             throw ServiceException.Conflict("This event was cancelled.");
 

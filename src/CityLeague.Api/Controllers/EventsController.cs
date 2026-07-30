@@ -16,6 +16,14 @@ public class EventsController(EventService events, ICurrentUser currentUser) : C
     public async Task<ActionResult<IReadOnlyList<EventSummaryDto>>> List(CancellationToken ct)
         => await events.GetMyEventsAsync(currentUser.UserId, ct);
 
+    [HttpGet("incomplete")]
+    public async Task<ActionResult<IReadOnlyList<EventSummaryDto>>> Incomplete(CancellationToken ct)
+        => await events.GetIncompleteEventsAsync(currentUser.UserId, ct);
+
+    [HttpGet("pending-results")]
+    public async Task<ActionResult<IReadOnlyList<EventSummaryDto>>> PendingResults(CancellationToken ct)
+        => await events.GetPendingResultEventsAsync(currentUser.UserId, ct);
+
     [HttpGet("past")]
     public async Task<ActionResult<IReadOnlyList<EventSummaryDto>>> Past(CancellationToken ct)
         => await events.GetPastEventsAsync(currentUser.UserId, ct);
@@ -30,6 +38,18 @@ public class EventsController(EventService events, ICurrentUser currentUser) : C
         var detail = await events.CreateEventAsync(currentUser.UserId, request, ct);
         return CreatedAtAction(nameof(Get), new { id = detail.Id }, detail);
     }
+
+    [HttpPatch("{id:guid}")]
+    public async Task<ActionResult<EventDetailDto>> Update(Guid id, [FromBody] UpdateEventRequest request, CancellationToken ct)
+        => await events.UpdateEventAsync(currentUser.UserId, id, request, ct);
+
+    [HttpPost("{id:guid}/lock")]
+    public async Task<ActionResult<EventDetailDto>> Lock(Guid id, CancellationToken ct)
+        => await events.LockEventAsync(currentUser.UserId, id, ct);
+
+    [HttpPost("{id:guid}/unlock")]
+    public async Task<ActionResult<EventDetailDto>> Unlock(Guid id, CancellationToken ct)
+        => await events.UnlockEventAsync(currentUser.UserId, id, ct);
 
     [HttpPost("{id:guid}/invite")]
     public async Task<ActionResult<IReadOnlyList<ParticipantDto>>> Invite(Guid id, [FromBody] InviteRequest request, CancellationToken ct)
@@ -46,6 +66,13 @@ public class EventsController(EventService events, ICurrentUser currentUser) : C
     [HttpPost("{id:guid}/result")]
     public async Task<ActionResult<ResultDto>> SubmitResult(Guid id, [FromBody] SubmitResultRequest request, CancellationToken ct)
         => await events.SubmitResultAsync(currentUser.UserId, id, request, ct);
+
+    [HttpDelete("{id:guid}/participation")]
+    public async Task<IActionResult> Leave(Guid id, CancellationToken ct)
+    {
+        await events.LeaveEventAsync(currentUser.UserId, id, ct);
+        return NoContent();
+    }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)

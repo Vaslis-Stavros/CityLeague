@@ -1,6 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using CityLeague.Core.Dtos;
+using CityLeague.Core.Enums;
+using CityLeague.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace CityLeague.Api.Tests;
@@ -91,6 +95,14 @@ public class LeagueFlowTests
         evResponse.EnsureSuccessStatusCode();
         var ev = await evResponse.Content.ReadFromJsonAsync<EventDetailDto>();
         await owner.Client.PostAsync($"/api/events/{ev!.Id}/positions/h_gk/claim", null);
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<CityLeagueDbContext>();
+            var entity = await db.Events.FirstAsync(e => e.Id == ev.Id);
+            entity.Status = EventStatus.Locked;
+            entity.ScheduledAt = DateTimeOffset.UtcNow.AddHours(-1);
+            await db.SaveChangesAsync();
+        }
         var result = await owner.Client.PostAsJsonAsync($"/api/events/{ev.Id}/result", new SubmitResultRequest(2, 1));
         result.EnsureSuccessStatusCode();
 

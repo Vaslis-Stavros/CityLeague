@@ -28,10 +28,16 @@ public interface ICityLeagueApi
     Task<SeriesDto> CreateSeriesAsync(CreateSeriesRequest request, CancellationToken ct = default);
 
     Task<IReadOnlyList<EventSummaryDto>> GetEventsAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<EventSummaryDto>> GetIncompleteEventsAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<EventSummaryDto>> GetPendingResultEventsAsync(CancellationToken ct = default);
     Task<IReadOnlyList<EventSummaryDto>> GetPastEventsAsync(CancellationToken ct = default);
     Task<EventDetailDto> GetEventAsync(Guid id, CancellationToken ct = default);
     Task<EventDetailDto> CreateEventAsync(CreateEventRequest request, CancellationToken ct = default);
+    Task<EventDetailDto> UpdateEventAsync(Guid eventId, UpdateEventRequest request, CancellationToken ct = default);
+    Task<EventDetailDto> LockEventAsync(Guid eventId, CancellationToken ct = default);
+    Task<EventDetailDto> UnlockEventAsync(Guid eventId, CancellationToken ct = default);
     Task DeleteEventAsync(Guid eventId, CancellationToken ct = default);
+    Task LeaveEventAsync(Guid eventId, CancellationToken ct = default);
     Task<IReadOnlyList<ParticipantDto>> InviteAsync(Guid eventId, IReadOnlyList<Guid> userIds, CancellationToken ct = default);
     Task ClaimPositionAsync(Guid eventId, string slotId, CancellationToken ct = default);
     Task ReleasePositionAsync(Guid eventId, string slotId, CancellationToken ct = default);
@@ -108,6 +114,12 @@ public class CityLeagueApi(HttpClient http) : ICityLeagueApi
     public async Task<IReadOnlyList<EventSummaryDto>> GetEventsAsync(CancellationToken ct = default)
         => await GetAsync<List<EventSummaryDto>>("/api/events", ct);
 
+    public async Task<IReadOnlyList<EventSummaryDto>> GetIncompleteEventsAsync(CancellationToken ct = default)
+        => await GetAsync<List<EventSummaryDto>>("/api/events/incomplete", ct);
+
+    public async Task<IReadOnlyList<EventSummaryDto>> GetPendingResultEventsAsync(CancellationToken ct = default)
+        => await GetAsync<List<EventSummaryDto>>("/api/events/pending-results", ct);
+
     public async Task<IReadOnlyList<EventSummaryDto>> GetPastEventsAsync(CancellationToken ct = default)
         => await GetAsync<List<EventSummaryDto>>("/api/events/past", ct);
 
@@ -117,8 +129,20 @@ public class CityLeagueApi(HttpClient http) : ICityLeagueApi
     public Task<EventDetailDto> CreateEventAsync(CreateEventRequest request, CancellationToken ct = default)
         => SendJsonAsync<EventDetailDto>(HttpMethod.Post, "/api/events", request, ct);
 
+    public Task<EventDetailDto> UpdateEventAsync(Guid eventId, UpdateEventRequest request, CancellationToken ct = default)
+        => SendJsonAsync<EventDetailDto>(HttpMethod.Patch, $"/api/events/{eventId}", request, ct);
+
+    public Task<EventDetailDto> LockEventAsync(Guid eventId, CancellationToken ct = default)
+        => SendJsonAsync<EventDetailDto>(HttpMethod.Post, $"/api/events/{eventId}/lock", null, ct);
+
+    public Task<EventDetailDto> UnlockEventAsync(Guid eventId, CancellationToken ct = default)
+        => SendJsonAsync<EventDetailDto>(HttpMethod.Post, $"/api/events/{eventId}/unlock", null, ct);
+
     public Task DeleteEventAsync(Guid eventId, CancellationToken ct = default)
         => SendAsync(HttpMethod.Delete, $"/api/events/{eventId}", ct);
+
+    public Task LeaveEventAsync(Guid eventId, CancellationToken ct = default)
+        => SendAsync(HttpMethod.Delete, $"/api/events/{eventId}/participation", ct);
 
     public async Task<IReadOnlyList<ParticipantDto>> InviteAsync(Guid eventId, IReadOnlyList<Guid> userIds, CancellationToken ct = default)
         => await SendJsonAsync<List<ParticipantDto>>(HttpMethod.Post, $"/api/events/{eventId}/invite", new InviteRequest(userIds), ct);

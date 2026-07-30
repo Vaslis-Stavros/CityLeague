@@ -19,9 +19,12 @@ public enum ContactStatus
 public enum EventStatus
 {
     Open = 0,
-    InProgress = 1,
+    /// <summary>Roster locked by organizer; only position swaps allowed.</summary>
+    Locked = 1,
     Completed = 2,
     Cancelled = 3,
+    /// <summary>Past kickoff without having been locked; needs delete or reschedule.</summary>
+    Incomplete = 4,
 }
 
 /// <summary>Which side of the pitch a slot or player belongs to.</summary>

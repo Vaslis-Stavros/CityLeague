@@ -17,6 +17,22 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
     public ObservableCollection<SelectableContact> InviteCandidates { get; } = [];
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Title))]
+    [NotifyPropertyChangedFor(nameof(ScheduleLabel))]
+    [NotifyPropertyChangedFor(nameof(StatusText))]
+    [NotifyPropertyChangedFor(nameof(IsOwner))]
+    [NotifyPropertyChangedFor(nameof(CanInvite))]
+    [NotifyPropertyChangedFor(nameof(CanSubmitResult))]
+    [NotifyPropertyChangedFor(nameof(CanDelete))]
+    [NotifyPropertyChangedFor(nameof(CanLock))]
+    [NotifyPropertyChangedFor(nameof(CanUnlock))]
+    [NotifyPropertyChangedFor(nameof(CanEditSchedule))]
+    [NotifyPropertyChangedFor(nameof(CanLeave))]
+    [NotifyPropertyChangedFor(nameof(IsPendingResult))]
+    [NotifyPropertyChangedFor(nameof(IsReadOnly))]
+    [NotifyPropertyChangedFor(nameof(PitchReadOnly))]
+    [NotifyPropertyChangedFor(nameof(ResultText))]
+    [NotifyPropertyChangedFor(nameof(HintText))]
     private EventDetailDto? detail;
 
     [ObservableProperty]
@@ -26,15 +42,13 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
     private Guid? currentUserId;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanSubmitResult))]
-    [NotifyPropertyChangedFor(nameof(IsCompleted))]
-    [NotifyPropertyChangedFor(nameof(CanDelete))]
-    [NotifyPropertyChangedFor(nameof(IsReadOnly))]
-    [NotifyPropertyChangedFor(nameof(StatusText))]
     private string status = "Open";
 
     [ObservableProperty]
     private bool showInvitePanel;
+
+    [ObservableProperty]
+    private bool showScheduleEditor;
 
     [ObservableProperty]
     private bool forceReadOnly;
@@ -42,18 +56,47 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
     [ObservableProperty]
     private string inviteSearchQuery = string.Empty;
 
+    [ObservableProperty]
+    private DateTime editDate = DateTime.Today;
+
+    [ObservableProperty]
+    private TimeSpan editTime = TimeSpan.FromHours(18);
+
     public string Title => Detail?.Title ?? "Event";
-    public string StatusText => Status;
+    public string StatusText => Detail?.Status ?? Status;
+    public string ScheduleLabel
+    {
+        get
+        {
+            if (Detail is null) return string.Empty;
+            var local = Detail.ScheduledAt.ToLocalTime();
+            return $"{local:ddd d MMM} · {local:HH:mm}";
+        }
+    }
+
     public bool IsOwner => Detail?.IsOwner ?? false;
-    public bool CanInvite => !IsReadOnly && (Detail?.CanInvite ?? false);
-    public bool IsCompleted => string.Equals(Status, "Completed", StringComparison.OrdinalIgnoreCase);
-    public bool IsReadOnly => ForceReadOnly || IsCompleted ||
-        string.Equals(Status, "Cancelled", StringComparison.OrdinalIgnoreCase);
-    public bool CanSubmitResult => IsOwner && !IsReadOnly &&
-        !string.Equals(Status, "Cancelled", StringComparison.OrdinalIgnoreCase);
-    public bool CanDelete => IsOwner && !IsCompleted &&
-        !string.Equals(Status, "Cancelled", StringComparison.OrdinalIgnoreCase);
+    public bool CanInvite => !ForceReadOnly && (Detail?.CanInvite ?? false);
+    public bool IsCompleted => string.Equals(Detail?.Status, "Completed", StringComparison.OrdinalIgnoreCase);
+    public bool IsReadOnly => ForceReadOnly || IsCompleted;
+    public bool PitchReadOnly => IsReadOnly || string.Equals(Detail?.Status, "Incomplete", StringComparison.OrdinalIgnoreCase);
+    public bool CanSubmitResult => !ForceReadOnly && (Detail?.CanSubmitResult ?? false);
+    public bool CanDelete => !ForceReadOnly && (Detail?.CanDelete ?? false);
+    public bool CanLock => !ForceReadOnly && (Detail?.CanLock ?? false);
+    public bool CanUnlock => !ForceReadOnly && (Detail?.CanUnlock ?? false);
+    public bool CanEditSchedule => !ForceReadOnly && (Detail?.CanEditSchedule ?? false);
+    public bool CanLeave => !ForceReadOnly && (Detail?.CanLeave ?? false);
+    public bool IsPendingResult => Detail?.IsPendingResult ?? false;
     public string? ResultText => Detail?.Result is { } r ? $"{r.HomeScore} - {r.AwayScore} ({r.WinningSide})" : null;
+
+    public string HintText => Detail?.Status switch
+    {
+        "Locked" when Detail.IsPast => "Kickoff passed — submit the result to finish this match.",
+        "Locked" => "Roster locked. Players can still swap positions.",
+        "Incomplete" => "Kickoff passed without a lock. Reschedule or delete.",
+        "Completed" => "Final lineup and result.",
+        _ => "Tap an open spot to claim it — tap yours to leave.",
+    };
+
     public bool HasInviteCandidates => _allInviteCandidates.Count > 0;
     public bool HasFilteredInviteCandidates => InviteCandidates.Count > 0;
     public bool ShowInviteSearchEmpty => HasInviteCandidates && !HasFilteredInviteCandidates;
@@ -73,7 +116,7 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
     {
         CurrentUserId = auth.CurrentUser?.Id;
         await LoadAsync();
-        if (!IsReadOnly)
+        if (!PitchReadOnly)
             await ConnectHubAsync();
     }
 
@@ -82,36 +125,33 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
     {
         await RunAsync(async () =>
         {
-            var detail = await api.GetEventAsync(_eventId);
-            Detail = detail;
-            Status = detail.Status;
-            Positions = detail.Positions;
-
-            Participants.Clear();
-            foreach (var p in detail.Participants)
-                Participants.Add(p);
-
-            OnPropertyChanged(nameof(Title));
-            OnPropertyChanged(nameof(IsOwner));
-            OnPropertyChanged(nameof(CanInvite));
-            OnPropertyChanged(nameof(CanDelete));
-            OnPropertyChanged(nameof(IsReadOnly));
-            OnPropertyChanged(nameof(ResultText));
-
-            if (!IsReadOnly)
+            ApplyDetail(await api.GetEventAsync(_eventId));
+            if (CanInvite)
                 await LoadInviteCandidatesAsync();
         });
+    }
+
+    private void ApplyDetail(EventDetailDto detail)
+    {
+        Detail = detail;
+        Status = detail.Status;
+        Positions = detail.Positions;
+        var local = detail.ScheduledAt.ToLocalTime();
+        EditDate = local.Date;
+        EditTime = local.TimeOfDay;
+
+        Participants.Clear();
+        foreach (var p in detail.Participants)
+            Participants.Add(p);
     }
 
     private async Task LoadInviteCandidatesAsync()
     {
         if (!CanInvite) return;
-
         try
         {
             var contacts = await api.GetContactsAsync();
             var participantIds = Participants.Select(p => p.UserId).ToHashSet();
-
             _allInviteCandidates.Clear();
             foreach (var c in contacts)
             {
@@ -119,15 +159,11 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
                     && !participantIds.Contains(c.User.Id))
                     _allInviteCandidates.Add(new SelectableContact(c.User));
             }
-
             InviteSearchQuery = string.Empty;
             ApplyInviteFilter();
             OnPropertyChanged(nameof(HasInviteCandidates));
         }
-        catch
-        {
-            // Non-critical.
-        }
+        catch { /* non-critical */ }
     }
 
     private void ApplyInviteFilter()
@@ -144,15 +180,13 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
         InviteCandidates.Clear();
         foreach (var c in filtered.OrderBy(c => c.User.DisplayName))
             InviteCandidates.Add(c);
-
         OnPropertyChanged(nameof(HasFilteredInviteCandidates));
         OnPropertyChanged(nameof(ShowInviteSearchEmpty));
     }
 
     private async Task ConnectHubAsync()
     {
-        if (_hubStarted || IsReadOnly) return;
-
+        if (_hubStarted || PitchReadOnly) return;
         try
         {
             hub.PositionChanged += OnPositionChanged;
@@ -161,10 +195,7 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
             await hub.StartAsync(_eventId);
             _hubStarted = true;
         }
-        catch
-        {
-            // Live updates unavailable; the screen still works via manual refresh.
-        }
+        catch { /* live updates optional */ }
     }
 
     [RelayCommand]
@@ -180,7 +211,7 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
     [RelayCommand]
     private async Task SlotTappedAsync(string slotId)
     {
-        if (IsReadOnly) return;
+        if (PitchReadOnly) return;
         var slot = Positions.FirstOrDefault(p => p.SlotId == slotId);
         if (slot is null || IsCompleted) return;
 
@@ -190,7 +221,6 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
                 await api.ReleasePositionAsync(_eventId, slotId);
             else if (slot.UserId is null)
                 await api.ClaimPositionAsync(_eventId, slotId);
-
             if (!_hubStarted)
                 await LoadAsync();
         });
@@ -208,20 +238,57 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
     }
 
     [RelayCommand]
+    private void ToggleScheduleEditor()
+    {
+        if (!CanEditSchedule) return;
+        ShowScheduleEditor = !ShowScheduleEditor;
+    }
+
+    [RelayCommand]
+    private async Task SaveScheduleAsync()
+    {
+        if (!CanEditSchedule) return;
+        var local = DateTime.SpecifyKind(EditDate.Date + EditTime, DateTimeKind.Local);
+        await RunAsync(async () =>
+        {
+            ApplyDetail(await api.UpdateEventAsync(_eventId, new UpdateEventRequest(ScheduledAt: new DateTimeOffset(local))));
+            ShowScheduleEditor = false;
+        });
+    }
+
+    [RelayCommand]
     private async Task InviteSelectedAsync()
     {
         var ids = InviteCandidates.Where(c => c.IsSelected).Select(c => c.User.Id).ToList();
         if (ids.Count == 0) return;
-
         await RunAsync(async () =>
         {
             await api.InviteAsync(_eventId, ids);
-
             _allInviteCandidates.RemoveAll(c => ids.Contains(c.User.Id));
             ApplyInviteFilter();
             ShowInvitePanel = false;
             OnPropertyChanged(nameof(HasInviteCandidates));
+            await LoadAsync();
         });
+    }
+
+    [RelayCommand]
+    private async Task LockAsync()
+    {
+        if (!CanLock) return;
+        var confirmed = await Shell.Current.DisplayAlert(
+            "Lock match?",
+            "The roster will freeze. Players can still swap positions. After kickoff you'll submit the result.",
+            "Lock", "Cancel");
+        if (!confirmed) return;
+        await RunAsync(async () => ApplyDetail(await api.LockEventAsync(_eventId)));
+    }
+
+    [RelayCommand]
+    private async Task UnlockAsync()
+    {
+        if (!CanUnlock) return;
+        await RunAsync(async () => ApplyDetail(await api.UnlockEventAsync(_eventId)));
     }
 
     [RelayCommand]
@@ -232,15 +299,11 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
     private async Task DeleteAsync()
     {
         if (!CanDelete) return;
-
-        var hasOtherUsers = Participants.Count > 1 || Positions.Any(p => p.UserId.HasValue);
-        var message = hasOtherUsers
-            ? "Players have already joined or claimed positions. Are you sure you want to delete this match?"
-            : "This match will be permanently deleted.";
-
-        var confirmed = await Shell.Current.DisplayAlert("Delete match?", message, "Delete", "Cancel");
+        var confirmed = await Shell.Current.DisplayAlert(
+            "Delete match?",
+            "This match will be permanently removed for everyone.",
+            "Delete", "Cancel");
         if (!confirmed) return;
-
         await RunAsync(async () =>
         {
             await api.DeleteEventAsync(_eventId);
@@ -248,9 +311,25 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
         });
     }
 
+    [RelayCommand]
+    private async Task LeaveAsync()
+    {
+        if (!CanLeave) return;
+        var confirmed = await Shell.Current.DisplayAlert(
+            "Remove from your list?",
+            "You'll leave this match. The organizer can still keep it for others.",
+            "Remove", "Cancel");
+        if (!confirmed) return;
+        await RunAsync(async () =>
+        {
+            await api.LeaveEventAsync(_eventId);
+            await Shell.Current.GoToAsync("..");
+        });
+    }
+
     private void OnPositionChanged(PositionChangedDto change) => MainThread.BeginInvokeOnMainThread(() =>
     {
-        var updated = Positions.Select(p => p.SlotId == change.SlotId
+        Positions = Positions.Select(p => p.SlotId == change.SlotId
             ? p with
             {
                 UserId = change.UserId,
@@ -259,7 +338,6 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
                 UserAvatarUrl = change.UserAvatarUrl,
             }
             : p).ToList();
-        Positions = updated;
     });
 
     private void OnParticipantJoined(ParticipantDto participant) => MainThread.BeginInvokeOnMainThread(() =>
@@ -270,12 +348,8 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
 
     private void OnEventCompleted(ResultDto result) => MainThread.BeginInvokeOnMainThread(() =>
     {
-        Status = "Completed";
         if (Detail is not null)
-            Detail = Detail with { Status = "Completed", Result = result };
-        OnPropertyChanged(nameof(ResultText));
-        OnPropertyChanged(nameof(IsReadOnly));
-        OnPropertyChanged(nameof(CanDelete));
+            ApplyDetail(Detail with { Status = "Completed", Result = result, CanSubmitResult = false, CanLock = false, CanUnlock = false, CanDelete = false, IsPendingResult = false });
     });
 
     public void Dispose()
