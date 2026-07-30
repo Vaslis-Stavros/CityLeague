@@ -37,6 +37,7 @@ public sealed class AppPreferences : IAppPreferences
     private const string Clock24Key = "prefs.clock_24h";
     private const string ReduceMotionKey = "prefs.reduce_motion";
     private const string WeekdayKey = "prefs.show_weekday";
+    private bool _applying;
 
     public event EventHandler? Changed;
 
@@ -99,64 +100,48 @@ public sealed class AppPreferences : IAppPreferences
 
     public void ApplyToApp()
     {
+        if (_applying) return;
+
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            if (Application.Current is null) return;
-            Application.Current.UserAppTheme = IsLight ? AppTheme.Light : AppTheme.Dark;
-            ApplyThemeDictionary(IsLight);
-
-            if (Shell.Current is not null)
+            if (_applying || Application.Current is null) return;
+            _applying = true;
+            try
             {
-                if (IsLight)
-                {
-                    Shell.Current.SetValue(Shell.TabBarBackgroundColorProperty, Color.FromArgb("#F2F4F7"));
-                    Shell.Current.SetValue(Shell.TabBarForegroundColorProperty, Color.FromArgb("#0B6B2E"));
-                    Shell.Current.SetValue(Shell.TabBarTitleColorProperty, Color.FromArgb("#0B6B2E"));
-                    Shell.Current.SetValue(Shell.TabBarUnselectedColorProperty, Color.FromArgb("#6B7785"));
-                    Shell.Current.SetValue(Shell.BackgroundColorProperty, Color.FromArgb("#F2F4F7"));
-                }
-                else
-                {
-                    Shell.Current.SetValue(Shell.TabBarBackgroundColorProperty, Color.FromArgb("#152033"));
-                    Shell.Current.SetValue(Shell.TabBarForegroundColorProperty, Color.FromArgb("#3DDC84"));
-                    Shell.Current.SetValue(Shell.TabBarTitleColorProperty, Color.FromArgb("#3DDC84"));
-                    Shell.Current.SetValue(Shell.TabBarUnselectedColorProperty, Color.FromArgb("#8FA0B5"));
-                    Shell.Current.SetValue(Shell.BackgroundColorProperty, Color.FromArgb("#0E1525"));
-                }
-            }
+                Application.Current.UserAppTheme = IsLight ? AppTheme.Light : AppTheme.Dark;
+                Helpers.AppThemeColors.Apply(IsLight);
 
-            Helpers.StatusBarTheme.RefreshCurrentPage();
+                if (Shell.Current is not null)
+                {
+                    if (IsLight)
+                    {
+                        Shell.Current.SetValue(Shell.TabBarBackgroundColorProperty, Color.FromArgb("#F2F4F7"));
+                        Shell.Current.SetValue(Shell.TabBarForegroundColorProperty, Color.FromArgb("#0B6B2E"));
+                        Shell.Current.SetValue(Shell.TabBarTitleColorProperty, Color.FromArgb("#0B6B2E"));
+                        Shell.Current.SetValue(Shell.TabBarUnselectedColorProperty, Color.FromArgb("#6B7785"));
+                        Shell.Current.SetValue(Shell.BackgroundColorProperty, Color.FromArgb("#F2F4F7"));
+                    }
+                    else
+                    {
+                        Shell.Current.SetValue(Shell.TabBarBackgroundColorProperty, Color.FromArgb("#152033"));
+                        Shell.Current.SetValue(Shell.TabBarForegroundColorProperty, Color.FromArgb("#3DDC84"));
+                        Shell.Current.SetValue(Shell.TabBarTitleColorProperty, Color.FromArgb("#3DDC84"));
+                        Shell.Current.SetValue(Shell.TabBarUnselectedColorProperty, Color.FromArgb("#8FA0B5"));
+                        Shell.Current.SetValue(Shell.BackgroundColorProperty, Color.FromArgb("#0E1525"));
+                    }
+                }
+
+                Helpers.StatusBarTheme.RefreshCurrentPage();
+            }
+            catch
+            {
+                // Theme apply must never take down the app.
+            }
+            finally
+            {
+                _applying = false;
+            }
         });
-    }
-
-    /// <summary>
-    /// Swaps DynamicResource theme keys so dark mode matches the original glass look
-    /// while light mode keeps the current readable palette.
-    /// </summary>
-    private static void ApplyThemeDictionary(bool light)
-    {
-        if (Application.Current?.Resources.MergedDictionaries is not { } merged)
-            return;
-
-        ResourceDictionary? existing = null;
-        foreach (var dict in merged)
-        {
-            var source = dict.Source?.OriginalString ?? string.Empty;
-            if (source.Contains("Theme.Light.xaml", StringComparison.OrdinalIgnoreCase)
-                || source.Contains("Theme.Dark.xaml", StringComparison.OrdinalIgnoreCase))
-            {
-                existing = dict;
-                break;
-            }
-        }
-
-        if (existing is not null)
-            merged.Remove(existing);
-
-        var path = light
-            ? "Resources/Styles/Theme.Light.xaml"
-            : "Resources/Styles/Theme.Dark.xaml";
-        merged.Add(new ResourceDictionary { Source = new Uri(path, UriKind.Relative) });
     }
 
     public string FormatDateTime(DateTimeOffset value)
@@ -191,7 +176,12 @@ public sealed class AppPreferences : IAppPreferences
 
     private void Raise()
     {
-        Changed?.Invoke(this, EventArgs.Empty);
+        // Apply resources first, then notify listeners so pages read the new palette.
         ApplyToApp();
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            try { Changed?.Invoke(this, EventArgs.Empty); }
+            catch { /* listener failures should not crash theme toggle */ }
+        });
     }
 }

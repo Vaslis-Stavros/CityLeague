@@ -73,9 +73,16 @@ public static class StatusBarTheme
     /// <summary>Re-applies chrome for the current Shell page after light/dark toggles.</summary>
     public static void RefreshCurrentPage()
     {
-        if (Shell.Current?.CurrentPage is not Page page) return;
-        if (page.GetValue(AppliedChromeProperty) is ScreenChrome chrome)
-            Apply(page, chrome);
+        try
+        {
+            if (Shell.Current?.CurrentPage is not Page page) return;
+            if (page.GetValue(AppliedChromeProperty) is ScreenChrome chrome)
+                Apply(page, chrome);
+        }
+        catch
+        {
+            // Ignore — theme toggle must stay resilient.
+        }
     }
 
     /// <param name="darkContent">True for dark status-bar icons on a light background.</param>
@@ -85,12 +92,19 @@ public static class StatusBarTheme
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            page.BackgroundColor = background;
+            try
+            {
+                page.BackgroundColor = background;
 #if ANDROID
-            ApplyAndroid(background, darkContent);
+                ApplyAndroid(background, darkContent);
 #elif IOS
-            ApplyIos(darkContent);
+                ApplyIos(darkContent);
 #endif
+            }
+            catch
+            {
+                // Platform status-bar updates can fail on mid-transition pages.
+            }
         });
     }
 
