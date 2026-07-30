@@ -67,4 +67,11 @@ public partial class HistoryViewModel(ICityLeagueApi api) : BaseViewModel
         if (summary is null) return;
         await Shell.Current.GoToAsync($"{AppRoutes.EventDetail}?eventId={summary.Id}&readOnly=true");
     }
+
+    [RelayCommand]
+    private async Task OpenCompletedLeagueAsync(LeagueDto league)
+    {
+        if (league is null) return;
+        await Shell.Current.GoToAsync($"{AppRoutes.LeagueDetail}?leagueId={league.Id}");
+    }
 }

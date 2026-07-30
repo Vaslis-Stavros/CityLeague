@@ -123,8 +123,42 @@ await using (var scope = app.Services.CreateAsyncScope())
             """CREATE UNIQUE INDEX IF NOT EXISTS "IX_UserExternalLogins_Provider_Subject" ON "UserExternalLogins" ("Provider", "Subject");""");
         await db.Database.ExecuteSqlRawAsync(
             """CREATE INDEX IF NOT EXISTS "IX_UserExternalLogins_UserId" ON "UserExternalLogins" ("UserId");""");
+
+        await EnsureSqliteColumnAsync(db, "Leagues", "PlannedMatchCount", "INTEGER NOT NULL DEFAULT 10");
+        await EnsureSqliteColumnAsync(db, "Leagues", "StartedAt", "TEXT NULL");
+        await EnsureSqliteColumnAsync(db, "LeagueTeams", "LeaderUserId", "TEXT NULL");
+        await EnsureSqliteColumnAsync(db, "LeagueTeams", "SortOrder", "INTEGER NOT NULL DEFAULT 0");
+        await db.Database.ExecuteSqlRawAsync(
+            """CREATE UNIQUE INDEX IF NOT EXISTS "IX_LeagueParticipants_LeagueId_UserId" ON "LeagueParticipants" ("LeagueId", "UserId");""");
+        await db.Database.ExecuteSqlRawAsync(
+            """CREATE UNIQUE INDEX IF NOT EXISTS "IX_LeagueEvents_LeagueId_EventId" ON "LeagueEvents" ("LeagueId", "EventId");""");
     }
     await DbSeeder.EnsureSeededAsync(db, app.Services.GetRequiredService<IPasswordHasher>());
+}
+
+static async Task EnsureSqliteColumnAsync(DbContext db, string table, string column, string definition)
+{
+    var connection = db.Database.GetDbConnection();
+    if (connection.State != System.Data.ConnectionState.Open)
+        await connection.OpenAsync();
+
+    await using var cmd = connection.CreateCommand();
+    cmd.CommandText = $"PRAGMA table_info(\"{table}\")";
+    var exists = false;
+    await using (var reader = await cmd.ExecuteReaderAsync())
+    {
+        while (await reader.ReadAsync())
+        {
+            if (string.Equals(reader.GetString(1), column, StringComparison.OrdinalIgnoreCase))
+            {
+                exists = true;
+                break;
+            }
+        }
+    }
+
+    if (!exists)
+        await db.Database.ExecuteSqlRawAsync($"ALTER TABLE \"{table}\" ADD COLUMN \"{column}\" {definition}");
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();

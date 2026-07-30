@@ -39,9 +39,12 @@ public enum WinningSide
     Draw = 2,
 }
 
-/// <summary>Lifecycle of a league (Phase 2).</summary>
+/// <summary>Lifecycle of a league.</summary>
 public enum LeagueStatus
 {
+    /// <summary>Existing leagues created before Draft existed; treat as running.</summary>
     Active = 0,
     Terminated = 1,
+    /// <summary>Created but not started; leaders and rosters can still be configured.</summary>
+    Draft = 2,
 }

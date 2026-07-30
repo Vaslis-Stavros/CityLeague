@@ -10,7 +10,8 @@ public record CreateEventRequest(
     DateTimeOffset ScheduledAt,
     string? Location,
     Guid? SeriesId,
-    IReadOnlyList<Guid>? InviteUserIds);
+    IReadOnlyList<Guid>? InviteUserIds,
+    Guid? LeagueId = null);
 
 public record EventSummaryDto(
     Guid Id,

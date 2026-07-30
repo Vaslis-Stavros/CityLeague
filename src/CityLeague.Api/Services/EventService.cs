@@ -14,11 +14,13 @@ public class EventService(
     CityLeagueDbContext db,
     IFormationProvider formations,
     ApiMapper mapper,
+    LeagueService leagues,
     IHubContext<EventHub, IEventClient> hub)
 {
     private readonly CityLeagueDbContext _db = db;
     private readonly IFormationProvider _formations = formations;
     private readonly ApiMapper _mapper = mapper;
+    private readonly LeagueService _leagues = leagues;
     private readonly IHubContext<EventHub, IEventClient> _hub = hub;
 
     // ---- Series ----
@@ -91,6 +93,13 @@ public class EventService(
                 X = slot.X,
                 Y = slot.Y,
             });
+        }
+
+        if (request.LeagueId is Guid leagueId)
+        {
+            // Validate membership / status without saving; event + link persist together below.
+            await _leagues.ValidateLinkAsync(leagueId, ownerId, ct);
+            _db.LeagueEvents.Add(new LeagueEvent { LeagueId = leagueId, EventId = ev.Id });
         }
 
         _db.EventParticipants.Add(new EventParticipant
@@ -413,6 +422,8 @@ public class EventService(
 
         ev.Status = EventStatus.Completed;
         await _db.SaveChangesAsync(ct);
+
+        await _leagues.OnLeagueMatchCompletedAsync(eventId, winningSide, ct);
 
         var dto = new ResultDto(result.HomeScore, result.AwayScore, result.WinningSide.ToString(), result.SubmittedAt);
         await _hub.Clients.Group(EventHub.GroupName(eventId)).EventCompleted(dto);

@@ -140,6 +140,11 @@
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="dtos:LeagueDto">
                                     <Border Style="{StaticResource GlassPanel}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={x:Reference Page}, Path=BindingContext.OpenCompletedLeagueCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
                                         <VerticalStackLayout Spacing="6">
                                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                                                 <Label Grid.Column="0"
@@ -164,7 +169,18 @@
                                             <Label FontFamily="OutfitRegular" FontSize="13" TextColor="#A8B8CC">
                                                 <Label.FormattedText>
                                                     <FormattedString>
+                                                        <Span Text="{Binding Team1Name}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                        <Span Text=" vs " />
+                                                        <Span Text="{Binding Team2Name}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                            <Label FontFamily="OutfitRegular" FontSize="13" TextColor="#A8B8CC">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
                                                         <Span Text="{Binding CompletedMatchCount}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                        <Span Text=" / " />
+                                                        <Span Text="{Binding PlannedMatchCount}" FontFamily="OutfitSemiBold" TextColor="White" />
                                                         <Span Text=" matches  ·  " />
                                                         <Span Text="{Binding ParticipantCount}" FontFamily="OutfitSemiBold" TextColor="White" />
                                                         <Span Text=" players" />

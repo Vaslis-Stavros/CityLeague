@@ -118,12 +118,62 @@
                                        PlaceholderColor="#A8D5B5"
                                        FontFamily="OutfitRegular"
                                        FontSize="16" />
+                                <Entry Placeholder="Team 1 name"
+                                       Text="{Binding Team1Name}"
+                                       BackgroundColor="Transparent"
+                                       TextColor="White"
+                                       PlaceholderColor="#A8D5B5"
+                                       FontFamily="OutfitRegular"
+                                       FontSize="16" />
+                                <Entry Placeholder="Team 2 name"
+                                       Text="{Binding Team2Name}"
+                                       BackgroundColor="Transparent"
+                                       TextColor="White"
+                                       PlaceholderColor="#A8D5B5"
+                                       FontFamily="OutfitRegular"
+                                       FontSize="16" />
                                 <Picker ItemsSource="{Binding Sports}"
                                         ItemDisplayBinding="{Binding Name}"
                                         SelectedItem="{Binding SelectedSport}"
                                         Title="Sport"
                                         TextColor="White"
                                         BackgroundColor="Transparent" />
+                                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding PlannedMatchLabel}"
+                                           FontFamily="OutfitSemiBold"
+                                           FontSize="14"
+                                           TextColor="White"
+                                           VerticalOptions="Center" />
+                                    <Border Grid.Column="1"
+                                            BackgroundColor="#28FFFFFF"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 12"
+                                            Padding="12,8">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding DecrementMatchesCommand}" />
+                                        </Border.GestureRecognizers>
+                                        <Label Text="−"
+                                               FontFamily="OutfitSemiBold"
+                                               FontSize="16"
+                                               TextColor="White"
+                                               HorizontalOptions="Center" />
+                                    </Border>
+                                    <Border Grid.Column="2"
+                                            BackgroundColor="#28FFFFFF"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 12"
+                                            Padding="12,8">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding IncrementMatchesCommand}" />
+                                        </Border.GestureRecognizers>
+                                        <Label Text="+"
+                                               FontFamily="OutfitSemiBold"
+                                               FontSize="16"
+                                               TextColor="White"
+                                               HorizontalOptions="Center" />
+                                    </Border>
+                                </Grid>
                                 <Border BackgroundColor="White"
                                         StrokeThickness="0"
                                         StrokeShape="RoundRectangle 18"
@@ -145,6 +195,11 @@
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="dtos:LeagueDto">
                                     <Border Style="{StaticResource GlassPanel}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={x:Reference Page}, Path=BindingContext.OpenLeagueCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
                                         <VerticalStackLayout Spacing="8">
                                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                                                 <Label Grid.Column="0"
@@ -170,13 +225,30 @@
                                             <Label FontFamily="OutfitRegular" FontSize="13" TextColor="#C8E6C8">
                                                 <Label.FormattedText>
                                                     <FormattedString>
-                                                        <Span Text="{Binding ParticipantCount}" FontFamily="OutfitSemiBold" TextColor="White" />
-                                                        <Span Text=" players  ·  " />
-                                                        <Span Text="{Binding CompletedMatchCount}" FontFamily="OutfitSemiBold" TextColor="White" />
-                                                        <Span Text=" matches" />
+                                                        <Span Text="{Binding Team1Name}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                        <Span Text=" vs " />
+                                                        <Span Text="{Binding Team2Name}" FontFamily="OutfitSemiBold" TextColor="White" />
                                                     </FormattedString>
                                                 </Label.FormattedText>
                                             </Label>
+
+                                            <Label FontFamily="OutfitRegular" FontSize="13" TextColor="#C8E6C8">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding CompletedMatchCount}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                        <Span Text=" / " />
+                                                        <Span Text="{Binding PlannedMatchCount}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                        <Span Text=" matches  ·  " />
+                                                        <Span Text="{Binding ParticipantCount}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                        <Span Text=" players  ·  " />
+                                                        <Span Text="{Binding Status}" />
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+
+                                            <ProgressBar Progress="{Binding ProgressFraction}"
+                                                         ProgressColor="#F2A900"
+                                                         HeightRequest="8" />
 
                                             <Label Text="Organizer"
                                                    FontFamily="OutfitSemiBold"
@@ -184,8 +256,7 @@
                                                    TextColor="#F2A900"
                                                    IsVisible="{Binding IsOwner}" />
 
-                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8"
-                                                  IsVisible="{Binding IsOwner}">
+                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                                                 <Border Grid.Column="0"
                                                         BackgroundColor="#33C0392B"
                                                         Stroke="#88FF8A80"

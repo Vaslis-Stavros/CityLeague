@@ -195,6 +195,7 @@ public class CityLeagueDbContext(DbContextOptions<CityLeagueDbContext> options) 
         {
             e.Property(t => t.Name).HasMaxLength(128).IsRequired();
             e.HasOne(t => t.League).WithMany(l => l.Teams).HasForeignKey(t => t.LeagueId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(t => t.LeaderUser).WithMany().HasForeignKey(t => t.LeaderUserId).OnDelete(DeleteBehavior.SetNull);
             e.HasOne(t => t.Stats).WithOne(s => s.LeagueTeam)
                 .HasForeignKey<TeamSportStats>(s => s.LeagueTeamId).OnDelete(DeleteBehavior.Cascade);
         });
@@ -204,12 +205,14 @@ public class CityLeagueDbContext(DbContextOptions<CityLeagueDbContext> options) 
             e.HasOne(p => p.League).WithMany(l => l.Participants).HasForeignKey(p => p.LeagueId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(p => p.User).WithMany().HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(p => p.LeagueTeam).WithMany().HasForeignKey(p => p.LeagueTeamId).OnDelete(DeleteBehavior.SetNull);
+            e.HasIndex(p => new { p.LeagueId, p.UserId }).IsUnique();
         });
 
         b.Entity<LeagueEvent>(e =>
         {
             e.HasOne(le => le.League).WithMany(l => l.Events).HasForeignKey(le => le.LeagueId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(le => le.Event).WithMany().HasForeignKey(le => le.EventId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(le => new { le.LeagueId, le.EventId }).IsUnique();
         });
     }
 }

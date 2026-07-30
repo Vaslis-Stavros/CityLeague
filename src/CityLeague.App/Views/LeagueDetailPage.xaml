@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.LeagueDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dtos="clr-namespace:CityLeague.Core.Dtos;assembly=CityLeague.Core"
+    x:Name="Page"
+    Shell.NavBarIsVisible="False"
+    Title="League">
+
+    <ContentPage.Resources>
+        <Style x:Key="GlassPanel" TargetType="Border">
+            <Setter Property="Stroke" Value="{StaticResource GlassStroke}" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="BackgroundColor" Value="{StaticResource GlassFill}" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 22" />
+            <Setter Property="Padding" Value="16,14" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid x:Name="Root">
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#06351A" Offset="0" />
+                    <GradientStop Color="#0B6B2E" Offset="0.45" />
+                    <GradientStop Color="#1FA85A" Offset="1" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+        <Ellipse x:Name="GlowOrb"
+                 Fill="#33F2A900"
+                 WidthRequest="170"
+                 HeightRequest="170"
+                 HorizontalOptions="End"
+                 VerticalOptions="Start"
+                 Margin="0,-24,-40,0" />
+
+        <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <ScrollView VerticalScrollBarVisibility="Never">
+                <VerticalStackLayout x:Name="ContentBlock"
+                                     Padding="18,16,18,28"
+                                     Spacing="12"
+                                     Opacity="0">
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Border Grid.Column="0"
+                                BackgroundColor="#28FFFFFF"
+                                Stroke="{StaticResource GlassStroke}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 16"
+                                Padding="12,8"
+                                VerticalOptions="Center">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Back"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="13"
+                                   TextColor="White" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="CityLeague"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="12"
+                                   TextColor="#DDEFDD"
+                                   CharacterSpacing="1.2" />
+                            <Label Text="{Binding League.Name}"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="24"
+                                   TextColor="White"
+                                   LineBreakMode="TailTruncation" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Border Style="{StaticResource GlassPanel}">
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0"
+                                       Text="{Binding League.Status}"
+                                       FontFamily="OutfitSemiBold"
+                                       FontSize="14"
+                                       TextColor="#F2A900" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding League.SportName}"
+                                       FontFamily="OutfitRegular"
+                                       FontSize="13"
+                                       TextColor="#C8E6C8" />
+                            </Grid>
+                            <Label Text="{Binding StatusSubtitle}"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="13"
+                                   TextColor="#C8E6C8" />
+                            <Label Text="{Binding ProgressLabel}"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="13"
+                                   TextColor="White" />
+                            <ProgressBar Progress="{Binding League.ProgressFraction}"
+                                         ProgressColor="#F2A900"
+                                         HeightRequest="8" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <HorizontalStackLayout Spacing="8">
+                        <Border BackgroundColor="White"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 16"
+                                Padding="14,10"
+                                IsVisible="{Binding League.CanStart}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding StartCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Start league"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="13"
+                                   TextColor="{StaticResource Brand}" />
+                        </Border>
+                        <Border BackgroundColor="#28FFFFFF"
+                                Stroke="{StaticResource GlassStroke}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 16"
+                                Padding="14,10"
+                                IsVisible="{Binding League.CanExtend}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ExtendCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Extend"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="13"
+                                   TextColor="White" />
+                        </Border>
+                        <Border BackgroundColor="#28FFFFFF"
+                                Stroke="{StaticResource GlassStroke}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 16"
+                                Padding="14,10"
+                                IsVisible="{Binding League.CanEnd}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding FinishCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Finish early"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="13"
+                                   TextColor="White" />
+                        </Border>
+                        <Border BackgroundColor="#33C0392B"
+                                Stroke="#88FF8A80"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 16"
+                                Padding="14,10"
+                                IsVisible="{Binding League.CanDelete}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding DeleteCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Delete"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="13"
+                                   TextColor="#FFCDD2" />
+                        </Border>
+                    </HorizontalStackLayout>
+
+                    <Label Text="TEAMS"
+                           FontFamily="OutfitRegular"
+                           FontSize="12"
+                           TextColor="#C8E6C8"
+                           CharacterSpacing="1.2"
+                           Margin="4,8,0,0" />
+
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Teams}" Spacing="10">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:LeagueTeamDto">
+                                <Border Style="{StaticResource GlassPanel}">
+                                    <Grid ColumnDefinitions="56,*" ColumnSpacing="12">
+                                        <Border Grid.Column="0"
+                                                WidthRequest="56"
+                                                HeightRequest="56"
+                                                StrokeShape="RoundRectangle 16"
+                                                StrokeThickness="0"
+                                                BackgroundColor="#28FFFFFF"
+                                                VerticalOptions="Start">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={x:Reference Page}, Path=BindingContext.UploadLogoCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <Grid>
+                                                <Label Text="Logo"
+                                                       FontFamily="OutfitRegular"
+                                                       FontSize="11"
+                                                       TextColor="#C8E6C8"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center" />
+                                                <Image Source="{Binding LogoUrl}"
+                                                       Aspect="AspectFill"
+                                                       IsVisible="{Binding LogoUrl, Converter={StaticResource IsStringNotEmpty}}" />
+                                            </Grid>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                            <Label Text="{Binding Name}"
+                                                   FontFamily="OutfitSemiBold"
+                                                   FontSize="18"
+                                                   TextColor="White" />
+                                            <Label FontFamily="OutfitRegular" FontSize="13" TextColor="#C8E6C8">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="Leader · " />
+                                                        <Span Text="{Binding LeaderDisplayName}" FontFamily="OutfitSemiBold" TextColor="White" />
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                            <Label FontFamily="OutfitRegular" FontSize="12" TextColor="#A8D5B5">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding Wins}" />
+                                                        <Span Text="W  " />
+                                                        <Span Text="{Binding Draws}" />
+                                                        <Span Text="D  " />
+                                                        <Span Text="{Binding Losses}" />
+                                                        <Span Text="L  ·  " />
+                                                        <Span Text="{Binding MemberCount}" />
+                                                        <Span Text=" players" />
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                            <Border BackgroundColor="#28FFFFFF"
+                                                    StrokeThickness="0"
+                                                    StrokeShape="RoundRectangle 12"
+                                                    Padding="10,6"
+                                                    HorizontalOptions="Start"
+                                                    Margin="0,4,0,0">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={x:Reference Page}, Path=BindingContext.SetLeaderCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="Set leader"
+                                                       FontFamily="OutfitSemiBold"
+                                                       FontSize="12"
+                                                       TextColor="White" />
+                                            </Border>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <Grid ColumnDefinitions="*,Auto" Margin="4,8,0,0">
+                        <Label Grid.Column="0"
+                               Text="PARTICIPANTS"
+                               FontFamily="OutfitRegular"
+                               FontSize="12"
+                               TextColor="#C8E6C8"
+                               CharacterSpacing="1.2"
+                               VerticalOptions="Center" />
+                        <Border Grid.Column="1"
+                                BackgroundColor="White"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14"
+                                Padding="12,6"
+                                IsVisible="{Binding League.CanAddParticipants}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleAddPeopleCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Add people"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="12"
+                                   TextColor="{StaticResource Brand}" />
+                        </Border>
+                    </Grid>
+
+                    <Border Style="{StaticResource GlassPanel}" IsVisible="{Binding ShowAddPeople}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="CONTACTS"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="12"
+                                   TextColor="#C8E6C8"
+                                   CharacterSpacing="1.2" />
+                            <Label Text="No accepted contacts left to add."
+                                   FontFamily="OutfitRegular"
+                                   FontSize="13"
+                                   TextColor="#C8E6C8"
+                                   IsVisible="{Binding HasAddCandidates, Converter={StaticResource InvertedBool}}" />
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding AddCandidates}" Spacing="6">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="dtos:ContactDto">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding User.DisplayName}"
+                                                   FontFamily="OutfitSemiBold"
+                                                   FontSize="14"
+                                                   TextColor="White"
+                                                   VerticalOptions="Center" />
+                                            <Border Grid.Column="1"
+                                                    BackgroundColor="White"
+                                                    StrokeThickness="0"
+                                                    StrokeShape="RoundRectangle 12"
+                                                    Padding="10,6">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={x:Reference Page}, Path=BindingContext.AddPersonCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="Add"
+                                                       FontFamily="OutfitSemiBold"
+                                                       FontSize="12"
+                                                       TextColor="{StaticResource Brand}" />
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Participants}" Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:LeagueParticipantDto">
+                                <Border Style="{StaticResource GlassPanel}" Padding="14,12">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={x:Reference Page}, Path=BindingContext.MoveToTeamCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="40,*,Auto" ColumnSpacing="10">
+                                        <Border Grid.Column="0"
+                                                WidthRequest="40"
+                                                HeightRequest="40"
+                                                StrokeShape="RoundRectangle 20"
+                                                StrokeThickness="0"
+                                                BackgroundColor="#28FFFFFF">
+                                            <Image Source="{Binding AvatarUrl}" Aspect="AspectFill" />
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding DisplayName}"
+                                                   FontFamily="OutfitSemiBold"
+                                                   FontSize="15"
+                                                   TextColor="White" />
+                                            <Label FontFamily="OutfitRegular" FontSize="12" TextColor="#C8E6C8">
+                                                <Label.FormattedText>
+                                                    <FormattedString>
+                                                        <Span Text="{Binding TeamName}" />
+                                                        <Span Text="  ·  tap to move" />
+                                                    </FormattedString>
+                                                </Label.FormattedText>
+                                            </Label>
+                                        </VerticalStackLayout>
+                                        <Border Grid.Column="2"
+                                                BackgroundColor="#33F2A900"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 10"
+                                                Padding="8,4"
+                                                VerticalOptions="Center"
+                                                IsVisible="{Binding IsLeader}">
+                                            <Label Text="Leader"
+                                                   FontFamily="OutfitSemiBold"
+                                                   FontSize="11"
+                                                   TextColor="#F2A900" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <Label Text="MATCH RESULTS"
+                           FontFamily="OutfitRegular"
+                           FontSize="12"
+                           TextColor="#C8E6C8"
+                           CharacterSpacing="1.2"
+                           Margin="4,8,0,0" />
+
+                    <Border Style="{StaticResource GlassPanel}"
+                            IsVisible="{Binding ShowEmptyResults}"
+                            Padding="18,22">
+                        <Label Text="No finished matches yet."
+                               FontFamily="OutfitRegular"
+                               FontSize="13"
+                               TextColor="#C8E6C8"
+                               HorizontalTextAlignment="Center" />
+                    </Border>
+
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding MatchResults}" Spacing="8">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="dtos:LeagueMatchResultDto">
+                                <Border Style="{StaticResource GlassPanel}">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="{Binding Title}"
+                                               FontFamily="OutfitSemiBold"
+                                               FontSize="15"
+                                               TextColor="White" />
+                                        <Label FontFamily="OutfitSemiBold" FontSize="20" TextColor="White">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding HomeScore}" />
+                                                    <Span Text=" – " TextColor="#C8E6C8" />
+                                                    <Span Text="{Binding AwayScore}" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                        <Label FontFamily="OutfitRegular" FontSize="12" TextColor="#C8E6C8">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding HomeTeamName}" />
+                                                    <Span Text=" vs " />
+                                                    <Span Text="{Binding AwayTeamName}" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+
+                    <Label Text="{Binding ErrorMessage}"
+                           TextColor="#FFCDD2"
+                           FontFamily="OutfitRegular"
+                           FontSize="13"
+                           IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" />
+
+                    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                       IsVisible="{Binding IsBusy}"
+                                       Color="White"
+                                       HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

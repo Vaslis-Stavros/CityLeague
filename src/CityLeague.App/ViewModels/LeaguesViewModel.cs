@@ -18,6 +18,15 @@ public partial class LeaguesViewModel(ICityLeagueApi api) : BaseViewModel
     private string newLeagueName = string.Empty;
 
     [ObservableProperty]
+    private string team1Name = string.Empty;
+
+    [ObservableProperty]
+    private string team2Name = string.Empty;
+
+    [ObservableProperty]
+    private int plannedMatchCount = 10;
+
+    [ObservableProperty]
     private SportDto? selectedSport;
 
     [ObservableProperty]
@@ -31,6 +40,10 @@ public partial class LeaguesViewModel(ICityLeagueApi api) : BaseViewModel
         1 => "1 league",
         _ => $"{Leagues.Count} leagues",
     };
+
+    public string PlannedMatchLabel => $"{PlannedMatchCount} match{(PlannedMatchCount == 1 ? "" : "es")}";
+
+    partial void OnPlannedMatchCountChanged(int value) => OnPropertyChanged(nameof(PlannedMatchLabel));
 
     [RelayCommand]
     private async Task AppearingAsync()
@@ -76,11 +89,30 @@ public partial class LeaguesViewModel(ICityLeagueApi api) : BaseViewModel
     private void ToggleCreate() => ShowCreatePanel = !ShowCreatePanel;
 
     [RelayCommand]
+    private void IncrementMatches()
+    {
+        if (PlannedMatchCount < 200)
+            PlannedMatchCount++;
+    }
+
+    [RelayCommand]
+    private void DecrementMatches()
+    {
+        if (PlannedMatchCount > 1)
+            PlannedMatchCount--;
+    }
+
+    [RelayCommand]
     private async Task CreateAsync()
     {
         if (string.IsNullOrWhiteSpace(NewLeagueName))
         {
             ErrorMessage = "Enter a league name.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(Team1Name) || string.IsNullOrWhiteSpace(Team2Name))
+        {
+            ErrorMessage = "Name both teams.";
             return;
         }
         if (SelectedSport is null)
@@ -91,13 +123,29 @@ public partial class LeaguesViewModel(ICityLeagueApi api) : BaseViewModel
 
         await RunAsync(async () =>
         {
-            var created = await api.CreateLeagueAsync(new CreateLeagueRequest(NewLeagueName.Trim(), SelectedSport.Id));
+            var created = await api.CreateLeagueAsync(new CreateLeagueRequest(
+                NewLeagueName.Trim(),
+                SelectedSport.Id,
+                Team1Name.Trim(),
+                Team2Name.Trim(),
+                PlannedMatchCount));
             Leagues.Insert(0, created);
             NewLeagueName = string.Empty;
+            Team1Name = string.Empty;
+            Team2Name = string.Empty;
+            PlannedMatchCount = 10;
             ShowCreatePanel = false;
             OnPropertyChanged(nameof(ShowEmptyLeagues));
             OnPropertyChanged(nameof(LeaguesSubtitle));
+            await Shell.Current.GoToAsync($"{AppRoutes.LeagueDetail}?leagueId={created.Id}");
         });
+    }
+
+    [RelayCommand]
+    private async Task OpenLeagueAsync(LeagueDto league)
+    {
+        if (league is null) return;
+        await Shell.Current.GoToAsync($"{AppRoutes.LeagueDetail}?leagueId={league.Id}");
     }
 
     [RelayCommand]
@@ -127,7 +175,7 @@ public partial class LeaguesViewModel(ICityLeagueApi api) : BaseViewModel
 
         var confirmed = await Shell.Current.DisplayAlert(
             "End league?",
-            "This league will move to Completed leagues in History. This cannot be undone.",
+            "Finish this league now and move it to History. Team leaders can do this early.",
             "End league", "Cancel");
         if (!confirmed) return;
 

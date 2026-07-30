@@ -41,9 +41,16 @@ public interface ICityLeagueApi
 
     Task<IReadOnlyList<LeagueDto>> GetLeaguesAsync(CancellationToken ct = default);
     Task<IReadOnlyList<LeagueDto>> GetCompletedLeaguesAsync(CancellationToken ct = default);
+    Task<LeagueDetailDto> GetLeagueAsync(Guid leagueId, CancellationToken ct = default);
     Task<LeagueDto> CreateLeagueAsync(CreateLeagueRequest request, CancellationToken ct = default);
     Task DeleteLeagueAsync(Guid leagueId, CancellationToken ct = default);
-    Task<LeagueDto> EndLeagueAsync(Guid leagueId, CancellationToken ct = default);
+    Task<LeagueDetailDto> StartLeagueAsync(Guid leagueId, CancellationToken ct = default);
+    Task<LeagueDetailDto> EndLeagueAsync(Guid leagueId, CancellationToken ct = default);
+    Task<LeagueDetailDto> ExtendLeagueAsync(Guid leagueId, int additionalMatches, CancellationToken ct = default);
+    Task<LeagueDetailDto> AddLeagueParticipantsAsync(Guid leagueId, IReadOnlyList<Guid> userIds, CancellationToken ct = default);
+    Task<LeagueDetailDto> MoveLeagueParticipantAsync(Guid leagueId, Guid userId, Guid? teamId, CancellationToken ct = default);
+    Task<LeagueDetailDto> SetLeagueTeamLeaderAsync(Guid leagueId, Guid teamId, Guid userId, CancellationToken ct = default);
+    Task<LeagueDetailDto> UploadLeagueTeamLogoAsync(Guid leagueId, Guid teamId, Stream content, string fileName, string contentType, CancellationToken ct = default);
 }
 
 public class CityLeagueApi(HttpClient http) : ICityLeagueApi
@@ -133,14 +140,48 @@ public class CityLeagueApi(HttpClient http) : ICityLeagueApi
     public async Task<IReadOnlyList<LeagueDto>> GetCompletedLeaguesAsync(CancellationToken ct = default)
         => await GetAsync<List<LeagueDto>>("/api/leagues/completed", ct);
 
+    public Task<LeagueDetailDto> GetLeagueAsync(Guid leagueId, CancellationToken ct = default)
+        => GetAsync<LeagueDetailDto>($"/api/leagues/{leagueId}", ct);
+
     public Task<LeagueDto> CreateLeagueAsync(CreateLeagueRequest request, CancellationToken ct = default)
         => SendJsonAsync<LeagueDto>(HttpMethod.Post, "/api/leagues", request, ct);
 
     public Task DeleteLeagueAsync(Guid leagueId, CancellationToken ct = default)
         => SendAsync(HttpMethod.Delete, $"/api/leagues/{leagueId}", ct);
 
-    public Task<LeagueDto> EndLeagueAsync(Guid leagueId, CancellationToken ct = default)
-        => SendJsonAsync<LeagueDto>(HttpMethod.Post, $"/api/leagues/{leagueId}/end", null, ct);
+    public Task<LeagueDetailDto> StartLeagueAsync(Guid leagueId, CancellationToken ct = default)
+        => SendJsonAsync<LeagueDetailDto>(HttpMethod.Post, $"/api/leagues/{leagueId}/start", null, ct);
+
+    public Task<LeagueDetailDto> EndLeagueAsync(Guid leagueId, CancellationToken ct = default)
+        => SendJsonAsync<LeagueDetailDto>(HttpMethod.Post, $"/api/leagues/{leagueId}/end", null, ct);
+
+    public Task<LeagueDetailDto> ExtendLeagueAsync(Guid leagueId, int additionalMatches, CancellationToken ct = default)
+        => SendJsonAsync<LeagueDetailDto>(HttpMethod.Post, $"/api/leagues/{leagueId}/extend",
+            new ExtendLeagueRequest(additionalMatches), ct);
+
+    public Task<LeagueDetailDto> AddLeagueParticipantsAsync(Guid leagueId, IReadOnlyList<Guid> userIds, CancellationToken ct = default)
+        => SendJsonAsync<LeagueDetailDto>(HttpMethod.Post, $"/api/leagues/{leagueId}/participants",
+            new AddLeagueParticipantsRequest(userIds), ct);
+
+    public Task<LeagueDetailDto> MoveLeagueParticipantAsync(Guid leagueId, Guid userId, Guid? teamId, CancellationToken ct = default)
+        => SendJsonAsync<LeagueDetailDto>(HttpMethod.Put, $"/api/leagues/{leagueId}/participants/{userId}/team",
+            new MoveLeagueParticipantRequest(teamId), ct);
+
+    public Task<LeagueDetailDto> SetLeagueTeamLeaderAsync(Guid leagueId, Guid teamId, Guid userId, CancellationToken ct = default)
+        => SendJsonAsync<LeagueDetailDto>(HttpMethod.Put, $"/api/leagues/{leagueId}/teams/{teamId}/leader",
+            new SetLeagueTeamLeaderRequest(userId), ct);
+
+    public async Task<LeagueDetailDto> UploadLeagueTeamLogoAsync(
+        Guid leagueId, Guid teamId, Stream content, string fileName, string contentType, CancellationToken ct = default)
+    {
+        using var form = new MultipartFormDataContent();
+        var fileContent = new StreamContent(content);
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+        form.Add(fileContent, "file", fileName);
+
+        using var response = await http.PostAsync($"/api/leagues/{leagueId}/teams/{teamId}/logo", form, ct);
+        return await ReadAsync<LeagueDetailDto>(response, ct);
+    }
 
     // ---- helpers ----
 

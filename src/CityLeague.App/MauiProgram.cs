@@ -58,6 +58,7 @@ public static class MauiProgram
         services.AddTransient<SubmitResultViewModel>();
         services.AddTransient<ProfileViewModel>();
         services.AddTransient<LeaguesViewModel>();
+        services.AddTransient<LeagueDetailViewModel>();
         services.AddTransient<HistoryViewModel>();
         services.AddTransient<LocationPickerViewModel>();
         services.AddTransient<MoreViewModel>();

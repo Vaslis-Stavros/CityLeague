@@ -2,7 +2,7 @@ using CityLeague.Core.Enums;
 
 namespace CityLeague.Core.Entities;
 
-/// <summary>Phase 2: a league groups events and tracks team standings until terminated.</summary>
+/// <summary>A league groups two teams, participants, and match results until finished.</summary>
 public class League
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -15,7 +15,13 @@ public class League
     public int SportId { get; set; }
     public Sport? Sport { get; set; }
 
-    public LeagueStatus Status { get; set; } = LeagueStatus.Active;
+    public LeagueStatus Status { get; set; } = LeagueStatus.Draft;
+
+    /// <summary>How many completed matches finish the league unless leaders extend it.</summary>
+    public int PlannedMatchCount { get; set; } = 10;
+
+    /// <summary>Set when the league starts; null while still configuring (Draft).</summary>
+    public DateTimeOffset? StartedAt { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
@@ -24,7 +30,7 @@ public class League
     public ICollection<LeagueEvent> Events { get; set; } = new List<LeagueEvent>();
 }
 
-/// <summary>Phase 2: a named team within a league, with an optional custom logo.</summary>
+/// <summary>A named team within a league, with an optional custom logo and locked leader.</summary>
 public class LeagueTeam
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -34,12 +40,19 @@ public class LeagueTeam
 
     public string Name { get; set; } = string.Empty;
 
+    /// <summary>0 = home/team A, 1 = away/team B for match result attribution.</summary>
+    public int SortOrder { get; set; }
+
     public string? LogoBlobUrl { get; set; }
+
+    /// <summary>Must be set before the league starts; cannot change teams afterward.</summary>
+    public Guid? LeaderUserId { get; set; }
+    public User? LeaderUser { get; set; }
 
     public TeamSportStats? Stats { get; set; }
 }
 
-/// <summary>Phase 2: a user participating in a league, optionally assigned to a team.</summary>
+/// <summary>A user participating in a league, optionally assigned to a team.</summary>
 public class LeagueParticipant
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -54,7 +67,7 @@ public class LeagueParticipant
     public LeagueTeam? LeagueTeam { get; set; }
 }
 
-/// <summary>Phase 2: links an event to the league it was played under.</summary>
+/// <summary>Links an event to the league it was played under.</summary>
 public class LeagueEvent
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -66,7 +79,7 @@ public class LeagueEvent
     public Event? Event { get; set; }
 }
 
-/// <summary>Phase 2: aggregated standings for a league team.</summary>
+/// <summary>Aggregated standings for a league team.</summary>
 public class TeamSportStats
 {
     public Guid Id { get; set; } = Guid.NewGuid();

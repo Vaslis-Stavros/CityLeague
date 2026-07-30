@@ -17,4 +17,5 @@ public static class AppRoutes
     public const string LocationPicker = "locationpicker";
     public const string History = "historypage";
     public const string Profile = "profilepage";
+    public const string LeagueDetail = "leaguedetail";
 }
