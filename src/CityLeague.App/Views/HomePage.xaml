@@ -12,9 +12,9 @@
 
     <ContentPage.Resources>
         <Style x:Key="GlassPanel" TargetType="Border">
-            <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}" />
+            <Setter Property="Stroke" Value="{DynamicResource ThemeGlassStroke}" />
             <Setter Property="StrokeThickness" Value="1" />
-            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource GlassFillLight}, Dark={StaticResource GlassFillDark}}" />
+            <Setter Property="BackgroundColor" Value="{DynamicResource ThemeGlassFill}" />
             <Setter Property="StrokeShape" Value="RoundRectangle 22" />
             <Setter Property="Padding" Value="18,16" />
         </Style>
@@ -32,7 +32,7 @@
                       RowDefinitions="Auto,Auto,Auto"
                       RowSpacing="6">
                     <Border Grid.Row="0" Grid.RowSpan="3"
-                            BackgroundColor="{AppThemeBinding Light=#22000000, Dark=#28FFFFFF}"
+                            BackgroundColor="{DynamicResource ThemeDateChipFill}"
                             StrokeThickness="0"
                             StrokeShape="RoundRectangle 16"
                             Padding="8,12"
@@ -42,14 +42,14 @@
                             <Label Text="{Binding DayLabel}"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="11"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark=#EAF7EE}"
+                                   TextColor="{DynamicResource PageFaint}"
                                    HorizontalTextAlignment="Center"
                                    LineBreakMode="TailTruncation"
                                    MaxLines="1" />
                             <Label Text="{Binding TimeLabel}"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="20"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                                   TextColor="{DynamicResource PageTitle}"
                                    HorizontalTextAlignment="Center" />
                         </VerticalStackLayout>
                     </Border>
@@ -58,25 +58,25 @@
                            Text="{Binding Title}"
                            FontFamily="OutfitSemiBold"
                            FontSize="17"
-                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                           TextColor="{DynamicResource PageTitle}"
                            LineBreakMode="TailTruncation" />
 
                     <Label Grid.Row="1" Grid.Column="1"
                            Text="{Binding MetaLabel}"
                            FontFamily="OutfitRegular"
                            FontSize="13"
-                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark=#D5EBD8}"
+                           TextColor="{DynamicResource PageMeta}"
                            LineBreakMode="TailTruncation" />
 
                     <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="4">
                         <ProgressBar Progress="{Binding FillRatio}"
                                      ProgressColor="{Binding Accent}"
-                                     BackgroundColor="{AppThemeBinding Light=#22000000, Dark=#33FFFFFF}"
+                                     BackgroundColor="{DynamicResource ThemeProgressTrack}"
                                      HeightRequest="6" />
                         <Label Text="{Binding SpotsLabel}"
                                FontFamily="OutfitRegular"
                                FontSize="12"
-                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark=#E6F4EA}" />
+                               TextColor="{DynamicResource PageBody}" />
                     </VerticalStackLayout>
 
                     <Label Grid.Row="0" Grid.RowSpan="3" Grid.Column="2"
@@ -123,13 +123,13 @@
                 <Label Text="{Binding Greeting}"
                        FontFamily="OutfitSemiBold"
                        FontSize="30"
-                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                       TextColor="{DynamicResource PageTitle}"
                        LineBreakMode="TailTruncation" />
                 <Label x:Name="SubtitleLabel"
                        Text="{Binding ScheduleSubtitle}"
                        FontFamily="OutfitRegular"
                        FontSize="14"
-                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
+                       TextColor="{DynamicResource PageMuted}"
                        Margin="0,2,0,8" />
             </VerticalStackLayout>
 
@@ -190,12 +190,12 @@
                     <Label Text="{Binding ScheduleTitle}"
                            FontFamily="OutfitSemiBold"
                            FontSize="24"
-                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                           TextColor="{DynamicResource PageTitle}"
                            HorizontalOptions="Center" />
                     <Label Text="{Binding ScheduleSubtitle}"
                            FontFamily="OutfitRegular"
                            FontSize="14"
-                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark=#E6F4EA}"
+                           TextColor="{DynamicResource PageBody}"
                            HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
             </Border>
@@ -222,7 +222,7 @@
                         <Label Text="{Binding ScheduleTitle}"
                                FontFamily="OutfitSemiBold"
                                FontSize="18"
-                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                               TextColor="{DynamicResource PageTitle}"
                                Margin="22,8,22,0"
                                IsVisible="{Binding HasUpcoming}" />
 
@@ -236,7 +236,7 @@
                             <Label Text="Incomplete"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="18"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                                   TextColor="{DynamicResource PageTitle}"
                                    Margin="22,12,22,0" />
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding IncompleteMatches}"
                                                  BindableLayout.ItemTemplate="{StaticResource MatchRow}"
@@ -251,12 +251,12 @@
                                 <Label Text="Pitch is clear"
                                        FontFamily="OutfitSemiBold"
                                        FontSize="22"
-                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                                       TextColor="{DynamicResource PageTitle}"
                                        HorizontalOptions="Center" />
                                 <Label Text="Schedule a match and invite your contacts."
                                        FontFamily="OutfitRegular"
                                        FontSize="14"
-                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark=#E6F4EA}"
+                                       TextColor="{DynamicResource PageBody}"
                                        HorizontalTextAlignment="Center" />
                             </VerticalStackLayout>
                         </Border>

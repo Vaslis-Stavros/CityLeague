@@ -12,9 +12,9 @@
 
     <ContentPage.Resources>
         <Style x:Key="GlassPanel" TargetType="Border">
-            <Setter Property="Stroke" Value="#55FFFFFF" />
+            <Setter Property="Stroke" Value="{DynamicResource ThemeGlassStroke}" />
             <Setter Property="StrokeThickness" Value="1" />
-            <Setter Property="BackgroundColor" Value="#38FFFFFF" />
+            <Setter Property="BackgroundColor" Value="{DynamicResource ThemeGlassFill}" />
             <Setter Property="StrokeShape" Value="RoundRectangle 22" />
             <Setter Property="Padding" Value="14,12" />
         </Style>
@@ -55,11 +55,11 @@
                 <Label Text="Contacts"
                        FontFamily="OutfitSemiBold"
                        FontSize="28"
-                       TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
+                       TextColor="{DynamicResource SlateTitle}" />
                 <Label Text="{Binding ContactsSubtitle}"
                        FontFamily="OutfitRegular"
                        FontSize="14"
-                       TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                       TextColor="{DynamicResource SlateMuted}" />
             </VerticalStackLayout>
 
             <Border x:Name="SearchBlock"
@@ -73,7 +73,7 @@
                            Text="{Binding SearchQuery}"
                            ReturnCommand="{Binding SearchCommand}"
                            BackgroundColor="Transparent"
-                           TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}"
+                           TextColor="{DynamicResource SlateTitle}"
                            PlaceholderColor="#8FA0B5"
                            FontFamily="OutfitRegular"
                            FontSize="16" />
@@ -109,7 +109,7 @@
                             <Label Text="RESULTS"
                                    FontFamily="OutfitRegular"
                                    FontSize="12"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
+                                   TextColor="{DynamicResource SlateMuted}"
                                    CharacterSpacing="1.2"
                                    Margin="4,0,0,0" />
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding SearchResults}" Spacing="8">
@@ -125,12 +125,12 @@
                                                     <Label Text="{Binding DisplayName}"
                                                            FontFamily="OutfitSemiBold"
                                                            FontSize="15"
-                                                           TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}"
+                                                           TextColor="{DynamicResource SlateTitle}"
                                                            LineBreakMode="TailTruncation" />
                                                     <Label Text="{Binding Handle, StringFormat='@{0}'}"
                                                            FontFamily="OutfitRegular"
                                                            FontSize="12"
-                                                           TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                                                           TextColor="{DynamicResource SlateMuted}" />
                                                 </VerticalStackLayout>
                                                 <Border Grid.Column="2"
                                                         BackgroundColor="White"
@@ -160,7 +160,7 @@
                         <Label Text="YOUR PEOPLE"
                                FontFamily="OutfitRegular"
                                FontSize="12"
-                               TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
+                               TextColor="{DynamicResource SlateMuted}"
                                CharacterSpacing="1.2"
                                Margin="4,4,0,0"
                                IsVisible="{Binding ShowEmptyContacts, Converter={StaticResource InvertedBool}}" />
@@ -178,12 +178,12 @@
                                                 <Label Text="{Binding User.DisplayName}"
                                                        FontFamily="OutfitSemiBold"
                                                        FontSize="15"
-                                                       TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}"
+                                                       TextColor="{DynamicResource SlateTitle}"
                                                        LineBreakMode="TailTruncation" />
                                                 <Label Text="{Binding User.Handle, StringFormat='@{0}'}"
                                                        FontFamily="OutfitRegular"
                                                        FontSize="12"
-                                                       TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                                                       TextColor="{DynamicResource SlateMuted}" />
                                                 <Label Text="Wants to connect"
                                                        FontFamily="OutfitRegular"
                                                        FontSize="12"
@@ -222,12 +222,12 @@
                                 <Label Text="No contacts yet"
                                        FontFamily="OutfitSemiBold"
                                        FontSize="16"
-                                       TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}"
+                                       TextColor="{DynamicResource SlateTitle}"
                                        HorizontalTextAlignment="Center" />
                                 <Label Text="Search an @handle above to add people."
                                        FontFamily="OutfitRegular"
                                        FontSize="13"
-                                       TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
+                                       TextColor="{DynamicResource SlateMuted}"
                                        HorizontalTextAlignment="Center" />
                             </VerticalStackLayout>
                         </Border>

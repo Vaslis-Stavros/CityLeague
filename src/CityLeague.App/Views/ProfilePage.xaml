@@ -11,16 +11,16 @@
 
     <ContentPage.Resources>
         <Style x:Key="GlassPanel" TargetType="Border">
-            <Setter Property="Stroke" Value="#55FFFFFF" />
+            <Setter Property="Stroke" Value="{DynamicResource ThemeGlassStroke}" />
             <Setter Property="StrokeThickness" Value="1" />
-            <Setter Property="BackgroundColor" Value="#38FFFFFF" />
+            <Setter Property="BackgroundColor" Value="{DynamicResource ThemeGlassFill}" />
             <Setter Property="StrokeShape" Value="RoundRectangle 22" />
             <Setter Property="Padding" Value="16,14" />
         </Style>
         <Style x:Key="GlassField" TargetType="Entry">
             <Setter Property="BackgroundColor" Value="Transparent" />
-            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
-            <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark=#8FA0B5}" />
+            <Setter Property="TextColor" Value="{DynamicResource SlateTitle}" />
+            <Setter Property="PlaceholderColor" Value="{DynamicResource SlateSoft}" />
             <Setter Property="FontFamily" Value="OutfitRegular" />
             <Setter Property="FontSize" Value="15" />
         </Style>
@@ -62,7 +62,7 @@
                         <Label Text="Profile"
                                FontFamily="OutfitSemiBold"
                                FontSize="28"
-                               TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
+                               TextColor="{DynamicResource SlateTitle}" />
                     </VerticalStackLayout>
 
                     <Border Style="{StaticResource GlassPanel}" Padding="20,22">
@@ -74,13 +74,13 @@
                             <Label Text="{Binding DisplayName}"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="22"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}"
+                                   TextColor="{DynamicResource SlateTitle}"
                                    HorizontalTextAlignment="Center"
                                    LineBreakMode="TailTruncation" />
                             <Label Text="{Binding HandleText}"
                                    FontFamily="OutfitRegular"
                                    FontSize="14"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
+                                   TextColor="{DynamicResource SlateMuted}"
                                    HorizontalTextAlignment="Center" />
                             <Border BackgroundColor="White"
                                     StrokeThickness="0"
@@ -105,7 +105,7 @@
                     <Label Text="ACCOUNT"
                            FontFamily="OutfitRegular"
                            FontSize="12"
-                           TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
+                           TextColor="{DynamicResource SlateMuted}"
                            CharacterSpacing="1.2"
                            Margin="4,4,0,0" />
 
@@ -116,11 +116,11 @@
                                     <Label Text="Display name"
                                            FontFamily="OutfitSemiBold"
                                            FontSize="15"
-                                           TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
+                                           TextColor="{DynamicResource SlateTitle}" />
                                     <Label Text="{Binding DisplayName}"
                                            FontFamily="OutfitRegular"
                                            FontSize="13"
-                                           TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
+                                           TextColor="{DynamicResource SlateMuted}"
                                            LineBreakMode="TailTruncation" />
                                 </VerticalStackLayout>
                                 <Border Grid.Column="1"
@@ -136,7 +136,7 @@
                                     <Label Text="Edit"
                                            FontFamily="OutfitSemiBold"
                                            FontSize="12"
-                                           TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
+                                           TextColor="{DynamicResource SlateTitle}" />
                                 </Border>
                             </Grid>
 
@@ -168,11 +168,11 @@
                                     <Label Text="{Binding PasswordSectionTitle}"
                                            FontFamily="OutfitSemiBold"
                                            FontSize="15"
-                                           TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
+                                           TextColor="{DynamicResource SlateTitle}" />
                                     <Label Text="Keep your account secure"
                                            FontFamily="OutfitRegular"
                                            FontSize="13"
-                                           TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                                           TextColor="{DynamicResource SlateMuted}" />
                                 </VerticalStackLayout>
                                 <Border Grid.Column="1"
                                         BackgroundColor="#28FFFFFF"
@@ -187,7 +187,7 @@
                                     <Label Text="Edit"
                                            FontFamily="OutfitSemiBold"
                                            FontSize="12"
-                                           TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
+                                           TextColor="{DynamicResource SlateTitle}" />
                                 </Border>
                             </Grid>
 
@@ -225,7 +225,7 @@
                     <Label Text="YOUR STATS"
                            FontFamily="OutfitRegular"
                            FontSize="12"
-                           TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
+                           TextColor="{DynamicResource SlateMuted}"
                            CharacterSpacing="1.2"
                            Margin="4,4,0,0" />
 
@@ -238,7 +238,7 @@
                                                Text="{Binding SportName}"
                                                FontFamily="OutfitSemiBold"
                                                FontSize="16"
-                                               TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}"
+                                               TextColor="{DynamicResource SlateTitle}"
                                                VerticalOptions="Center" />
                                         <Label Grid.Column="1"
                                                FontFamily="OutfitRegular"
@@ -246,14 +246,14 @@
                                                VerticalOptions="Center">
                                             <Label.FormattedText>
                                                 <FormattedString>
-                                                    <Span Text="{Binding Played}" FontFamily="OutfitSemiBold" TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
-                                                    <Span Text=" played  ·  " TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                                                    <Span Text="{Binding Played}" FontFamily="OutfitSemiBold" TextColor="{DynamicResource SlateTitle}" />
+                                                    <Span Text=" played  ·  " TextColor="{DynamicResource SlateMuted}" />
                                                     <Span Text="{Binding Wins}" FontFamily="OutfitSemiBold" TextColor="#7DDEA0" />
-                                                    <Span Text="W " TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                                                    <Span Text="W " TextColor="{DynamicResource SlateMuted}" />
                                                     <Span Text="{Binding Losses}" FontFamily="OutfitSemiBold" TextColor="#FF8A80" />
-                                                    <Span Text="L " TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
-                                                    <Span Text="{Binding Draws}" FontFamily="OutfitSemiBold" TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
-                                                    <Span Text="D" TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                                                    <Span Text="L " TextColor="{DynamicResource SlateMuted}" />
+                                                    <Span Text="{Binding Draws}" FontFamily="OutfitSemiBold" TextColor="{DynamicResource SlateTitle}" />
+                                                    <Span Text="D" TextColor="{DynamicResource SlateMuted}" />
                                                 </FormattedString>
                                             </Label.FormattedText>
                                         </Label>
@@ -269,7 +269,7 @@
                         <Label Text="No games played yet. Join a match to build your record."
                                FontFamily="OutfitRegular"
                                FontSize="13"
-                               TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
+                               TextColor="{DynamicResource SlateMuted}"
                                HorizontalTextAlignment="Center" />
                     </Border>
 

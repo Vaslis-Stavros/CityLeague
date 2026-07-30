@@ -10,9 +10,9 @@
 
     <ContentPage.Resources>
         <Style x:Key="GlassPanel" TargetType="Border">
-            <Setter Property="Stroke" Value="#55FFFFFF" />
+            <Setter Property="Stroke" Value="{DynamicResource ThemeGlassStroke}" />
             <Setter Property="StrokeThickness" Value="1" />
-            <Setter Property="BackgroundColor" Value="#38FFFFFF" />
+            <Setter Property="BackgroundColor" Value="{DynamicResource ThemeGlassFill}" />
             <Setter Property="StrokeShape" Value="RoundRectangle 22" />
             <Setter Property="Padding" Value="16,14" />
         </Style>
@@ -36,16 +36,16 @@
                 <Label Text="Settings"
                        FontFamily="OutfitSemiBold"
                        FontSize="28"
-                       TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
+                       TextColor="{DynamicResource SlateTitle}" />
                 <Label Text="Appearance and how dates show up"
                        FontFamily="OutfitRegular"
                        FontSize="14"
-                       TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                       TextColor="{DynamicResource SlateMuted}" />
 
                 <Label Text="APPEARANCE"
                        FontFamily="OutfitRegular"
                        FontSize="12"
-                       TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
+                       TextColor="{DynamicResource SlateMuted}"
                        CharacterSpacing="1.2"
                        Margin="4,8,0,0" />
 
@@ -55,11 +55,11 @@
                             <Label Text="Dark theme"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="16"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
+                                   TextColor="{DynamicResource SlateTitle}" />
                             <Label Text="{Binding ThemeSubtitle}"
                                    FontFamily="OutfitRegular"
                                    FontSize="13"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                                   TextColor="{DynamicResource SlateMuted}" />
                         </VerticalStackLayout>
                         <Switch Grid.Column="1"
                                 IsToggled="{Binding IsDarkTheme}"
@@ -74,11 +74,11 @@
                             <Label Text="Reduce motion"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="16"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
+                                   TextColor="{DynamicResource SlateTitle}" />
                             <Label Text="Shorter page enter animations"
                                    FontFamily="OutfitRegular"
                                    FontSize="13"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                                   TextColor="{DynamicResource SlateMuted}" />
                         </VerticalStackLayout>
                         <Switch Grid.Column="1"
                                 IsToggled="{Binding ReduceMotion}"
@@ -90,7 +90,7 @@
                 <Label Text="DATE &amp; TIME"
                        FontFamily="OutfitRegular"
                        FontSize="12"
-                       TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}"
+                       TextColor="{DynamicResource SlateMuted}"
                        CharacterSpacing="1.2"
                        Margin="4,8,0,0" />
 
@@ -99,16 +99,16 @@
                         <Label Text="Date format"
                                FontFamily="OutfitSemiBold"
                                FontSize="16"
-                               TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
+                               TextColor="{DynamicResource SlateTitle}" />
                         <Picker ItemsSource="{Binding DateFormatOptions}"
                                 SelectedIndex="{Binding SelectedDateFormatIndex}"
-                                TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}"
+                                TextColor="{DynamicResource SlateTitle}"
                                 BackgroundColor="Transparent"
                                 Title="Format" />
                         <Label Text="{Binding PreviewDateText, StringFormat='Preview · {0}'}"
                                FontFamily="OutfitRegular"
                                FontSize="13"
-                               TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                               TextColor="{DynamicResource SlateMuted}" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -118,11 +118,11 @@
                             <Label Text="24-hour clock"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="16"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
+                                   TextColor="{DynamicResource SlateTitle}" />
                             <Label Text="Use 18:30 instead of 6:30 PM"
                                    FontFamily="OutfitRegular"
                                    FontSize="13"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                                   TextColor="{DynamicResource SlateMuted}" />
                         </VerticalStackLayout>
                         <Switch Grid.Column="1"
                                 IsToggled="{Binding Use24HourClock}"
@@ -137,11 +137,11 @@
                             <Label Text="Show weekday"
                                    FontFamily="OutfitSemiBold"
                                    FontSize="16"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateLight}, Dark={StaticResource OnSlateDark}}" />
+                                   TextColor="{DynamicResource SlateTitle}" />
                             <Label Text="Include Mon / Tue in date labels"
                                    FontFamily="OutfitRegular"
                                    FontSize="13"
-                                   TextColor="{AppThemeBinding Light={StaticResource OnSlateMutedLight}, Dark={StaticResource OnSlateMutedDark}}" />
+                                   TextColor="{DynamicResource SlateMuted}" />
                         </VerticalStackLayout>
                         <Switch Grid.Column="1"
                                 IsToggled="{Binding ShowWeekdayInDates}"

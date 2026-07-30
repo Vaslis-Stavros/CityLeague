@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Current light glass look (keep as-is) -->
+    <Color x:Key="PageTitle">#14261A</Color>
+    <Color x:Key="PageMuted">#3D6B4E</Color>
+    <Color x:Key="PageSoft">#4A7A5C</Color>
+    <Color x:Key="PageFaint">#14261A</Color>
+    <Color x:Key="PageBody">#3D6B4E</Color>
+    <Color x:Key="PageMeta">#3D6B4E</Color>
+
+    <Color x:Key="SlateTitle">#152033</Color>
+    <Color x:Key="SlateMuted">#4A5C70</Color>
+    <Color x:Key="SlateSoft">#4A5C70</Color>
+
+    <Color x:Key="ThemeGlassFill">#1A000000</Color>
+    <Color x:Key="ThemeGlassStroke">#28000000</Color>
+    <Color x:Key="ThemeGlassFillStrong">#24000000</Color>
+    <Color x:Key="ThemeChipFill">#22000000</Color>
+    <Color x:Key="ThemeChipStroke">#33000000</Color>
+    <Color x:Key="ThemeProgressTrack">#22000000</Color>
+    <Color x:Key="ThemeDateChipFill">#22000000</Color>
+</ResourceDictionary>

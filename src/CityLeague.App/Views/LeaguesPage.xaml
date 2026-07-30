@@ -11,9 +11,9 @@
 
     <ContentPage.Resources>
         <Style x:Key="GlassPanel" TargetType="Border">
-            <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}" />
+            <Setter Property="Stroke" Value="{DynamicResource ThemeGlassStroke}" />
             <Setter Property="StrokeThickness" Value="1" />
-            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource GlassFillLight}, Dark={StaticResource GlassFillDark}}" />
+            <Setter Property="BackgroundColor" Value="{DynamicResource ThemeGlassFill}" />
             <Setter Property="StrokeShape" Value="RoundRectangle 22" />
             <Setter Property="Padding" Value="16,14" />
         </Style>
@@ -53,11 +53,11 @@
                 <Label Text="Leagues"
                        FontFamily="OutfitSemiBold"
                        FontSize="28"
-                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
+                       TextColor="{DynamicResource PageTitle}" />
                 <Label Text="{Binding LeaguesSubtitle}"
                        FontFamily="OutfitRegular"
                        FontSize="14"
-                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}" />
+                       TextColor="{DynamicResource PageMuted}" />
             </VerticalStackLayout>
 
             <Border x:Name="CreateCta"
@@ -105,26 +105,26 @@
                                 <Label Text="NEW LEAGUE"
                                        FontFamily="OutfitRegular"
                                        FontSize="12"
-                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
+                                       TextColor="{DynamicResource PageMuted}"
                                        CharacterSpacing="1.2" />
                                 <Entry Placeholder="League name"
                                        Text="{Binding NewLeagueName}"
                                        BackgroundColor="Transparent"
-                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                                       TextColor="{DynamicResource PageTitle}"
                                        PlaceholderColor="#A8D5B5"
                                        FontFamily="OutfitRegular"
                                        FontSize="16" />
                                 <Entry Placeholder="Team 1 name"
                                        Text="{Binding Team1Name}"
                                        BackgroundColor="Transparent"
-                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                                       TextColor="{DynamicResource PageTitle}"
                                        PlaceholderColor="#A8D5B5"
                                        FontFamily="OutfitRegular"
                                        FontSize="16" />
                                 <Entry Placeholder="Team 2 name"
                                        Text="{Binding Team2Name}"
                                        BackgroundColor="Transparent"
-                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                                       TextColor="{DynamicResource PageTitle}"
                                        PlaceholderColor="#A8D5B5"
                                        FontFamily="OutfitRegular"
                                        FontSize="16" />
@@ -132,14 +132,14 @@
                                         ItemDisplayBinding="{Binding Name}"
                                         SelectedItem="{Binding SelectedSport}"
                                         Title="Sport"
-                                        TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                                        TextColor="{DynamicResource PageTitle}"
                                         BackgroundColor="Transparent" />
                                 <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
                                     <Label Grid.Column="0"
                                            Text="{Binding PlannedMatchLabel}"
                                            FontFamily="OutfitSemiBold"
                                            FontSize="14"
-                                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                                           TextColor="{DynamicResource PageTitle}"
                                            VerticalOptions="Center" />
                                     <Border Grid.Column="1"
                                             BackgroundColor="#28FFFFFF"
@@ -152,7 +152,7 @@
                                         <Label Text="−"
                                                FontFamily="OutfitSemiBold"
                                                FontSize="16"
-                                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                                               TextColor="{DynamicResource PageTitle}"
                                                HorizontalOptions="Center" />
                                     </Border>
                                     <Border Grid.Column="2"
@@ -166,7 +166,7 @@
                                         <Label Text="+"
                                                FontFamily="OutfitSemiBold"
                                                FontSize="16"
-                                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                                               TextColor="{DynamicResource PageTitle}"
                                                HorizontalOptions="Center" />
                                     </Border>
                                 </Grid>
@@ -202,11 +202,11 @@
                                                        Text="{Binding Name}"
                                                        FontFamily="OutfitSemiBold"
                                                        FontSize="18"
-                                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                                                       TextColor="{DynamicResource PageTitle}"
                                                        LineBreakMode="TailTruncation" />
                                                 <Border Grid.Column="1"
                                                         BackgroundColor="#28FFFFFF"
-                                                        Stroke="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}"
+                                                        Stroke="{DynamicResource ThemeGlassStroke}"
                                                         StrokeThickness="1"
                                                         StrokeShape="RoundRectangle 12"
                                                         Padding="10,5"
@@ -214,28 +214,28 @@
                                                     <Label Text="{Binding SportName}"
                                                            FontFamily="OutfitSemiBold"
                                                            FontSize="12"
-                                                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
+                                                           TextColor="{DynamicResource PageTitle}" />
                                                 </Border>
                                             </Grid>
 
-                                            <Label FontFamily="OutfitRegular" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}">
+                                            <Label FontFamily="OutfitRegular" FontSize="13" TextColor="{DynamicResource PageMuted}">
                                                 <Label.FormattedText>
                                                     <FormattedString>
-                                                        <Span Text="{Binding Team1Name}" FontFamily="OutfitSemiBold" TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
+                                                        <Span Text="{Binding Team1Name}" FontFamily="OutfitSemiBold" TextColor="{DynamicResource PageTitle}" />
                                                         <Span Text=" vs " />
-                                                        <Span Text="{Binding Team2Name}" FontFamily="OutfitSemiBold" TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
+                                                        <Span Text="{Binding Team2Name}" FontFamily="OutfitSemiBold" TextColor="{DynamicResource PageTitle}" />
                                                     </FormattedString>
                                                 </Label.FormattedText>
                                             </Label>
 
-                                            <Label FontFamily="OutfitRegular" FontSize="13" TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}">
+                                            <Label FontFamily="OutfitRegular" FontSize="13" TextColor="{DynamicResource PageMuted}">
                                                 <Label.FormattedText>
                                                     <FormattedString>
-                                                        <Span Text="{Binding CompletedMatchCount}" FontFamily="OutfitSemiBold" TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
+                                                        <Span Text="{Binding CompletedMatchCount}" FontFamily="OutfitSemiBold" TextColor="{DynamicResource PageTitle}" />
                                                         <Span Text=" / " />
-                                                        <Span Text="{Binding PlannedMatchCount}" FontFamily="OutfitSemiBold" TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
+                                                        <Span Text="{Binding PlannedMatchCount}" FontFamily="OutfitSemiBold" TextColor="{DynamicResource PageTitle}" />
                                                         <Span Text=" matches  ·  " />
-                                                        <Span Text="{Binding ParticipantCount}" FontFamily="OutfitSemiBold" TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
+                                                        <Span Text="{Binding ParticipantCount}" FontFamily="OutfitSemiBold" TextColor="{DynamicResource PageTitle}" />
                                                         <Span Text=" players  ·  " />
                                                         <Span Text="{Binding Status}" />
                                                     </FormattedString>
@@ -304,12 +304,12 @@
                                 <Label Text="No leagues yet"
                                        FontFamily="OutfitSemiBold"
                                        FontSize="16"
-                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                                       TextColor="{DynamicResource PageTitle}"
                                        HorizontalTextAlignment="Center" />
                                 <Label Text="Create one to keep a season of matches together."
                                        FontFamily="OutfitRegular"
                                        FontSize="13"
-                                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}"
+                                       TextColor="{DynamicResource PageMuted}"
                                        HorizontalTextAlignment="Center" />
                             </VerticalStackLayout>
                         </Border>

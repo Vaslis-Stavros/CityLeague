@@ -103,6 +103,7 @@ public sealed class AppPreferences : IAppPreferences
         {
             if (Application.Current is null) return;
             Application.Current.UserAppTheme = IsLight ? AppTheme.Light : AppTheme.Dark;
+            ApplyThemeDictionary(IsLight);
 
             if (Shell.Current is not null)
             {
@@ -126,6 +127,36 @@ public sealed class AppPreferences : IAppPreferences
 
             Helpers.StatusBarTheme.RefreshCurrentPage();
         });
+    }
+
+    /// <summary>
+    /// Swaps DynamicResource theme keys so dark mode matches the original glass look
+    /// while light mode keeps the current readable palette.
+    /// </summary>
+    private static void ApplyThemeDictionary(bool light)
+    {
+        if (Application.Current?.Resources.MergedDictionaries is not { } merged)
+            return;
+
+        ResourceDictionary? existing = null;
+        foreach (var dict in merged)
+        {
+            var source = dict.Source?.OriginalString ?? string.Empty;
+            if (source.Contains("Theme.Light.xaml", StringComparison.OrdinalIgnoreCase)
+                || source.Contains("Theme.Dark.xaml", StringComparison.OrdinalIgnoreCase))
+            {
+                existing = dict;
+                break;
+            }
+        }
+
+        if (existing is not null)
+            merged.Remove(existing);
+
+        var path = light
+            ? "Resources/Styles/Theme.Light.xaml"
+            : "Resources/Styles/Theme.Dark.xaml";
+        merged.Add(new ResourceDictionary { Source = new Uri(path, UriKind.Relative) });
     }
 
     public string FormatDateTime(DateTimeOffset value)

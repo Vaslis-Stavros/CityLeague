@@ -56,6 +56,8 @@ public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth, IAppPr
         OnPropertyChanged(nameof(SoftTextColor));
         OnPropertyChanged(nameof(SoftMutedColor));
         OnPropertyChanged(nameof(AccentColor));
+        // Force sport-chip MultiBindings to re-evaluate chip fill/text for the new theme.
+        OnPropertyChanged(nameof(SelectedSport));
         ApplyFilter();
     }
 

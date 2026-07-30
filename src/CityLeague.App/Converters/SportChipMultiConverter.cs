@@ -21,6 +21,17 @@ public class SportChipMultiConverter : IMultiValueConverter
 
         if (!isSelected)
         {
+            // Prefer live DynamicResource values when available.
+            if (Application.Current?.Resources is { } res)
+            {
+                if (part == "background" && res.TryGetValue("ThemeChipFill", out var fill) && fill is Color fillColor)
+                    return fillColor;
+                if (part == "stroke" && res.TryGetValue("ThemeChipStroke", out var stroke) && stroke is Color strokeColor)
+                    return strokeColor;
+                if (part == "text" && res.TryGetValue("PageFaint", out var text) && text is Color textColor)
+                    return textColor;
+            }
+
             return part switch
             {
                 "background" => light ? Color.FromArgb("#22000000") : Color.FromArgb("#28FFFFFF"),

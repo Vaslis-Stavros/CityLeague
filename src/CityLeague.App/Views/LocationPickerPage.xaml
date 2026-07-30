@@ -11,9 +11,9 @@
 
     <ContentPage.Resources>
         <Style x:Key="GlassPanel" TargetType="Border">
-            <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}" />
+            <Setter Property="Stroke" Value="{DynamicResource ThemeGlassStroke}" />
             <Setter Property="StrokeThickness" Value="1" />
-            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource GlassFillLight}, Dark={StaticResource GlassFillDark}}" />
+            <Setter Property="BackgroundColor" Value="{DynamicResource ThemeGlassFill}" />
             <Setter Property="StrokeShape" Value="RoundRectangle 22" />
             <Setter Property="Padding" Value="16,14" />
         </Style>
@@ -37,15 +37,15 @@
                 <Label Text="Pick a pitch"
                        FontFamily="OutfitSemiBold"
                        FontSize="26"
-                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}" />
+                       TextColor="{DynamicResource PageTitle}" />
                 <Label Text="{Binding FieldsSubtitle}"
                        FontFamily="OutfitRegular"
                        FontSize="13"
-                       TextColor="{AppThemeBinding Light={StaticResource OnSurfaceMutedLight}, Dark={StaticResource OnSurfaceMutedDark}}" />
+                       TextColor="{DynamicResource PageMuted}" />
             </VerticalStackLayout>
 
             <Border Grid.Row="1"
-                    Stroke="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}"
+                    Stroke="{DynamicResource ThemeGlassStroke}"
                     StrokeThickness="1"
                     BackgroundColor="#22FFFFFF"
                     StrokeShape="RoundRectangle 22"
@@ -62,14 +62,14 @@
                     <Label Text="{Binding AddressPreview}"
                            FontFamily="OutfitSemiBold"
                            FontSize="14"
-                           TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                           TextColor="{DynamicResource PageTitle}"
                            LineBreakMode="TailTruncation" />
                 </Border>
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                     <Border Grid.Column="0"
                             BackgroundColor="#28FFFFFF"
-                            Stroke="{AppThemeBinding Light={StaticResource GlassStrokeLight}, Dark={StaticResource GlassStrokeDark}}"
+                            Stroke="{DynamicResource ThemeGlassStroke}"
                             StrokeThickness="1"
                             StrokeShape="RoundRectangle 18"
                             Padding="14,12">
@@ -79,7 +79,7 @@
                         <Label Text="My location"
                                FontFamily="OutfitSemiBold"
                                FontSize="14"
-                               TextColor="{AppThemeBinding Light={StaticResource OnSurfaceLight}, Dark={StaticResource OnSurfaceDark}}"
+                               TextColor="{DynamicResource PageTitle}"
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />
                     </Border>
