@@ -7,6 +7,7 @@
     xmlns:vm="clr-namespace:CityLeague.App.ViewModels"
     x:Name="Page"
     Shell.NavBarIsVisible="False"
+    BackgroundColor="#06351A"
     Title="CityLeague">
 
     <ContentPage.Resources>

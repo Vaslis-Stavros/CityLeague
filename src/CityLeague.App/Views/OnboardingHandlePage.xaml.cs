@@ -10,4 +10,10 @@ public partial class OnboardingHandlePage : ContentPage
         InitializeComponent();
         BindingContext = ServiceHelper.GetService<OnboardingHandleViewModel>();
     }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        StatusBarTheme.Apply(this, StatusBarTheme.BrandTop);
+    }
 }

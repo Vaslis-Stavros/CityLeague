@@ -17,6 +17,7 @@ public partial class SubmitResultPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
+        StatusBarTheme.Apply(this, StatusBarTheme.PitchTop);
         _vm.AppearingCommand.Execute(null);
     }
 }

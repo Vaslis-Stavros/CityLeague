@@ -25,6 +25,7 @@ public partial class LocationPickerPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        StatusBarTheme.Apply(this, StatusBarTheme.PitchTop);
         await LoadMapHtmlAsync();
         _vm.AppearingCommand.Execute(null);
     }

@@ -18,6 +18,7 @@ public partial class LeagueDetailPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        StatusBarTheme.Apply(this, StatusBarTheme.PitchTop);
         _vm.AppearingCommand.Execute(null);
 
         if (_didAnimate)
