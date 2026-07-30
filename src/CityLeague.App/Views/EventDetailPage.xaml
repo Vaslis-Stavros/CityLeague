@@ -168,28 +168,76 @@
                                FontSize="12"
                                TextColor="#C8E6C8"
                                CharacterSpacing="1.2" />
-                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding InviteCandidates}" Spacing="6">
-                            <BindableLayout.ItemTemplate>
+
+                        <Border BackgroundColor="#22FFFFFF"
+                                Stroke="{StaticResource GlassStroke}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 16"
+                                Padding="12,8"
+                                IsVisible="{Binding HasInviteCandidates}">
+                            <Entry Placeholder="Search contacts"
+                                   Text="{Binding InviteSearchQuery}"
+                                   BackgroundColor="Transparent"
+                                   TextColor="White"
+                                   PlaceholderColor="#A8D5B5"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="14" />
+                        </Border>
+
+                        <CollectionView ItemsSource="{Binding InviteCandidates}"
+                                        HeightRequest="420"
+                                        IsVisible="{Binding HasFilteredInviteCandidates}"
+                                        SelectionMode="None">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="6" />
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="vm:SelectableContact">
-                                    <Grid ColumnDefinitions="*,Auto" Padding="2,4">
-                                        <Label Grid.Column="0"
-                                               Text="{Binding User.DisplayName}"
-                                               FontFamily="OutfitSemiBold"
-                                               FontSize="14"
-                                               TextColor="White"
-                                               VerticalOptions="Center" />
-                                        <Switch Grid.Column="1"
-                                                IsToggled="{Binding IsSelected}"
-                                                OnColor="{StaticResource Accent}" />
-                                    </Grid>
+                                    <Border BackgroundColor="#22FFFFFF"
+                                            Stroke="#44FFFFFF"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 16"
+                                            Padding="10,8">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                            <controls:AvatarView Grid.Column="0"
+                                                                 DisplayName="{Binding User.DisplayName}"
+                                                                 ImageUrl="{Binding User.AvatarUrl}"
+                                                                 Diameter="40"
+                                                                 VerticalOptions="Center" />
+                                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                                                <Label Text="{Binding User.DisplayName}"
+                                                       FontFamily="OutfitSemiBold"
+                                                       FontSize="14"
+                                                       TextColor="White"
+                                                       LineBreakMode="TailTruncation" />
+                                                <Label Text="{Binding User.Handle, StringFormat='@{0}'}"
+                                                       FontFamily="OutfitRegular"
+                                                       FontSize="12"
+                                                       TextColor="#A8D5B5"
+                                                       LineBreakMode="TailTruncation" />
+                                            </VerticalStackLayout>
+                                            <Switch Grid.Column="2"
+                                                    IsToggled="{Binding IsSelected}"
+                                                    OnColor="{StaticResource Accent}"
+                                                    VerticalOptions="Center" />
+                                        </Grid>
+                                    </Border>
                                 </DataTemplate>
-                            </BindableLayout.ItemTemplate>
-                        </VerticalStackLayout>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <Label Text="No contacts match that search."
+                               FontFamily="OutfitRegular"
+                               FontSize="13"
+                               TextColor="#A8D5B5"
+                               IsVisible="{Binding ShowInviteSearchEmpty}" />
+
                         <Label Text="All your contacts are already in."
                                FontFamily="OutfitRegular"
                                FontSize="13"
                                TextColor="#A8D5B5"
                                IsVisible="{Binding HasInviteCandidates, Converter={StaticResource InvertedBool}}" />
+
                         <Border Style="{StaticResource GlassAction}"
                                 Margin="0,4,0,0"
                                 IsVisible="{Binding HasInviteCandidates}">

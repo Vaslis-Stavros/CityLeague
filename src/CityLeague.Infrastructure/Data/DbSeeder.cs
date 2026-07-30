@@ -94,21 +94,21 @@ public static class DbSeeder
             await db.SaveChangesAsync(ct);
         }
 
-        var dummies = new (string Handle, string Name)[]
+        var dummies = new (string Handle, string Name, string AvatarUrl)[]
         {
-            ("alex_k", "Alex K"),
-            ("jordan_lee", "Jordan Lee"),
-            ("samira", "Samira N"),
-            ("marco_r", "Marco R"),
-            ("nina_p", "Nina P"),
-            ("owen_b", "Owen B"),
-            ("priya", "Priya S"),
-            ("theo_m", "Theo M"),
-            ("luna_c", "Luna C"),
-            ("kai_w", "Kai W"),
+            ("alex_k", "Alex K", "https://api.dicebear.com/7.x/avataaars/png?seed=alex_k&size=128"),
+            ("jordan_lee", "Jordan Lee", "https://api.dicebear.com/7.x/avataaars/png?seed=jordan_lee&size=128"),
+            ("samira", "Samira N", "https://api.dicebear.com/7.x/avataaars/png?seed=samira&size=128"),
+            ("marco_r", "Marco R", "https://api.dicebear.com/7.x/avataaars/png?seed=marco_r&size=128"),
+            ("nina_p", "Nina P", "https://api.dicebear.com/7.x/avataaars/png?seed=nina_p&size=128"),
+            ("owen_b", "Owen B", "https://api.dicebear.com/7.x/avataaars/png?seed=owen_b&size=128"),
+            ("priya", "Priya S", "https://api.dicebear.com/7.x/avataaars/png?seed=priya&size=128"),
+            ("theo_m", "Theo M", "https://api.dicebear.com/7.x/avataaars/png?seed=theo_m&size=128"),
+            ("luna_c", "Luna C", "https://api.dicebear.com/7.x/avataaars/png?seed=luna_c&size=128"),
+            ("kai_w", "Kai W", "https://api.dicebear.com/7.x/avataaars/png?seed=kai_w&size=128"),
         };
 
-        foreach (var (handle, name) in dummies)
+        foreach (var (handle, name, avatarUrl) in dummies)
         {
             var contactUser = await db.Users.FirstOrDefaultAsync(u => u.UniqueHandle == handle, ct);
             if (contactUser is null)
@@ -119,9 +119,18 @@ public static class DbSeeder
                     Email = $"{handle}@cityleague.demo",
                     DisplayName = name,
                     UniqueHandle = handle,
+                    AvatarBlobUrl = avatarUrl,
                 };
                 db.Users.Add(contactUser);
                 await db.SaveChangesAsync(ct);
+            }
+            else if (contactUser.B2CObjectId?.StartsWith("demo:", StringComparison.Ordinal) == true
+                     || string.IsNullOrWhiteSpace(contactUser.AvatarBlobUrl)
+                     || contactUser.AvatarBlobUrl.Contains("pravatar.cc", StringComparison.OrdinalIgnoreCase)
+                     || contactUser.AvatarBlobUrl.Contains("dicebear.com", StringComparison.OrdinalIgnoreCase))
+            {
+                // Keep demo faces up to date for invite-panel testing.
+                contactUser.AvatarBlobUrl = avatarUrl;
             }
 
             await EnsureAcceptedEdgeAsync(db, owner.Id, contactUser.Id, ct);
