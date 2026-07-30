@@ -18,6 +18,7 @@ public partial class HistoryPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        StatusBarTheme.Apply(this, StatusBarTheme.SlateTop);
         _vm.AppearingCommand.Execute(null);
 
         if (_didAnimate)

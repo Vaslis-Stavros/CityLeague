@@ -8,6 +8,7 @@
     xmlns:controls="clr-namespace:CityLeague.App.Controls"
     x:Name="Page"
     Shell.NavBarIsVisible="False"
+    BackgroundColor="#06351A"
     Title="{Binding Title}">
 
     <ContentPage.Resources>
@@ -57,6 +58,7 @@
                                  Opacity="0">
 
                 <VerticalStackLayout x:Name="HeaderBlock" Spacing="4">
+                    <controls:MinimalBackButton />
                     <Label Text="CityLeague"
                            FontFamily="OutfitSemiBold"
                            FontSize="13"

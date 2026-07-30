@@ -77,5 +77,6 @@ public partial class HomePage : ContentPage
         GlowOrb.Fill = theme.Glow;
         BrandLabel.TextColor = theme.SoftText;
         SubtitleLabel.TextColor = theme.SoftMuted;
+        StatusBarTheme.Apply(this, theme.Top);
     }
 }

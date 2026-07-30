@@ -6,6 +6,7 @@
     xmlns:dtos="clr-namespace:CityLeague.Core.Dtos;assembly=CityLeague.Core"
     xmlns:controls="clr-namespace:CityLeague.App.Controls"
     Shell.NavBarIsVisible="False"
+    BackgroundColor="#0E1525"
     Title="Profile">
 
     <ContentPage.Resources>
@@ -57,6 +58,7 @@
                                      Opacity="0">
 
                     <VerticalStackLayout x:Name="HeaderBlock" Spacing="4">
+                        <controls:MinimalBackButton />
                         <Label Text="CityLeague"
                                FontFamily="OutfitSemiBold"
                                FontSize="13"

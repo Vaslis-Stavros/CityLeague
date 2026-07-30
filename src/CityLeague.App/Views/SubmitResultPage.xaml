@@ -3,47 +3,171 @@
     x:Class="CityLeague.App.Views.SubmitResultPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:CityLeague.App.Controls"
     Shell.NavBarIsVisible="False"
+    BackgroundColor="#06351A"
     Title="Submit result">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="20">
-            <Label Text="{Binding EventTitle}" FontSize="22" FontAttributes="Bold" HorizontalOptions="Center" />
-            <Label Text="Enter the final score" TextColor="#666" HorizontalOptions="Center" />
+    <Grid>
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#06351A" Offset="0" />
+                    <GradientStop Color="#0B6B2E" Offset="0.45" />
+                    <GradientStop Color="#1FA85A" Offset="1" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
 
-            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10" Margin="0,10">
-                <!-- Home -->
-                <VerticalStackLayout Grid.Column="0" Spacing="6">
-                    <Label Text="Home" HorizontalOptions="Center" FontAttributes="Bold" />
-                    <Label Text="{Binding HomeScore}" FontSize="52" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource Brand}" />
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                        <Button Grid.Column="0" Text="-" Command="{Binding DecrementHomeCommand}" />
-                        <Button Grid.Column="1" Text="+" Command="{Binding IncrementHomeCommand}" />
-                    </Grid>
-                </VerticalStackLayout>
+        <ScrollView VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Padding="22,18,22,28" Spacing="18">
+                <controls:MinimalBackButton />
 
-                <Label Grid.Column="1" Text=":" FontSize="46" VerticalOptions="Center" />
+                <Label Text="CityLeague"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="13"
+                       TextColor="#DDEFDD"
+                       CharacterSpacing="1.2" />
+                <Label Text="{Binding EventTitle}"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="26"
+                       TextColor="White" />
+                <Label Text="Enter the final score"
+                       FontFamily="OutfitRegular"
+                       FontSize="14"
+                       TextColor="#C8E6C8" />
 
-                <!-- Away -->
-                <VerticalStackLayout Grid.Column="2" Spacing="6">
-                    <Label Text="Away" HorizontalOptions="Center" FontAttributes="Bold" />
-                    <Label Text="{Binding AwayScore}" FontSize="52" FontAttributes="Bold" HorizontalOptions="Center" TextColor="{StaticResource Brand}" />
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                        <Button Grid.Column="0" Text="-" Command="{Binding DecrementAwayCommand}" />
-                        <Button Grid.Column="1" Text="+" Command="{Binding IncrementAwayCommand}" />
-                    </Grid>
-                </VerticalStackLayout>
-            </Grid>
+                <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10" Margin="0,8">
+                    <VerticalStackLayout Grid.Column="0" Spacing="8">
+                        <Label Text="Home"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="13"
+                               TextColor="#C8E6C8"
+                               HorizontalOptions="Center" />
+                        <Label Text="{Binding HomeScore}"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="52"
+                               TextColor="White"
+                               HorizontalOptions="Center" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <Border Grid.Column="0"
+                                    BackgroundColor="#28FFFFFF"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 14"
+                                    Padding="0"
+                                    HeightRequest="44">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding DecrementHomeCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="−"
+                                       FontFamily="OutfitSemiBold"
+                                       FontSize="22"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <Border Grid.Column="1"
+                                    BackgroundColor="#28FFFFFF"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 14"
+                                    Padding="0"
+                                    HeightRequest="44">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IncrementHomeCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="+"
+                                       FontFamily="OutfitSemiBold"
+                                       FontSize="22"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
 
-            <Label Text="{Binding ErrorMessage}" TextColor="#C0392B"
-                   IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}" HorizontalOptions="Center" />
+                    <Label Grid.Column="1"
+                           Text=":"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="46"
+                           TextColor="#C8E6C8"
+                           VerticalOptions="Center" />
 
-            <Button Text="Submit result"
-                    Command="{Binding SubmitCommand}"
-                    IsEnabled="{Binding IsNotBusy}"
-                    BackgroundColor="{StaticResource Brand}" TextColor="White" />
+                    <VerticalStackLayout Grid.Column="2" Spacing="8">
+                        <Label Text="Away"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="13"
+                               TextColor="#C8E6C8"
+                               HorizontalOptions="Center" />
+                        <Label Text="{Binding AwayScore}"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="52"
+                               TextColor="White"
+                               HorizontalOptions="Center" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <Border Grid.Column="0"
+                                    BackgroundColor="#28FFFFFF"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 14"
+                                    Padding="0"
+                                    HeightRequest="44">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding DecrementAwayCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="−"
+                                       FontFamily="OutfitSemiBold"
+                                       FontSize="22"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                            <Border Grid.Column="1"
+                                    BackgroundColor="#28FFFFFF"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 14"
+                                    Padding="0"
+                                    HeightRequest="44">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding IncrementAwayCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="+"
+                                       FontFamily="OutfitSemiBold"
+                                       FontSize="22"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Grid>
 
-            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Brand}" />
-        </VerticalStackLayout>
-    </ScrollView>
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="#FFCDD2"
+                       FontFamily="OutfitRegular"
+                       FontSize="13"
+                       IsVisible="{Binding ErrorMessage, Converter={StaticResource IsStringNotEmpty}}"
+                       HorizontalOptions="Center" />
+
+                <Border BackgroundColor="White"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 18"
+                        Padding="14,14"
+                        IsEnabled="{Binding IsNotBusy}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SubmitCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Submit result"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="15"
+                           TextColor="{StaticResource Brand}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="White"
+                                   HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

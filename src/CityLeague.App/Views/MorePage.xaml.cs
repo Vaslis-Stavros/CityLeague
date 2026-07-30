@@ -18,6 +18,7 @@ public partial class MorePage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        StatusBarTheme.Apply(this, StatusBarTheme.SlateTop);
 
         if (_didAnimate)
             return;

@@ -1,7 +1,6 @@
 using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using Android.Views;
 
 namespace CityLeague.App;
 
@@ -12,15 +11,28 @@ public class MainActivity : MauiAppCompatActivity
     {
         base.OnCreate(savedInstanceState);
 
+        // Default to the slate glass top until a page applies its own theme.
+        // Per-screen colors are set from StatusBarTheme.Apply in OnAppearing.
         if (Build.VERSION.SdkInt < BuildVersionCodes.Lollipop || Window is null)
             return;
 
-        Window.SetStatusBarColor(Android.Graphics.Color.White);
-        if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
+        Window.AddFlags(Android.Views.WindowManagerFlags.DrawsSystemBarBackgrounds);
+        Window.ClearFlags(Android.Views.WindowManagerFlags.TranslucentStatus);
+#pragma warning disable CA1422
+        Window.SetStatusBarColor(Android.Graphics.Color.ParseColor("#0E1525"));
+#pragma warning restore CA1422
+
+        if (Build.VERSION.SdkInt >= BuildVersionCodes.R)
         {
-            var decor = Window.DecorView;
-            if (decor is not null)
-                decor.SystemUiVisibility = (StatusBarVisibility)SystemUiFlags.LightStatusBar;
+            Window.InsetsController?.SetSystemBarsAppearance(
+                0,
+                (int)Android.Views.WindowInsetsControllerAppearance.LightStatusBars);
+        }
+        else if (Build.VERSION.SdkInt >= BuildVersionCodes.M && Window.DecorView is { } decor)
+        {
+#pragma warning disable CA1422
+            decor.SystemUiVisibility = 0;
+#pragma warning restore CA1422
         }
     }
 }

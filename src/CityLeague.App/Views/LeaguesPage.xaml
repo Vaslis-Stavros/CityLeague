@@ -6,6 +6,7 @@
     xmlns:dtos="clr-namespace:CityLeague.Core.Dtos;assembly=CityLeague.Core"
     x:Name="Page"
     Shell.NavBarIsVisible="False"
+    BackgroundColor="#06351A"
     Title="Leagues">
 
     <ContentPage.Resources>

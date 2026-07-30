@@ -37,6 +37,10 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
 	<!-- OAuth redirect scheme; must match the API's Auth:MobileRedirectUri. -->
 	<key>CFBundleURLTypes</key>
 	<array>

@@ -3,7 +3,7 @@
     x:Class="CityLeague.App.Views.LoginPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    BackgroundColor="{StaticResource Brand}"
+    BackgroundColor="#0B6B2E"
     HideSoftInputOnTapped="True">
 
     <ContentPage.Resources>
