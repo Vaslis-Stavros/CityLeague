@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CityLeague.App.Helpers;
 using CityLeague.App.Services;
 using CityLeague.Core.Dtos;
 
@@ -202,10 +203,9 @@ public partial class HomeViewModel(ICityLeagueApi api, IAuthService auth) : Base
     {
         if (!CanCreateMatch)
         {
-            await Shell.Current.DisplayAlert(
+            await GlassDialog.AlertAsync(
                 "Result needed",
-                "Submit the pending match result before creating another event.",
-                "OK");
+                "Submit the pending match result before creating another event.");
             return;
         }
 

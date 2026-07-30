@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.GlassDialogPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#B306351A">
+
+    <Grid Padding="28" x:Name="Root">
+        <Border x:Name="Card"
+                MaximumWidthRequest="360"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                Stroke="#66FFFFFF"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 24"
+                Padding="22,20"
+                Opacity="0"
+                Scale="0.94">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#E00B6B2E" Offset="0" />
+                    <GradientStop Color="#CC0A4F24" Offset="0.55" />
+                    <GradientStop Color="#E006351A" Offset="1" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Shadow>
+                <Shadow Brush="#66000000" Offset="0,12" Radius="28" Opacity="0.45" />
+            </Border.Shadow>
+
+            <VerticalStackLayout x:Name="ContentStack" Spacing="14">
+                <Label x:Name="TitleLabel"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="22"
+                       TextColor="White"
+                       HorizontalTextAlignment="Center" />
+
+                <Label x:Name="MessageLabel"
+                       FontFamily="OutfitRegular"
+                       FontSize="14"
+                       TextColor="#D5EBD8"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="WordWrap" />
+
+                <Border x:Name="PromptHost"
+                        BackgroundColor="#22FFFFFF"
+                        Stroke="#55FFFFFF"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 16"
+                        Padding="12,8"
+                        IsVisible="False">
+                    <Entry x:Name="PromptEntry"
+                           BackgroundColor="Transparent"
+                           TextColor="White"
+                           PlaceholderColor="#A8D5B5"
+                           FontFamily="OutfitRegular"
+                           FontSize="15"
+                           ReturnType="Done" />
+                </Border>
+
+                <VerticalStackLayout x:Name="ChoicesStack" Spacing="8" Margin="0,6,0,0" />
+
+                <Border x:Name="CancelButton"
+                        BackgroundColor="#28FFFFFF"
+                        Stroke="#55FFFFFF"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18"
+                        Padding="14,12"
+                        Margin="0,2,0,0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCancelTapped" />
+                    </Border.GestureRecognizers>
+                    <Label x:Name="CancelLabel"
+                           Text="Cancel"
+                           FontFamily="OutfitSemiBold"
+                           FontSize="15"
+                           TextColor="#EAF7EE"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

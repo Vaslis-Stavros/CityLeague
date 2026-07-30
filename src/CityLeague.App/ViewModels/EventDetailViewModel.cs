@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CityLeague.App.Helpers;
 using CityLeague.App.Services;
 using CityLeague.Core.Dtos;
 
@@ -276,7 +277,7 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
     private async Task LockAsync()
     {
         if (!CanLock) return;
-        var confirmed = await Shell.Current.DisplayAlert(
+        var confirmed = await GlassDialog.ConfirmAsync(
             "Lock match?",
             "The roster will freeze. Players can still swap positions. After kickoff you'll submit the result.",
             "Lock", "Cancel");
@@ -299,10 +300,11 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
     private async Task DeleteAsync()
     {
         if (!CanDelete) return;
-        var confirmed = await Shell.Current.DisplayAlert(
+        var confirmed = await GlassDialog.ConfirmAsync(
             "Delete match?",
             "This match will be permanently removed for everyone.",
-            "Delete", "Cancel");
+            "Delete", "Cancel",
+            destructive: true);
         if (!confirmed) return;
         await RunAsync(async () =>
         {
@@ -315,10 +317,11 @@ public partial class EventDetailViewModel(ICityLeagueApi api, IAuthService auth,
     private async Task LeaveAsync()
     {
         if (!CanLeave) return;
-        var confirmed = await Shell.Current.DisplayAlert(
+        var confirmed = await GlassDialog.ConfirmAsync(
             "Remove from your list?",
             "You'll leave this match. The organizer can still keep it for others.",
-            "Remove", "Cancel");
+            "Remove", "Cancel",
+            destructive: true);
         if (!confirmed) return;
         await RunAsync(async () =>
         {

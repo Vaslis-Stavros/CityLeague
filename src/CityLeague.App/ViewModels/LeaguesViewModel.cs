@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CityLeague.App.Helpers;
 using CityLeague.App.Services;
 using CityLeague.Core.Dtos;
 
@@ -153,10 +154,11 @@ public partial class LeaguesViewModel(ICityLeagueApi api) : BaseViewModel
     {
         if (league is null || !league.CanDelete) return;
 
-        var confirmed = await Shell.Current.DisplayAlert(
+        var confirmed = await GlassDialog.ConfirmAsync(
             "Delete league?",
             "This league has no finished matches and will be permanently removed.",
-            "Delete", "Cancel");
+            "Delete", "Cancel",
+            destructive: true);
         if (!confirmed) return;
 
         await RunAsync(async () =>
@@ -173,7 +175,7 @@ public partial class LeaguesViewModel(ICityLeagueApi api) : BaseViewModel
     {
         if (league is null || !league.CanEnd) return;
 
-        var confirmed = await Shell.Current.DisplayAlert(
+        var confirmed = await GlassDialog.ConfirmAsync(
             "End league?",
             "Finish this league now and move it to History. Team leaders can do this early.",
             "End league", "Cancel");

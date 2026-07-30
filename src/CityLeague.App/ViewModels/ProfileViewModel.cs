@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CityLeague.App.Helpers;
 using CityLeague.App.Services;
 using CityLeague.Core.Dtos;
 using Microsoft.Maui.Media;
@@ -186,12 +187,8 @@ public partial class ProfileViewModel(ICityLeagueApi api, IAuthService auth) : B
         }
     }
 
-    private static async Task ShowAlertAsync(string message)
-    {
-        var page = Shell.Current?.CurrentPage;
-        if (page is not null)
-            await page.DisplayAlertAsync("Photo", message, "OK");
-    }
+    private static Task ShowAlertAsync(string message)
+        => GlassDialog.AlertAsync("Photo", message);
 
     private static string GuessContentType(string fileName) => Path.GetExtension(fileName).ToLowerInvariant() switch
     {

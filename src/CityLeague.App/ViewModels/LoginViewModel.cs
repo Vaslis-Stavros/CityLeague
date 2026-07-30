@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CityLeague.App.Helpers;
 using CityLeague.App.Services;
 using CityLeague.Core.Validation;
 
@@ -231,12 +232,10 @@ public partial class LoginViewModel(IAuthService auth, ISocialSignInService soci
         await ShowAlertAsync("Missing information", message);
     }
 
-    private static async Task ShowAlertAsync(string title, string? message)
+    private static Task ShowAlertAsync(string title, string? message)
     {
-        if (string.IsNullOrWhiteSpace(message)) return;
-        var page = Shell.Current?.CurrentPage;
-        if (page is not null)
-            await page.DisplayAlertAsync(title, message, "OK");
+        if (string.IsNullOrWhiteSpace(message)) return Task.CompletedTask;
+        return GlassDialog.AlertAsync(title, message);
     }
 
     private async Task NavigateOnwardAsync()

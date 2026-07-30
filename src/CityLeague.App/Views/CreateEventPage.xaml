@@ -74,7 +74,7 @@
                        TextColor="#C8E6C8" />
             </VerticalStackLayout>
 
-            // Form padding leaves room above the fixed Create CTA + tab bar.
+            <!-- Form padding leaves room above the fixed Create CTA + tab bar. -->
             <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
                 <VerticalStackLayout x:Name="FormBlock"
                                      Padding="18,4,18,28"

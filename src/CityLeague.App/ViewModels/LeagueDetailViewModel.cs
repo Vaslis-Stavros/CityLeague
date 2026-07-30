@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CityLeague.App.Helpers;
 using CityLeague.App.Services;
 using CityLeague.Core.Dtos;
 
@@ -103,7 +104,7 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
     private async Task StartAsync()
     {
         if (League is null || !League.CanStart) return;
-        var confirmed = await Shell.Current.DisplayAlert(
+        var confirmed = await GlassDialog.ConfirmAsync(
             "Start league?",
             "Team leaders will be locked to their teams. You can still add people and move non-leaders.",
             "Start", "Cancel");
@@ -115,8 +116,10 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
     private async Task ExtendAsync()
     {
         if (League is null || !League.CanExtend) return;
-        var choice = await Shell.Current.DisplayActionSheet(
-            "Extend league by…", "Cancel", null, "+1 match", "+3 matches", "+5 matches");
+        var choice = await GlassDialog.ChooseAsync(
+            "Extend league by…",
+            null,
+            "+1 match", "+3 matches", "+5 matches");
         var add = choice switch
         {
             "+1 match" => 1,
@@ -132,7 +135,7 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
     private async Task FinishAsync()
     {
         if (League is null || !League.CanEnd) return;
-        var confirmed = await Shell.Current.DisplayAlert(
+        var confirmed = await GlassDialog.ConfirmAsync(
             "Finish league?",
             "End the season early and move it to History.",
             "Finish", "Cancel");
@@ -141,7 +144,7 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
         await RunAsync(async () =>
         {
             ApplyDetail(await api.EndLeagueAsync(_leagueId));
-            await Shell.Current.DisplayAlert("League finished", "You'll find it under History → Completed leagues.", "OK");
+            await GlassDialog.AlertAsync("League finished", "You'll find it under History → Completed leagues.");
         });
     }
 
@@ -149,10 +152,11 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
     private async Task DeleteAsync()
     {
         if (League is null || !League.CanDelete) return;
-        var confirmed = await Shell.Current.DisplayAlert(
+        var confirmed = await GlassDialog.ConfirmAsync(
             "Delete league?",
             "This removes the league permanently.",
-            "Delete", "Cancel");
+            "Delete", "Cancel",
+            destructive: true);
         if (!confirmed) return;
 
         await RunAsync(async () =>
@@ -225,14 +229,13 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
     private async Task RenameTeamAsync(LeagueTeamDto team)
     {
         if (team is null || League is null || !CanManageTeams) return;
-        var name = await Shell.Current.DisplayPromptAsync(
+        var name = await GlassDialog.PromptAsync(
             "Team name",
             $"Rename {team.Name}",
             "Save",
             "Cancel",
-            maxLength: 40,
-            keyboard: Keyboard.Text,
-            initialValue: team.Name);
+            initialValue: team.Name,
+            maxLength: 40);
         if (string.IsNullOrWhiteSpace(name) || name.Trim() == team.Name) return;
 
         await RunAsync(async () =>
@@ -250,10 +253,11 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
             return;
         }
 
-        var choice = await Shell.Current.DisplayActionSheet(
-            $"Leader for {team.Name}", "Cancel", null,
+        var choice = await GlassDialog.ChooseAsync(
+            $"Leader for {team.Name}",
+            "Pick a leader from the people in this league.",
             candidates.Select(c => c.DisplayName).ToArray());
-        if (choice is null or "Cancel") return;
+        if (choice is null) return;
         var person = candidates.FirstOrDefault(c => c.DisplayName == choice);
         if (person is null) return;
         await AssignLeaderInternalAsync(team, person.UserId);

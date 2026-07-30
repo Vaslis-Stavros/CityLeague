@@ -84,8 +84,8 @@ public static class StatusBarTheme
 
     private static void TryPaintBackdrop(Page page, Color top, Color mid, Color bottom)
     {
-        if (page.Content is null) return;
-        var box = FindFirstBoxView(page.Content);
+        if (page is not ContentPage { Content: { } content }) return;
+        var box = FindFirstBoxView(content);
         if (box is null) return;
 
         box.Background = new LinearGradientBrush

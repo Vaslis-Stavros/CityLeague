@@ -31,6 +31,7 @@ public static class MauiProgram
         services.AddSingleton<ApiSettings>();
         services.AddSingleton<IAppPreferences, AppPreferences>();
         services.AddSingleton<ITokenStore, TokenStore>();
+        services.AddSingleton<IGlassDialogService, GlassDialogService>();
         services.AddSingleton<ISocialSignInService, SocialSignInService>();
         services.AddSingleton<IAuthService, AuthService>();
         services.AddTransient<AuthMessageHandler>();
