@@ -38,30 +38,16 @@
         <ScrollView IsVisible="{Binding IsCheckingSession, Converter={StaticResource InvertedBool}}">
             <VerticalStackLayout Padding="28" Spacing="16" VerticalOptions="Center">
 
-                <Border WidthRequest="128"
-                        HeightRequest="128"
-                        Stroke="#66FFFFFF"
-                        StrokeThickness="1.5"
-                        StrokeShape="RoundRectangle 32"
-                        HorizontalOptions="Center"
-                        Margin="0,0,0,8"
-                        Padding="0">
-                    <Border.Shadow>
+                <Image Source="logo.svg"
+                       Aspect="AspectFit"
+                       WidthRequest="128"
+                       HeightRequest="128"
+                       HorizontalOptions="Center"
+                       Margin="0,0,0,8">
+                    <Image.Shadow>
                         <Shadow Brush="#40000000" Offset="0,10" Radius="24" Opacity="0.35" />
-                    </Border.Shadow>
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#22FFFFFF" Offset="0" />
-                            <GradientStop Color="#10FFFFFF" Offset="1" />
-                        </LinearGradientBrush>
-                    </Border.Background>
-                    <Image Source="logo.svg"
-                           Aspect="AspectFit"
-                           WidthRequest="128"
-                           HeightRequest="128"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
-                </Border>
+                    </Image.Shadow>
+                </Image>
 
                 <Label Text="CityLeague"
                        FontFamily="OutfitSemiBold"
