@@ -10,6 +10,7 @@ namespace CityLeague.App.ViewModels;
 public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
 {
     private Guid _leagueId;
+    private readonly List<SelectableContact> _allInviteCandidates = [];
 
     public string LeagueId
     {
@@ -24,7 +25,7 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
     public ObservableCollection<LeagueTeamDto> Teams { get; } = [];
     public ObservableCollection<LeagueParticipantDto> Participants { get; } = [];
     public ObservableCollection<LeagueMatchResultDto> MatchResults { get; } = [];
-    public ObservableCollection<ContactDto> AddCandidates { get; } = [];
+    public ObservableCollection<SelectableContact> InviteCandidates { get; } = [];
 
     [ObservableProperty]
     private LeagueDetailDto? league;
@@ -38,9 +39,18 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
     [ObservableProperty]
     private Guid? myUserId;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasFilteredInviteCandidates))]
+    [NotifyPropertyChangedFor(nameof(ShowInviteSearchEmpty))]
+    private string inviteSearchQuery = string.Empty;
+
     public bool ShowEmptyResults => MatchResults.Count == 0;
     public bool ShowEmptyParticipants => Participants.Count == 0;
-    public bool HasAddCandidates => AddCandidates.Count > 0;
+    public bool HasInviteCandidates => _allInviteCandidates.Count > 0;
+    public bool HasFilteredInviteCandidates => InviteCandidates.Count > 0;
+    public bool ShowInviteSearchEmpty => ShowAddPeople && HasInviteCandidates && !HasFilteredInviteCandidates;
+    public bool CanManageTeams => League is { CanUploadLogo: true };
+    public bool CanAssignLeaders => League is { HasStarted: false } && (League.IsOwner || League.IsTeamLeader);
 
     public string ProgressLabel => League is null
         ? string.Empty
@@ -54,6 +64,11 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
             "Finished" => "This league is finished",
             _ => "Season in progress",
         };
+
+    public LeagueTeamDto? TeamA => Teams.FirstOrDefault(t => t.SortOrder == 0);
+    public LeagueTeamDto? TeamB => Teams.FirstOrDefault(t => t.SortOrder == 1);
+
+    partial void OnInviteSearchQueryChanged(string value) => ApplyInviteFilter();
 
     [RelayCommand]
     private async Task AppearingAsync()
@@ -69,8 +84,7 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
         {
             var me = await api.GetMeAsync();
             MyUserId = me.Id;
-            var detail = await api.GetLeagueAsync(_leagueId);
-            ApplyDetail(detail);
+            ApplyDetail(await api.GetLeagueAsync(_leagueId));
         });
     }
 
@@ -94,7 +108,6 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
             "Team leaders will be locked to their teams. You can still add people and move non-leaders.",
             "Start", "Cancel");
         if (!confirmed) return;
-
         await RunAsync(async () => ApplyDetail(await api.StartLeagueAsync(_leagueId)));
     }
 
@@ -154,69 +167,86 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
     {
         ShowAddPeople = !ShowAddPeople;
         if (!ShowAddPeople) return;
-
-        await RunAsync(async () =>
-        {
-            var contacts = await api.GetContactsAsync();
-            var inLeague = Participants.Select(p => p.UserId).ToHashSet();
-            AddCandidates.Clear();
-            foreach (var c in contacts.Where(c =>
-                         string.Equals(c.Status, "Accepted", StringComparison.OrdinalIgnoreCase)
-                         && !inLeague.Contains(c.User.Id)))
-                AddCandidates.Add(c);
-            OnPropertyChanged(nameof(HasAddCandidates));
-        });
+        await RunAsync(LoadInviteCandidatesAsync);
     }
 
     [RelayCommand]
-    private async Task AddPersonAsync(ContactDto contact)
+    private async Task InviteSelectedAsync()
     {
-        if (contact is null || League is null || !League.CanAddParticipants) return;
-        await RunAsync(async () =>
+        if (League is null || !League.CanAddParticipants) return;
+        var ids = _allInviteCandidates.Where(c => c.IsSelected).Select(c => c.User.Id).ToList();
+        if (ids.Count == 0)
         {
-            ApplyDetail(await api.AddLeagueParticipantsAsync(_leagueId, [contact.User.Id]));
-            AddCandidates.Remove(contact);
-            OnPropertyChanged(nameof(HasAddCandidates));
-        });
-    }
-
-    [RelayCommand]
-    private async Task MoveToTeamAsync(LeagueParticipantDto participant)
-    {
-        if (participant is null || League is null || !participant.CanChangeTeam) return;
-        if (MyUserId is Guid me && participant.UserId != me && !League.IsOwner && !League.IsTeamLeader)
+            ErrorMessage = "Select at least one contact.";
             return;
-
-        var teams = Teams.ToList();
-        if (teams.Count == 0) return;
-
-        var options = teams.Select(t => t.Name).Append("Unassigned").ToArray();
-        var choice = await Shell.Current.DisplayActionSheet(
-            $"Move {participant.DisplayName}", "Cancel", null, options);
-        if (choice is null or "Cancel") return;
-
-        Guid? teamId = null;
-        if (choice != "Unassigned")
-        {
-            var team = teams.FirstOrDefault(t => t.Name == choice);
-            if (team is null) return;
-            teamId = team.Id;
         }
 
         await RunAsync(async () =>
-            ApplyDetail(await api.MoveLeagueParticipantAsync(_leagueId, participant.UserId, teamId)));
+        {
+            ApplyDetail(await api.AddLeagueParticipantsAsync(_leagueId, ids));
+            ShowAddPeople = false;
+            await LoadInviteCandidatesAsync();
+        });
     }
 
     [RelayCommand]
-    private async Task SetLeaderAsync(LeagueTeamDto team)
+    private async Task MoveParticipantToTeamAAsync(LeagueParticipantDto participant)
     {
-        if (team is null || League is null || League.HasStarted) return;
-        if (!League.IsOwner && !League.IsTeamLeader) return;
+        if (TeamA is null) return;
+        await MoveAsync(participant, TeamA.Id);
+    }
 
+    [RelayCommand]
+    private async Task MoveParticipantToTeamBAsync(LeagueParticipantDto participant)
+    {
+        if (TeamB is null) return;
+        await MoveAsync(participant, TeamB.Id);
+    }
+
+    [RelayCommand]
+    private async Task UnassignParticipantAsync(LeagueParticipantDto participant)
+        => await MoveAsync(participant, null);
+
+    [RelayCommand]
+    private async Task MakeLeaderOfTeamAAsync(LeagueParticipantDto participant)
+    {
+        if (TeamA is null) return;
+        await AssignLeaderInternalAsync(TeamA, participant.UserId);
+    }
+
+    [RelayCommand]
+    private async Task MakeLeaderOfTeamBAsync(LeagueParticipantDto participant)
+    {
+        if (TeamB is null) return;
+        await AssignLeaderInternalAsync(TeamB, participant.UserId);
+    }
+
+    [RelayCommand]
+    private async Task RenameTeamAsync(LeagueTeamDto team)
+    {
+        if (team is null || League is null || !CanManageTeams) return;
+        var name = await Shell.Current.DisplayPromptAsync(
+            "Team name",
+            $"Rename {team.Name}",
+            "Save",
+            "Cancel",
+            maxLength: 40,
+            keyboard: Keyboard.Text,
+            initialValue: team.Name);
+        if (string.IsNullOrWhiteSpace(name) || name.Trim() == team.Name) return;
+
+        await RunAsync(async () =>
+            ApplyDetail(await api.RenameLeagueTeamAsync(_leagueId, team.Id, name.Trim())));
+    }
+
+    [RelayCommand]
+    private async Task PickLeaderAsync(LeagueTeamDto team)
+    {
+        if (team is null || !CanAssignLeaders) return;
         var candidates = Participants.Where(p => !p.IsLeader || p.UserId == team.LeaderUserId).ToList();
         if (candidates.Count == 0)
         {
-            ErrorMessage = "Add people to the league before assigning a leader.";
+            ErrorMessage = "Add people before assigning a leader.";
             return;
         }
 
@@ -224,12 +254,9 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
             $"Leader for {team.Name}", "Cancel", null,
             candidates.Select(c => c.DisplayName).ToArray());
         if (choice is null or "Cancel") return;
-
         var person = candidates.FirstOrDefault(c => c.DisplayName == choice);
         if (person is null) return;
-
-        await RunAsync(async () =>
-            ApplyDetail(await api.SetLeagueTeamLeaderAsync(_leagueId, team.Id, person.UserId)));
+        await AssignLeaderInternalAsync(team, person.UserId);
     }
 
     [RelayCommand]
@@ -253,11 +280,63 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
         });
     }
 
+    private async Task MoveAsync(LeagueParticipantDto? participant, Guid? teamId)
+    {
+        if (participant is null || League is null || !participant.CanChangeTeam) return;
+        if (MyUserId is Guid me && participant.UserId != me && !League.IsOwner && !League.IsTeamLeader)
+            return;
+
+        await RunAsync(async () =>
+            ApplyDetail(await api.MoveLeagueParticipantAsync(_leagueId, participant.UserId, teamId)));
+    }
+
+    private async Task AssignLeaderInternalAsync(LeagueTeamDto team, Guid userId)
+    {
+        if (!CanAssignLeaders) return;
+        await RunAsync(async () =>
+            ApplyDetail(await api.SetLeagueTeamLeaderAsync(_leagueId, team.Id, userId)));
+    }
+
+    private async Task LoadInviteCandidatesAsync()
+    {
+        var contacts = await api.GetContactsAsync();
+        var inLeague = Participants.Select(p => p.UserId).ToHashSet();
+        _allInviteCandidates.Clear();
+        foreach (var c in contacts.Where(c =>
+                     string.Equals(c.Status, "Accepted", StringComparison.OrdinalIgnoreCase)
+                     && !inLeague.Contains(c.User.Id)))
+            _allInviteCandidates.Add(new SelectableContact(c.User));
+
+        InviteSearchQuery = string.Empty;
+        ApplyInviteFilter();
+        OnPropertyChanged(nameof(HasInviteCandidates));
+        OnPropertyChanged(nameof(ShowInviteSearchEmpty));
+    }
+
+    private void ApplyInviteFilter()
+    {
+        InviteCandidates.Clear();
+        var q = InviteSearchQuery?.Trim() ?? string.Empty;
+        IEnumerable<SelectableContact> source = _allInviteCandidates;
+        if (!string.IsNullOrEmpty(q))
+        {
+            source = source.Where(c =>
+                c.User.DisplayName.Contains(q, StringComparison.OrdinalIgnoreCase)
+                || (c.User.Handle?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
+        foreach (var c in source)
+            InviteCandidates.Add(c);
+
+        OnPropertyChanged(nameof(HasFilteredInviteCandidates));
+        OnPropertyChanged(nameof(ShowInviteSearchEmpty));
+    }
+
     private void ApplyDetail(LeagueDetailDto detail)
     {
         League = detail;
         Teams.Clear();
-        foreach (var t in detail.Teams)
+        foreach (var t in detail.Teams.OrderBy(t => t.SortOrder))
             Teams.Add(t);
         Participants.Clear();
         foreach (var p in detail.Participants)
@@ -270,5 +349,9 @@ public partial class LeagueDetailViewModel(ICityLeagueApi api) : BaseViewModel
         OnPropertyChanged(nameof(ShowEmptyParticipants));
         OnPropertyChanged(nameof(ProgressLabel));
         OnPropertyChanged(nameof(StatusSubtitle));
+        OnPropertyChanged(nameof(CanManageTeams));
+        OnPropertyChanged(nameof(CanAssignLeaders));
+        OnPropertyChanged(nameof(TeamA));
+        OnPropertyChanged(nameof(TeamB));
     }
 }

@@ -339,6 +339,37 @@ public class LeagueService(CityLeagueDbContext db, ApiMapper mapper)
         return await MapDetailAsync(league, userId, ct);
     }
 
+    public async Task<LeagueDetailDto> RenameTeamAsync(
+        Guid userId, Guid leagueId, Guid teamId, RenameLeagueTeamRequest request, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+            throw ServiceException.BadRequest("Team name is required.");
+
+        var league = await LoadLeagueGraphAsync(leagueId, ct)
+            ?? throw ServiceException.NotFound("League not found.");
+
+        if (league.Status == LeagueStatus.Terminated)
+            throw ServiceException.Conflict("This league has finished.");
+
+        var team = league.Teams.FirstOrDefault(t => t.Id == teamId)
+            ?? throw ServiceException.NotFound("Team not found.");
+
+        var canEdit = league.OwnerUserId == userId
+                      || team.LeaderUserId == userId
+                      || (league.IsDraft() && IsMember(league, userId));
+        if (!canEdit)
+            throw ServiceException.Forbidden("Only the owner or that team's leader can rename it.");
+
+        var name = request.Name.Trim();
+        if (league.Teams.Any(t => t.Id != teamId &&
+                                  string.Equals(t.Name, name, StringComparison.OrdinalIgnoreCase)))
+            throw ServiceException.BadRequest("Team names must be different.");
+
+        team.Name = name;
+        await db.SaveChangesAsync(ct);
+        return await MapDetailAsync(league, userId, ct);
+    }
+
     public async Task<LeagueDetailDto> UploadTeamLogoAsync(
         Guid userId, Guid leagueId, Guid teamId, Stream content, string fileName, string contentType,
         IAvatarStorage storage, CancellationToken ct)

@@ -18,4 +18,5 @@ public static class AppRoutes
     public const string History = "historypage";
     public const string Profile = "profilepage";
     public const string LeagueDetail = "leaguedetail";
+    public const string Settings = "settingspage";
 }

@@ -14,6 +14,6 @@ public partial class OnboardingHandlePage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        StatusBarTheme.Apply(this, StatusBarTheme.BrandTop);
+        StatusBarTheme.Apply(this, ScreenChrome.Brand);
     }
 }

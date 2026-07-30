@@ -18,7 +18,7 @@ public partial class MorePage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        StatusBarTheme.Apply(this, StatusBarTheme.SlateTop);
+        StatusBarTheme.Apply(this, ScreenChrome.Slate);
 
         if (_didAnimate)
             return;
@@ -30,6 +30,7 @@ public partial class MorePage : ContentPage
         MenuBlock.TranslationY = 18;
         HistoryCard.TranslationY = 10;
         ProfileCard.TranslationY = 16;
+        SettingsCard.TranslationY = 22;
         GlowOrb.Scale = 0.82;
 
         await Task.WhenAll(
@@ -39,6 +40,7 @@ public partial class MorePage : ContentPage
             MenuBlock.TranslateTo(0, 0, 460, Easing.CubicOut),
             HistoryCard.TranslateTo(0, 0, 480, Easing.CubicOut),
             ProfileCard.TranslateTo(0, 0, 540, Easing.CubicOut),
+            SettingsCard.TranslateTo(0, 0, 600, Easing.CubicOut),
             GlowOrb.ScaleTo(1, 720, Easing.CubicOut));
     }
 }

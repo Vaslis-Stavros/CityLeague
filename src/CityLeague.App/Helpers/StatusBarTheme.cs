@@ -1,3 +1,5 @@
+using CityLeague.App.Services;
+
 namespace CityLeague.App.Helpers;
 
 /// <summary>
@@ -5,9 +7,64 @@ namespace CityLeague.App.Helpers;
 /// </summary>
 public static class StatusBarTheme
 {
-    public static readonly Color PitchTop = Color.FromArgb("#06351A");
-    public static readonly Color SlateTop = Color.FromArgb("#0E1525");
-    public static readonly Color BrandTop = Color.FromArgb("#0B6B2E");
+    public static Color PitchTop => Resolve(ScreenChrome.Pitch).Top;
+    public static Color SlateTop => Resolve(ScreenChrome.Slate).Top;
+    public static Color BrandTop => Resolve(ScreenChrome.Brand).Top;
+
+    public static (Color Top, Color Mid, Color Bottom, bool DarkContent) Resolve(ScreenChrome chrome)
+    {
+        var light = false;
+        try { light = ServiceHelper.GetService<IAppPreferences>().IsLight; }
+        catch { /* DI not ready */ }
+
+        if (light)
+        {
+            return chrome switch
+            {
+                ScreenChrome.Pitch => (
+                    Color.FromArgb("#E7F5EC"),
+                    Color.FromArgb("#C8E6C9"),
+                    Color.FromArgb("#A5D6A7"),
+                    DarkContent: true),
+                ScreenChrome.Brand => (
+                    Color.FromArgb("#E8F5E9"),
+                    Color.FromArgb("#C8E6C9"),
+                    Color.FromArgb("#A5D6A7"),
+                    DarkContent: true),
+                _ => (
+                    Color.FromArgb("#F2F4F7"),
+                    Color.FromArgb("#E4E9F0"),
+                    Color.FromArgb("#D5DCE6"),
+                    DarkContent: true),
+            };
+        }
+
+        return chrome switch
+        {
+            ScreenChrome.Pitch => (
+                Color.FromArgb("#06351A"),
+                Color.FromArgb("#0B6B2E"),
+                Color.FromArgb("#1FA85A"),
+                DarkContent: false),
+            ScreenChrome.Brand => (
+                Color.FromArgb("#0B6B2E"),
+                Color.FromArgb("#0B6B2E"),
+                Color.FromArgb("#1FA85A"),
+                DarkContent: false),
+            _ => (
+                Color.FromArgb("#0E1525"),
+                Color.FromArgb("#1A2740"),
+                Color.FromArgb("#2A3F5F"),
+                DarkContent: false),
+        };
+    }
+
+    public static void Apply(Page page, ScreenChrome chrome)
+    {
+        var (top, mid, bottom, darkContent) = Resolve(chrome);
+        Apply(page, top, darkContent);
+        TryPaintBackdrop(page, top, mid, bottom);
+    }
 
     /// <param name="darkContent">True for dark status-bar icons on a light background.</param>
     public static void Apply(Page page, Color background, bool darkContent = false)
@@ -23,6 +80,40 @@ public static class StatusBarTheme
             ApplyIos(darkContent);
 #endif
         });
+    }
+
+    private static void TryPaintBackdrop(Page page, Color top, Color mid, Color bottom)
+    {
+        if (page.Content is null) return;
+        var box = FindFirstBoxView(page.Content);
+        if (box is null) return;
+
+        box.Background = new LinearGradientBrush
+        {
+            StartPoint = new Point(0, 0),
+            EndPoint = new Point(1, 1),
+            GradientStops =
+            [
+                new GradientStop(top, 0),
+                new GradientStop(mid, 0.5f),
+                new GradientStop(bottom, 1),
+            ],
+        };
+    }
+
+    private static BoxView? FindFirstBoxView(IView view)
+    {
+        if (view is BoxView box) return box;
+        if (view is not IVisualTreeElement tree) return null;
+        foreach (var child in tree.GetVisualChildren())
+        {
+            if (child is IView childView)
+            {
+                var found = FindFirstBoxView(childView);
+                if (found is not null) return found;
+            }
+        }
+        return null;
     }
 
 #if ANDROID
@@ -77,7 +168,6 @@ public static class StatusBarTheme
 #if IOS
     private static void ApplyIos(bool darkContent)
     {
-        // Page.BackgroundColor paints behind the status bar; style icons for contrast.
         UIKit.UIApplication.SharedApplication.SetStatusBarStyle(
             darkContent ? UIKit.UIStatusBarStyle.DarkContent : UIKit.UIStatusBarStyle.LightContent,
             animated: true);

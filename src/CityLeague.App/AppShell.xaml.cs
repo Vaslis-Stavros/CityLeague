@@ -14,5 +14,6 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(AppRoutes.History, typeof(HistoryPage));
         Routing.RegisterRoute(AppRoutes.Profile, typeof(ProfilePage));
         Routing.RegisterRoute(AppRoutes.LeagueDetail, typeof(LeagueDetailPage));
+        Routing.RegisterRoute(AppRoutes.Settings, typeof(SettingsPage));
     }
 }

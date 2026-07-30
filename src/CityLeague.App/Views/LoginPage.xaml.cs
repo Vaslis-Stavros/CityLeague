@@ -17,7 +17,7 @@ public partial class LoginPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        StatusBarTheme.Apply(this, StatusBarTheme.BrandTop);
+        StatusBarTheme.Apply(this, ScreenChrome.Brand);
         _vm.AppearingCommand.Execute(null);
     }
 

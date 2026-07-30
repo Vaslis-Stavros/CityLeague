@@ -52,11 +52,6 @@
                                  Padding="22,18,22,8"
                                  Spacing="4"
                                  Opacity="0">
-                <Label Text="CityLeague"
-                       FontFamily="OutfitSemiBold"
-                       FontSize="13"
-                       TextColor="#C5D0E0"
-                       CharacterSpacing="1.2" />
                 <Label Text="Contacts"
                        FontFamily="OutfitSemiBold"
                        FontSize="28"

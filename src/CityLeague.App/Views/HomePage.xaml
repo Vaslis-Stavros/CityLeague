@@ -51,12 +51,6 @@
                                  Padding="22,18,22,4"
                                  Spacing="4"
                                  Opacity="0">
-                <Label x:Name="BrandLabel"
-                       Text="CityLeague"
-                       FontFamily="OutfitSemiBold"
-                       FontSize="15"
-                       TextColor="#DDEFDD"
-                       CharacterSpacing="1.2" />
                 <Label Text="{Binding Greeting}"
                        FontFamily="OutfitSemiBold"
                        FontSize="30"

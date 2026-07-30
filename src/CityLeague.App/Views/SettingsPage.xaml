@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="CityLeague.App.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:CityLeague.App.Controls"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#0E1525"
+    Title="Settings">
+
+    <ContentPage.Resources>
+        <Style x:Key="GlassPanel" TargetType="Border">
+            <Setter Property="Stroke" Value="#55FFFFFF" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="BackgroundColor" Value="#38FFFFFF" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 22" />
+            <Setter Property="Padding" Value="16,14" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid x:Name="Root">
+        <BoxView>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#0E1525" Offset="0" />
+                    <GradientStop Color="#1A2740" Offset="0.5" />
+                    <GradientStop Color="#2A3F5F" Offset="1" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+
+        <ScrollView VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout x:Name="ContentBlock" Padding="18,16,18,28" Spacing="14">
+                <controls:MinimalBackButton />
+
+                <Label Text="Settings"
+                       FontFamily="OutfitSemiBold"
+                       FontSize="28"
+                       TextColor="White" />
+                <Label Text="Appearance and how dates show up"
+                       FontFamily="OutfitRegular"
+                       FontSize="14"
+                       TextColor="#A8B8CC" />
+
+                <Label Text="APPEARANCE"
+                       FontFamily="OutfitRegular"
+                       FontSize="12"
+                       TextColor="#A8B8CC"
+                       CharacterSpacing="1.2"
+                       Margin="4,8,0,0" />
+
+                <Border Style="{StaticResource GlassPanel}">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Dark theme"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="16"
+                                   TextColor="White" />
+                            <Label Text="{Binding ThemeSubtitle}"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="13"
+                                   TextColor="#A8B8CC" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding IsDarkTheme}"
+                                OnColor="#3DDC84"
+                                VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource GlassPanel}">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Reduce motion"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="16"
+                                   TextColor="White" />
+                            <Label Text="Shorter page enter animations"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="13"
+                                   TextColor="#A8B8CC" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding ReduceMotion}"
+                                OnColor="#3DDC84"
+                                VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Label Text="DATE &amp; TIME"
+                       FontFamily="OutfitRegular"
+                       FontSize="12"
+                       TextColor="#A8B8CC"
+                       CharacterSpacing="1.2"
+                       Margin="4,8,0,0" />
+
+                <Border Style="{StaticResource GlassPanel}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Date format"
+                               FontFamily="OutfitSemiBold"
+                               FontSize="16"
+                               TextColor="White" />
+                        <Picker ItemsSource="{Binding DateFormatOptions}"
+                                SelectedIndex="{Binding SelectedDateFormatIndex}"
+                                TextColor="White"
+                                BackgroundColor="Transparent"
+                                Title="Format" />
+                        <Label Text="{Binding PreviewDateText, StringFormat='Preview · {0}'}"
+                               FontFamily="OutfitRegular"
+                               FontSize="13"
+                               TextColor="#A8B8CC" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource GlassPanel}">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                            <Label Text="24-hour clock"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="16"
+                                   TextColor="White" />
+                            <Label Text="Use 18:30 instead of 6:30 PM"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="13"
+                                   TextColor="#A8B8CC" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding Use24HourClock}"
+                                OnColor="#3DDC84"
+                                VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource GlassPanel}">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Show weekday"
+                                   FontFamily="OutfitSemiBold"
+                                   FontSize="16"
+                                   TextColor="White" />
+                            <Label Text="Include Mon / Tue in date labels"
+                                   FontFamily="OutfitRegular"
+                                   FontSize="13"
+                                   TextColor="#A8B8CC" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding ShowWeekdayInDates}"
+                                OnColor="#3DDC84"
+                                VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

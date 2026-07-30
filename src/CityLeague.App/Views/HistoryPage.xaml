@@ -52,11 +52,6 @@
                                  Spacing="4"
                                  Opacity="0">
                 <controls:MinimalBackButton />
-                <Label Text="CityLeague"
-                       FontFamily="OutfitSemiBold"
-                       FontSize="13"
-                       TextColor="#C5D0E0"
-                       CharacterSpacing="1.2" />
                 <Label Text="History"
                        FontFamily="OutfitSemiBold"
                        FontSize="28"

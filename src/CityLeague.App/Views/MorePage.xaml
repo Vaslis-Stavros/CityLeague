@@ -47,16 +47,11 @@
                                  Padding="22,18,22,10"
                                  Spacing="4"
                                  Opacity="0">
-                <Label Text="CityLeague"
-                       FontFamily="OutfitSemiBold"
-                       FontSize="13"
-                       TextColor="#C5D0E0"
-                       CharacterSpacing="1.2" />
                 <Label Text="More"
                        FontFamily="OutfitSemiBold"
                        FontSize="28"
                        TextColor="White" />
-                <Label Text="History and your profile"
+                <Label Text="History, profile, and settings"
                        FontFamily="OutfitRegular"
                        FontSize="14"
                        TextColor="#A8B8CC" />
@@ -148,6 +143,46 @@
                                                FontSize="17"
                                                TextColor="White" />
                                         <Label Text="Name, password, photo, and stats"
+                                               FontFamily="OutfitRegular"
+                                               FontSize="13"
+                                               TextColor="#A8B8CC" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2"
+                                           Text="›"
+                                           FontSize="26"
+                                           TextColor="#AAFFFFFF"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+
+                            <Border x:Name="SettingsCard"
+                                    BackgroundColor="#28FFFFFF"
+                                    Stroke="#55FFFFFF"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 20"
+                                    Padding="16,14">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OpenSettingsCommand}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                    <Border Grid.Column="0"
+                                            WidthRequest="48"
+                                            HeightRequest="48"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 16"
+                                            BackgroundColor="#334FC3F7"
+                                            VerticalOptions="Center">
+                                        <Label Text="⚙"
+                                               FontSize="20"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                        <Label Text="Settings"
+                                               FontFamily="OutfitSemiBold"
+                                               FontSize="17"
+                                               TextColor="White" />
+                                        <Label Text="Theme, date format, and display"
                                                FontFamily="OutfitRegular"
                                                FontSize="13"
                                                TextColor="#A8B8CC" />

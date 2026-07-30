@@ -11,4 +11,8 @@ public partial class MoreViewModel : BaseViewModel
     [RelayCommand]
     private async Task OpenProfileAsync()
         => await Shell.Current.GoToAsync(AppRoutes.Profile);
+
+    [RelayCommand]
+    private async Task OpenSettingsAsync()
+        => await Shell.Current.GoToAsync(AppRoutes.Settings);
 }

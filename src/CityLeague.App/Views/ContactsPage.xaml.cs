@@ -18,7 +18,7 @@ public partial class ContactsPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        StatusBarTheme.Apply(this, StatusBarTheme.SlateTop);
+        StatusBarTheme.Apply(this, ScreenChrome.Slate);
         _vm.AppearingCommand.Execute(null);
 
         if (_didAnimate)

@@ -59,11 +59,6 @@
 
                     <VerticalStackLayout x:Name="HeaderBlock" Spacing="4">
                         <controls:MinimalBackButton />
-                        <Label Text="CityLeague"
-                               FontFamily="OutfitSemiBold"
-                               FontSize="13"
-                               TextColor="#C5D0E0"
-                               CharacterSpacing="1.2" />
                         <Label Text="Profile"
                                FontFamily="OutfitSemiBold"
                                FontSize="28"

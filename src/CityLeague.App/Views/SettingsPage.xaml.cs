@@ -3,21 +3,21 @@ using CityLeague.App.ViewModels;
 
 namespace CityLeague.App.Views;
 
-public partial class SubmitResultPage : ContentPage
+public partial class SettingsPage : ContentPage
 {
-    private readonly SubmitResultViewModel _vm;
+    private readonly SettingsViewModel _vm;
 
-    public SubmitResultPage()
+    public SettingsPage()
     {
         InitializeComponent();
-        _vm = ServiceHelper.GetService<SubmitResultViewModel>();
+        _vm = ServiceHelper.GetService<SettingsViewModel>();
         BindingContext = _vm;
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        StatusBarTheme.Apply(this, ScreenChrome.Pitch);
+        StatusBarTheme.Apply(this, ScreenChrome.Slate);
         _vm.AppearingCommand.Execute(null);
     }
 }

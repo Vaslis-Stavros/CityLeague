@@ -75,8 +75,9 @@ public partial class HomePage : ContentPage
         StopMid.Color = theme.Mid;
         StopBottom.Color = theme.Bottom;
         GlowOrb.Fill = theme.Glow;
-        BrandLabel.TextColor = theme.SoftText;
         SubtitleLabel.TextColor = theme.SoftMuted;
-        StatusBarTheme.Apply(this, theme.Top);
+        var darkContent = false;
+        try { darkContent = ServiceHelper.GetService<Services.IAppPreferences>().IsLight; } catch { }
+        StatusBarTheme.Apply(this, theme.Top, darkContent);
     }
 }

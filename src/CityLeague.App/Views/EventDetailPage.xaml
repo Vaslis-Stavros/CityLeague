@@ -59,11 +59,6 @@
 
                 <VerticalStackLayout x:Name="HeaderBlock" Spacing="4">
                     <controls:MinimalBackButton />
-                    <Label Text="CityLeague"
-                           FontFamily="OutfitSemiBold"
-                           FontSize="13"
-                           TextColor="#DDEFDD"
-                           CharacterSpacing="1.2" />
 
                     <Label Text="{Binding Title}"
                            FontFamily="OutfitSemiBold"
@@ -218,10 +213,9 @@
                                                        TextColor="#A8D5B5"
                                                        LineBreakMode="TailTruncation" />
                                             </VerticalStackLayout>
-                                            <Switch Grid.Column="2"
-                                                    IsToggled="{Binding IsSelected}"
-                                                    OnColor="{StaticResource Accent}"
-                                                    VerticalOptions="Center" />
+                                            <controls:RoundCheckBox Grid.Column="2"
+                                                                    IsChecked="{Binding IsSelected}"
+                                                                    VerticalOptions="Center" />
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

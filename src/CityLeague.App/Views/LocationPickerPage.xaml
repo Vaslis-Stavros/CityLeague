@@ -34,11 +34,6 @@
 
             <VerticalStackLayout Grid.Row="0" Spacing="4">
                 <controls:MinimalBackButton />
-                <Label Text="CityLeague"
-                       FontFamily="OutfitSemiBold"
-                       FontSize="13"
-                       TextColor="#DDEFDD"
-                       CharacterSpacing="1.2" />
                 <Label Text="Pick a pitch"
                        FontFamily="OutfitSemiBold"
                        FontSize="26"

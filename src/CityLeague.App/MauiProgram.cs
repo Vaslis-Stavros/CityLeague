@@ -29,6 +29,7 @@ public static class MauiProgram
         var services = builder.Services;
 
         services.AddSingleton<ApiSettings>();
+        services.AddSingleton<IAppPreferences, AppPreferences>();
         services.AddSingleton<ITokenStore, TokenStore>();
         services.AddSingleton<ISocialSignInService, SocialSignInService>();
         services.AddSingleton<IAuthService, AuthService>();
@@ -62,9 +63,11 @@ public static class MauiProgram
         services.AddTransient<HistoryViewModel>();
         services.AddTransient<LocationPickerViewModel>();
         services.AddTransient<MoreViewModel>();
+        services.AddTransient<SettingsViewModel>();
 
         var app = builder.Build();
         ServiceHelper.Initialize(app.Services);
+        app.Services.GetRequiredService<IAppPreferences>().ApplyToApp();
         return app;
     }
 }

@@ -97,4 +97,6 @@ public record MoveLeagueParticipantRequest(Guid? LeagueTeamId);
 
 public record SetLeagueTeamLeaderRequest(Guid UserId);
 
+public record RenameLeagueTeamRequest(string Name);
+
 public record ExtendLeagueRequest(int AdditionalMatches);

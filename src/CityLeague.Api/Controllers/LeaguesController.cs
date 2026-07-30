@@ -57,6 +57,11 @@ public class LeaguesController(LeagueService leagues, ICurrentUser currentUser, 
         Guid id, Guid userId, [FromBody] MoveLeagueParticipantRequest request, CancellationToken ct)
         => await leagues.MoveParticipantAsync(currentUser.UserId, id, userId, request, ct);
 
+    [HttpPut("{id:guid}/teams/{teamId:guid}")]
+    public async Task<ActionResult<LeagueDetailDto>> RenameTeam(
+        Guid id, Guid teamId, [FromBody] RenameLeagueTeamRequest request, CancellationToken ct)
+        => await leagues.RenameTeamAsync(currentUser.UserId, id, teamId, request, ct);
+
     [HttpPut("{id:guid}/teams/{teamId:guid}/leader")]
     public async Task<ActionResult<LeagueDetailDto>> SetLeader(
         Guid id, Guid teamId, [FromBody] SetLeagueTeamLeaderRequest request, CancellationToken ct)

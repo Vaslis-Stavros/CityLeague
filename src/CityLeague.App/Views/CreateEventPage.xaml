@@ -64,11 +64,6 @@
                                  Padding="22,16,22,10"
                                  Spacing="4"
                                  Opacity="0">
-                <Label Text="CityLeague"
-                       FontFamily="OutfitSemiBold"
-                       FontSize="13"
-                       TextColor="#DDEFDD"
-                       CharacterSpacing="1.2" />
                 <Label Text="Plan a match"
                        FontFamily="OutfitSemiBold"
                        FontSize="28"
@@ -79,9 +74,10 @@
                        TextColor="#C8E6C8" />
             </VerticalStackLayout>
 
+            // Form padding leaves room above the fixed Create CTA + tab bar.
             <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
                 <VerticalStackLayout x:Name="FormBlock"
-                                     Padding="18,4,18,12"
+                                     Padding="18,4,18,28"
                                      Spacing="12"
                                      Opacity="0">
 
@@ -301,7 +297,7 @@
 
             <Border x:Name="CreateCta"
                     Grid.Row="2"
-                    Margin="18,8,18,18"
+                    Margin="18,8,18,72"
                     Padding="0"
                     StrokeThickness="0"
                     StrokeShape="RoundRectangle 24"

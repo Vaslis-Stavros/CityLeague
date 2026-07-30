@@ -50,6 +50,7 @@ public interface ICityLeagueApi
     Task<LeagueDetailDto> AddLeagueParticipantsAsync(Guid leagueId, IReadOnlyList<Guid> userIds, CancellationToken ct = default);
     Task<LeagueDetailDto> MoveLeagueParticipantAsync(Guid leagueId, Guid userId, Guid? teamId, CancellationToken ct = default);
     Task<LeagueDetailDto> SetLeagueTeamLeaderAsync(Guid leagueId, Guid teamId, Guid userId, CancellationToken ct = default);
+    Task<LeagueDetailDto> RenameLeagueTeamAsync(Guid leagueId, Guid teamId, string name, CancellationToken ct = default);
     Task<LeagueDetailDto> UploadLeagueTeamLogoAsync(Guid leagueId, Guid teamId, Stream content, string fileName, string contentType, CancellationToken ct = default);
 }
 
@@ -170,6 +171,10 @@ public class CityLeagueApi(HttpClient http) : ICityLeagueApi
     public Task<LeagueDetailDto> SetLeagueTeamLeaderAsync(Guid leagueId, Guid teamId, Guid userId, CancellationToken ct = default)
         => SendJsonAsync<LeagueDetailDto>(HttpMethod.Put, $"/api/leagues/{leagueId}/teams/{teamId}/leader",
             new SetLeagueTeamLeaderRequest(userId), ct);
+
+    public Task<LeagueDetailDto> RenameLeagueTeamAsync(Guid leagueId, Guid teamId, string name, CancellationToken ct = default)
+        => SendJsonAsync<LeagueDetailDto>(HttpMethod.Put, $"/api/leagues/{leagueId}/teams/{teamId}",
+            new RenameLeagueTeamRequest(name), ct);
 
     public async Task<LeagueDetailDto> UploadLeagueTeamLogoAsync(
         Guid leagueId, Guid teamId, Stream content, string fileName, string contentType, CancellationToken ct = default)

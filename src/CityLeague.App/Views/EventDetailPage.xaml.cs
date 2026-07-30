@@ -25,7 +25,7 @@ public partial class EventDetailPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        StatusBarTheme.Apply(this, StatusBarTheme.PitchTop);
+        StatusBarTheme.Apply(this, ScreenChrome.Pitch);
         _vm.AppearingCommand.Execute(null);
 
         if (_didAnimate)
