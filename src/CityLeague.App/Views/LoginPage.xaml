@@ -38,17 +38,42 @@
         <ScrollView IsVisible="{Binding IsCheckingSession, Converter={StaticResource InvertedBool}}">
             <VerticalStackLayout Padding="28" Spacing="16" VerticalOptions="Center">
 
-                <Image Source="logo.svg"
-                       WidthRequest="112" HeightRequest="112"
-                       HorizontalOptions="Center"
-                       Margin="0,0,0,4" />
+                <Border WidthRequest="128"
+                        HeightRequest="128"
+                        Stroke="#66FFFFFF"
+                        StrokeThickness="1.5"
+                        StrokeShape="RoundRectangle 32"
+                        HorizontalOptions="Center"
+                        Margin="0,0,0,8"
+                        Padding="0">
+                    <Border.Shadow>
+                        <Shadow Brush="#40000000" Offset="0,10" Radius="24" Opacity="0.35" />
+                    </Border.Shadow>
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#22FFFFFF" Offset="0" />
+                            <GradientStop Color="#10FFFFFF" Offset="1" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Image Source="logo.svg"
+                           Aspect="AspectFit"
+                           WidthRequest="128"
+                           HeightRequest="128"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
 
                 <Label Text="CityLeague"
-                       FontSize="40" FontAttributes="Bold"
-                       TextColor="White" HorizontalOptions="Center" />
+                       FontFamily="OutfitSemiBold"
+                       FontSize="36"
+                       TextColor="White"
+                       HorizontalOptions="Center" />
                 <Label Text="Organize your games. Fill the pitch."
-                       FontSize="16" TextColor="#DDEFDD"
-                       HorizontalOptions="Center" Margin="0,0,0,12" />
+                       FontFamily="OutfitRegular"
+                       FontSize="15"
+                       TextColor="#DDEFDD"
+                       HorizontalOptions="Center"
+                       Margin="0,0,0,12" />
 
                 <Border BackgroundColor="White" StrokeThickness="0" Padding="20"
                         StrokeShape="RoundRectangle 18">

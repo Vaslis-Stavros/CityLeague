@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="456" height="456" viewBox="0 0 456 456" xmlns="http://www.w3.org/2000/svg">
-  <rect width="456" height="456" rx="96" fill="#0B6B2E"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06351A"/>
+      <stop offset="55%" stop-color="#0B6B2E"/>
+      <stop offset="100%" stop-color="#148A42"/>
+    </linearGradient>
+  </defs>
+  <rect width="456" height="456" rx="108" fill="url(#bg)"/>
 </svg>

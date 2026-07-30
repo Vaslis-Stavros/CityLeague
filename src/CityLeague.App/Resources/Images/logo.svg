@@ -1,20 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="456" height="456" viewBox="0 0 456 456" xmlns="http://www.w3.org/2000/svg">
-  <rect width="456" height="456" rx="96" fill="#0B6B2E"/>
-  <rect x="8" y="8" width="440" height="440" rx="88" fill="none" stroke="#FFFFFF" stroke-width="6" opacity="0.35"/>
-  <path fill="none" stroke="#FFFFFF" stroke-width="16" stroke-linejoin="round"
-        d="M 128 330 L 128 178 L 328 178 L 328 330 Q 228 358 128 330 Z"/>
-  <g stroke="#FFFFFF" stroke-width="7" stroke-linecap="round">
-    <line x1="158" y1="184" x2="158" y2="324"/>
-    <line x1="188" y1="184" x2="188" y2="324"/>
-    <line x1="218" y1="184" x2="218" y2="324"/>
-    <line x1="248" y1="184" x2="248" y2="324"/>
-    <line x1="278" y1="184" x2="278" y2="324"/>
-    <line x1="308" y1="184" x2="308" y2="324"/>
-    <line x1="134" y1="204" x2="322" y2="204"/>
-    <line x1="134" y1="234" x2="322" y2="234"/>
-    <line x1="134" y1="264" x2="322" y2="264"/>
-    <line x1="134" y1="294" x2="322" y2="294"/>
-    <line x1="134" y1="324" x2="322" y2="324"/>
+  <defs>
+    <linearGradient id="pitch" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06351A"/>
+      <stop offset="48%" stop-color="#0B6B2E"/>
+      <stop offset="100%" stop-color="#1FA85A"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="55%" stop-color="#FFFFFF" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="32%" cy="28%" r="62%">
+      <stop offset="0%" stop-color="#F2A900" stop-opacity="0.28"/>
+      <stop offset="55%" stop-color="#F2A900" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Squircle badge -->
+  <rect width="456" height="456" rx="108" fill="url(#pitch)"/>
+  <rect width="456" height="456" rx="108" fill="url(#glow)"/>
+
+  <!-- Outer glass rim -->
+  <rect x="18" y="18" width="420" height="420" rx="96"
+        fill="none" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="3"/>
+
+  <!-- Frosted glass plate -->
+  <rect x="56" y="56" width="344" height="344" rx="78"
+        fill="url(#glass)" stroke="#FFFFFF" stroke-opacity="0.42" stroke-width="2.5"/>
+
+  <!-- Top glass highlight -->
+  <path d="M 92 118 C 140 78, 316 78, 364 118 L 350 148 C 308 118, 148 118, 106 148 Z"
+        fill="url(#shine)"/>
+
+  <!-- Pitch mark -->
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Pitch outline -->
+    <rect x="128" y="132" width="200" height="192" rx="18"
+          stroke-width="14" stroke-opacity="0.95"/>
+    <!-- Halfway line -->
+    <line x1="128" y1="228" x2="328" y2="228" stroke-width="10" stroke-opacity="0.9"/>
+    <!-- Center circle -->
+    <circle cx="228" cy="228" r="36" stroke-width="10" stroke-opacity="0.95"/>
+    <!-- Center spot -->
+    <circle cx="228" cy="228" r="7" fill="#FFFFFF" stroke="none"/>
+    <!-- Penalty arcs (subtle) -->
+    <path d="M 168 132 C 176 156, 280 156, 288 132" stroke-width="7" stroke-opacity="0.55"/>
+    <path d="M 168 324 C 176 300, 280 300, 288 324" stroke-width="7" stroke-opacity="0.55"/>
   </g>
+
+  <!-- Gold accent gem -->
+  <circle cx="228" cy="366" r="9" fill="#F2A900" fill-opacity="0.95"/>
+  <circle cx="225" cy="363" r="3.5" fill="#FFFFFF" fill-opacity="0.55"/>
 </svg>
