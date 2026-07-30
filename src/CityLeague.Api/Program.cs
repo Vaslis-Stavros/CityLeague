@@ -158,7 +158,11 @@ static async Task EnsureSqliteColumnAsync(DbContext db, string table, string col
     }
 
     if (!exists)
+    {
+#pragma warning disable EF1002 // table/column identifiers are fixed constants, not user input
         await db.Database.ExecuteSqlRawAsync($"ALTER TABLE \"{table}\" ADD COLUMN \"{column}\" {definition}");
+#pragma warning restore EF1002
+    }
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
